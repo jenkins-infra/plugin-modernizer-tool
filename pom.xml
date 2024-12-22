@@ -76,7 +76,7 @@
     <maven.surefire.version>3.5.2</maven.surefire.version>
     <maven.failsafe.version>3.5.2</maven.failsafe.version>
     <testcontainers.version>1.20.4</testcontainers.version>
-    <testcontainers.git.version>0.10.0</testcontainers.git.version>
+    <testcontainers.git.version>0.11.0</testcontainers.git.version>
     <apache.mina.version>2.14.0</apache.mina.version>
     <maven.invoker.version>3.3.0</maven.invoker.version>
   </properties>
