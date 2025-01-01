@@ -29,6 +29,13 @@
     <module>plugin-modernizer-core</module>
   </modules>
 
+  <scm>
+    <connection>scm:git:https://github.com/jenkins-infra/plugin-modernizer-tool.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkins-infra/plugin-modernizer-tool.git</developerConnection>
+    <url>https://github.com/jenkins-infra/plugin-modernizer-tool</url>
+    <tag>HEAD</tag> 
+  </scm>
+
   <properties>
 
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
