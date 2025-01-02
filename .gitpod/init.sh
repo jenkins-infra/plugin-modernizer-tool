@@ -5,9 +5,9 @@
 
 # Install dependencies and perform initial setup
 
-# Run Maven clean install to ensure all project dependencies are correctly installed
+# Run Maven install to ensure all project dependencies are correctly installed
 # and the project is built successfully.
-mvn clean install -DskipTests
+mkdir -p /home/gitpod/.m2/repository && mvn install -DskipTests
 
 # Create a directory for the test plugins and move into it. This directory will serve
 # as a workspace for cloning and building Jenkins plugin repositories.
