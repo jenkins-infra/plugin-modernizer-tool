@@ -6,7 +6,7 @@
     <artifactId>plugin-modernizer-pom</artifactId>
     <version>${changelist}</version>
   </parent>
-
+  
   <artifactId>plugin-modernizer-core</artifactId>
   <name>Plugin Modernizer Core</name>
 

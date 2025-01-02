@@ -8,6 +8,14 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.FetchMetadata
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UpdateScmUrl
+displayName: Update scm urls from git:// to https://
+description: Updates scm urls in POM files from git:// to https:// protocol as git:// protocol is deprecated by GitHub
+tags: ['chore']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 displayName: Setup the Jenkinsfile
 description: Add a missing Jenkinsfile to the Jenkins plugin.
