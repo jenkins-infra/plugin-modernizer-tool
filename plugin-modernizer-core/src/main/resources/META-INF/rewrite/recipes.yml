@@ -383,8 +383,8 @@ recipeList:
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion
-displayName: Upgrade to latest recommended core version and ensure the bom is matching the core version
-description: Upgrade to latest recommended core version and ensure the bom is matching the core version.
+displayName: Upgrade to the latest recommended core version and ensure the BOM matches the core version
+description: Upgrade to the latest recommended core version and ensure the BOM matches the core version.
 tags: ['developer']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
