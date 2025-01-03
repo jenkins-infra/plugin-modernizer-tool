@@ -517,7 +517,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <dependency>
                                 <groupId>io.jenkins.tools.bom</groupId>
                                 <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                                <version>3850.vb_c5319efa_e29</version>
+                                <version>%s</version>
                                 <type>pom</type>
                                 <scope>import</scope>
                               </dependency>
@@ -542,7 +542,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             </pluginRepository>
                           </pluginRepositories>
                         </project>
-                        """));
+                        """
+                                .formatted(Settings.getBomVersion())));
     }
 
     @Test
