@@ -421,6 +421,11 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
+  - org.openrewrite.maven.UpgradeDependencyVersion: # Latest using Java 11 support
+      groupId: org.jenkins-ci.test
+      artifactId: docker-fixtures
+      newVersion: 190.vd6a_e600cb_775
+      versionPattern: "\\.v[a-f0-9_]+"
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava8CoreVersion
@@ -436,10 +441,16 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.346.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
+  - io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructor
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - org.openrewrite.java.RemoveUnusedImports
+  - org.openrewrite.maven.UpgradeDependencyVersion: # Latest using Java 8 support
+      groupId: org.jenkins-ci.test
+      artifactId: docker-fixtures
+      newVersion: 170.v2339def98d76
+      versionPattern: "\\.v[a-f0-9_]+"
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupDependabot
@@ -492,3 +503,5 @@ tags: ['condition']
 recipeList:
   - org.openrewrite.jenkins.IsJenkinsPlugin:
       version: "[2.489,)" # Adapt when LTS
+
+

@@ -9,6 +9,7 @@ import static org.openrewrite.yaml.Assertions.yaml;
 import io.github.yamlpath.YamlPath;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructorTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -886,9 +887,18 @@ public class DeclarativeRecipesTest implements RewriteTest {
     @Test
     void upgradeToUpgradeToLatestJava8CoreVersion() {
         rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml",
-                        "io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava8CoreVersion"),
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava8CoreVersion")
+                            .parser(parser);
+                },
+                // language=java
+                srcTestJava(java(
+                        ReplaceRemovedSSHLauncherConstructorTest.BEFORE,
+                        ReplaceRemovedSSHLauncherConstructorTest.AFTER)),
                 // language=xml
                 pomXml(
                         """
@@ -2253,9 +2263,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
      *
      * @return List of Path
      */
-    private List<Path> collectRewriteTestDependencies() {
+    public static List<Path> collectRewriteTestDependencies() {
         try {
-            List<Path> entries = Files.list(Path.of("target/openrewrite-classpath"))
+            List<Path> entries = Files.list(Path.of("target/openrewrite-jars"))
                     .filter(p -> p.toString().endsWith(".jar"))
                     .toList();
             LOG.debug("Collected rewrite test dependencies: {}", entries);
