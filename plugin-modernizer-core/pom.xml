@@ -166,6 +166,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>io.github.yaml-path</groupId>
+      <artifactId>yaml-path</artifactId>
+      <version>0.0.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>jakarta.servlet</groupId>
       <artifactId>jakarta.servlet-api</artifactId>
       <version>6.1.0</version>
@@ -196,7 +202,6 @@
       <version>2.1.7</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>

@@ -216,4 +216,24 @@ public class TemplateUtilsTest {
         // Assert
         assertEquals("Remove release drafter due to enabled cd", result);
     }
+
+    @Test
+    public void testFriendlyPrTitleEnsureRelativePath() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.EnsureRelativePath")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Disable local resolution of parent pom", result);
+    }
 }

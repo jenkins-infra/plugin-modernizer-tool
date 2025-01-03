@@ -42,7 +42,6 @@ Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/proj
 - [Examples](#examples)
     - [without dry-run](#without-dry-run)
     - [with dry-run](#with-dry-run)
-    - [with export-datatables](#with-export-datatables)
 
 ## Getting Started
 
@@ -217,20 +216,6 @@ The above command generates patch files instead of applying changes directly. Th
 
 > [!Note]
 > Enable dry-run to avoid opening pull requests in the remote repositories.
-
-### with export-datatables
-
-```shell
-plugin-modernizer dry-run --plugins git,git-client,jobcacher --recipe AddPluginsBom --export-datatables
-```
-
-The above command creates a report of the changes made through OpenRewrite in csv format. The report will be generated in `target/rewrite/datatables` inside the plugin directory.
-
-See example generated files:
-- [RecipeRunStats.csv](docs/example-rewrite-datatable/org.openrewrite.table.RecipeRunStats.csv)
-- [SourcesFileResults.csv](docs/example-rewrite-datatable/org.openrewrite.table.SourcesFileResults.csv)
-
-More about [Openrewrite Data Tables](https://docs.openrewrite.org/running-recipes/data-tables)
 
 ## Running with Docker
 
