@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -470,6 +469,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <name>Empty Plugin</name>
                           <properties>
                             <jenkins.version>2.440.3</jenkins.version>
+                             <maven.compiler.source>17</maven.compiler.source>
+                             <maven.compiler.release>17</maven.compiler.release>
+                             <maven.compiler.target>17</maven.compiler.target>
                           </properties>
                           <dependencies>
                             <dependency>
@@ -1112,7 +1114,11 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <packaging>hpi</packaging>
                           <name>Empty Plugin</name>
                           <properties>
+                             <java.version>17</java.version>
                              <jenkins.version>2.440.3</jenkins.version>
+                             <maven.compiler.source>17</maven.compiler.source>
+                             <maven.compiler.release>17</maven.compiler.release>
+                             <maven.compiler.target>17</maven.compiler.target>
                           </properties>
                           <dependencyManagement>
                             <dependencies>
@@ -1389,7 +1395,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
     }
 
     @Test
-    @Disabled("See https://github.com/jenkins-infra/plugin-modernizer-tool/issues/517")
     void addPluginBomTestAndRemoveProperties() {
         rewriteRun(
                 spec -> spec.recipeFromResource(

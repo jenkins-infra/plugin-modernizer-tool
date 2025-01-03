@@ -169,12 +169,7 @@ recipeList:
       newPackageName: jakarta.servlet
       recursive: false
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
-  - org.openrewrite.maven.RemoveProperty: # Set by 5.x parent, ensure it's removed
-      propertyName: maven.compiler.release
-  - org.openrewrite.maven.RemoveProperty: # Set by 5.x parent, ensure it's removed
-      propertyName: maven.compiler.source
-  - org.openrewrite.maven.RemoveProperty: # Set by 5.x parent, ensure it's removed
-      propertyName: maven.compiler.target
+  - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
 ---
 type: specs.openrewrite.org/v1beta/recipe
@@ -203,12 +198,20 @@ displayName: Remove extra maven properties
 tags: ['chore']
 description: Remove extra maven properties from the pom.
 recipeList:
-  - org.openrewrite.maven.RemoveProperty:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
       propertyName: configuration-as-code.version
-  - org.openrewrite.maven.RemoveProperty:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
+      propertyName: jenkins-test-harness.version
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
       propertyName: java.version
-  - org.openrewrite.maven.RemoveProperty:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
       propertyName: java.level
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty: # Set by parent, ensure it's removed
+      propertyName: maven.compiler.release
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty: # Set by parent, ensure it's removed
+      propertyName: maven.compiler.source
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty: # Set by parent, ensure it's removed
+      propertyName: maven.compiler.target
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.ReplaceLibrariesWithApiPlugin
