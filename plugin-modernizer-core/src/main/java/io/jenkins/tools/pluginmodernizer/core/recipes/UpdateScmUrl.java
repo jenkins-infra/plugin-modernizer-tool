@@ -1,10 +1,9 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import io.jenkins.tools.pluginmodernizer.core.visitors.UpdateScmUrlVisitor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
-
-import io.jenkins.tools.pluginmodernizer.core.visitors.UpdateScmUrlVisitor;
 
 /**
  * A recipe that updates the SCM URL from git:// to https://.
