@@ -63,7 +63,12 @@ public class MavenInvoker {
             request.addArg("--version");
             request.setOutputHandler(version::set);
             invoker.execute(request);
-            return new ComparableVersion(version.get());
+            String versionValue = version.get();
+            if (versionValue == null) {
+                LOG.error("Failed to check for maven version. Make sure Maven and Java are installed correctly.");
+                return null;
+            }
+            return new ComparableVersion(versionValue);
         } catch (MavenInvocationException e) {
             LOG.error("Failed to check for maven version", e);
             return null;
