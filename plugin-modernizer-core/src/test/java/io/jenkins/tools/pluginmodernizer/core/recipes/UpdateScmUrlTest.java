@@ -1,7 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.openrewrite.maven.Assertions.pomXml;
-
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
@@ -60,4 +59,3 @@ public class UpdateScmUrlTest implements RewriteTest {
               """));
     }
 }
-
