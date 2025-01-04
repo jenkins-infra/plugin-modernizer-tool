@@ -34,10 +34,7 @@ public class UpdateScmUrlVisitor extends MavenIsoVisitor<ExecutionContext> {
 
             if (childTag.getValue().isPresent()) {
                 String value = childTag.getValue().get();
-                if ("url".equals(childTag.getName()) && value.startsWith("git://")) {
-                    Log.info("Updating SCM URL from 'git://' to 'https://'");
-                    updatedValue = value.replace("git://", "https://");
-                } else if ("connection".equals(childTag.getName()) && value.startsWith("scm:git:git://")) {
+                if ("connection".equals(childTag.getName()) && value.startsWith("scm:git:git://")) {
                     Log.info("Updating SCM connection from 'scm:git:git:' to 'scm:git:https:'");
                     updatedValue = value.replace("scm:git:git://", "scm:git:https://");
                 }

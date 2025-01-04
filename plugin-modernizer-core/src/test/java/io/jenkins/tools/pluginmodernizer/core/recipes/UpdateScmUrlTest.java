@@ -20,17 +20,16 @@ public class UpdateScmUrlTest implements RewriteTest {
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <groupId>io.jenkins.plugins</groupId>
-                    <artifactId>empty</artifactId>
-                    <version>1.0.0-SNAPSHOT</version>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
                     <packaging>hpi</packaging>
                     <name>Empty Plugin</name>
                     <properties>
                         <jenkins.version>2.440.3</jenkins.version>
                     </properties>
                     <scm>
-                        <url>git://github.com/example/repo.git</url>
-                        <connection>scm:git:git://github.com/example/repo.git</connection>
+                        <connection>scm:git:git://github.com/jenkinsci/your-plugin.git</connection>
                     </scm>
                     <repositories>
                         <repository>
@@ -44,17 +43,16 @@ public class UpdateScmUrlTest implements RewriteTest {
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <groupId>io.jenkins.plugins</groupId>
-                    <artifactId>empty</artifactId>
-                    <version>1.0.0-SNAPSHOT</version>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
                     <packaging>hpi</packaging>
                     <name>Empty Plugin</name>
                     <properties>
                         <jenkins.version>2.440.3</jenkins.version>
                     </properties>
                     <scm>
-                        <url>https://github.com/example/repo.git</url>
-                        <connection>scm:git:https://github.com/example/repo.git</connection>
+                        <connection>scm:git:https://github.com/jenkinsci/your-plugin.git</connection>
                     </scm>
                     <repositories>
                         <repository>
@@ -76,17 +74,16 @@ public class UpdateScmUrlTest implements RewriteTest {
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <groupId>io.jenkins.plugins</groupId>
-                    <artifactId>empty</artifactId>
-                    <version>1.0.0-SNAPSHOT</version>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
                     <packaging>hpi</packaging>
                     <name>Empty Plugin</name>
                     <properties>
                         <jenkins.version>2.440.3</jenkins.version>
                     </properties>
                     <scm>
-                        <url>https://github.com/example/repo.git</url>
-                        <connection>scm:git:https://github.com/example/repo.git</connection>
+                        <connection>scm:git:https://github.com/jenkinsci/your-plugin.git</connection>
                     </scm>
                     <repositories>
                         <repository>
