@@ -236,4 +236,24 @@ public class TemplateUtilsTest {
         // Assert
         assertEquals("Disable local resolution of parent pom", result);
     }
+
+    @Test
+    public void testFriendlyPrTitleSetupGitIgnore() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.SetupGitIgnore")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Setup .gitignore file", result);
+    }
 }
