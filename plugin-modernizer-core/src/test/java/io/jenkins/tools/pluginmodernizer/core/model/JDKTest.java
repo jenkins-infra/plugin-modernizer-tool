@@ -3,6 +3,7 @@ package io.jenkins.tools.pluginmodernizer.core.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 public class JDKTest {
@@ -45,6 +46,17 @@ public class JDKTest {
         assertEquals(JDK.JAVA_11, JDK.all().get(1));
         assertEquals(JDK.JAVA_17, JDK.all().get(2));
         assertEquals(JDK.JAVA_21, JDK.all().get(3));
+    }
+
+    @Test
+    public void min() {
+        assertEquals(JDK.JAVA_8, JDK.min());
+        assertEquals(JDK.JAVA_8, JDK.min(Set.of(JDK.values())));
+        assertEquals(JDK.JAVA_8, JDK.min(Set.of(JDK.values()), "2.164.1"));
+        assertEquals(JDK.JAVA_8, JDK.min(Set.of(JDK.values()), "2.346.1"));
+        assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.361.1"));
+        assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.462.3"));
+        assertEquals(JDK.JAVA_17, JDK.min(Set.of(JDK.values()), "2.479.1"));
     }
 
     @Test

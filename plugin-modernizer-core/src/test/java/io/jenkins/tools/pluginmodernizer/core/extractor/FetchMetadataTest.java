@@ -554,8 +554,8 @@ public class FetchMetadataTest implements RewriteTest {
     void testPluginWithJenkinsfileDefault() {
 
         // Keep in sync with https://github.com/jenkins-infra/pipeline-library with default JDK and 2 platforms
-        EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.JAVA_8, null);
-        EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.JAVA_8, null);
+        EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.getImplicit(), null);
+        EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.getImplicit(), null);
 
         rewriteRun(
                 recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
@@ -574,7 +574,7 @@ public class FetchMetadataTest implements RewriteTest {
         Set<JDK> jdkVersion = pluginMetadata.getJdks();
         assertEquals(1, jdkVersion.size());
         assertNull(pluginMetadata.isUseContainerAgent());
-        assertTrue(jdkVersion.contains(JDK.JAVA_8));
+        assertTrue(jdkVersion.contains(JDK.getImplicit()));
 
         // Assert platform
         Set<Platform> platforms = pluginMetadata.getPlatforms();

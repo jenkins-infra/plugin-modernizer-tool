@@ -268,14 +268,19 @@ public class PluginModernizer {
                 return;
             }
 
-            // Handle Java 8 plugins and outdated
-            if (plugin.getMetadata().getJdks().stream().allMatch(jdk -> jdk.equals(JDK.JAVA_8))) {
-                String jenkinsVersion = new StaticPomParser(
-                                plugin.getLocalRepository().resolve("pom.xml").toString())
-                        .getJenkinsVersion();
-                LOG.debug("Found jenkins version {}", jenkinsVersion);
-                JDK jdk = JDK.get(jenkinsVersion).stream().findFirst().orElse(JDK.JAVA_8);
-                LOG.info("Plugin support Java {}. Need a first compile to general classes", jdk.getMajor());
+            // Handle outdated plugin or unparsable Jenkinsfile
+            if (plugin.getMetadata().getJdks().stream().allMatch(jdk -> jdk.equals(JDK.getImplicit()))) {
+                LOG.info("Plugin look outdated or without Jenkinsfile.");
+                StaticPomParser parser = new StaticPomParser(
+                        plugin.getLocalRepository().resolve("pom.xml").toString());
+                String jenkinsVersion = parser.getJenkinsVersion();
+                String baseline = parser.getBaseline();
+                if (baseline != null && jenkinsVersion != null && jenkinsVersion.contains("${jenkins.baseline}")) {
+                    jenkinsVersion = jenkinsVersion.replace("${jenkins.baseline}", baseline);
+                }
+                LOG.debug("Found jenkins version from pom {}", jenkinsVersion);
+                JDK jdk = JDK.get(jenkinsVersion).stream().findFirst().orElse(JDK.min());
+                LOG.info("Plugin support Java {}. Need a first compile to generate classes", jdk.getMajor());
                 plugin.verifyQuickBuild(mavenInvoker, jdk);
                 if (plugin.hasErrors()) {
                     plugin.raiseLastError();
@@ -389,7 +394,7 @@ public class PluginModernizer {
      */
     private JDK compilePlugin(Plugin plugin) {
         PluginMetadata metadata = plugin.getMetadata();
-        JDK jdk = JDK.min(metadata.getJdks());
+        JDK jdk = JDK.min(metadata.getJdks(), metadata.getJenkinsVersion());
         plugin.withJDK(jdk);
         plugin.clean(mavenInvoker);
         plugin.compile(mavenInvoker);
@@ -412,7 +417,7 @@ public class PluginModernizer {
                     "No JDKs found in metadata for plugin {}. Using same JDK as rewrite for verification",
                     plugin.getName());
         } else {
-            jdk = JDK.min(metadata.getJdks());
+            jdk = JDK.min(metadata.getJdks(), metadata.getJenkinsVersion());
             LOG.info("Using minimum JDK {} from metadata for plugin {}", jdk.getMajor(), plugin.getName());
         }
         // If the plugin was modernized we should find next JDK compatible

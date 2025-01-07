@@ -140,6 +140,14 @@ public enum JDK {
     }
 
     /**
+     * Get the implicit JDK when not specified on Jenkinsfile
+     * @return The implicit JDK
+     */
+    public static JDK getImplicit() {
+        return JDK.JAVA_8;
+    }
+
+    /**
      * Has next predicate
      * @param jdk The JDK
      * @return True if there is a next JDK
@@ -219,6 +227,18 @@ public enum JDK {
             return JDK.min();
         }
         return jdks.stream().min(JDK::compareMajor).orElseThrow();
+    }
+
+    /**
+     * Return the minimum JDK
+     * @param jdks List of JDKS. Can be null or empty
+     * @return The minimum JDK. If the list is empty, return the minimum JDK available
+     */
+    public static JDK min(Set<JDK> jdks, String jenkinsVersion) {
+        if (jdks == null || jdks.isEmpty() && jenkinsVersion == null) {
+            return JDK.min();
+        }
+        return JDK.get(jenkinsVersion).stream().min(JDK::compareMajor).orElseThrow();
     }
 
     /**

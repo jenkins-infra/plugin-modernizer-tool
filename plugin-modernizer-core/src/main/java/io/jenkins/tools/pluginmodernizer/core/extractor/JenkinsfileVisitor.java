@@ -84,8 +84,8 @@ public class JenkinsfileVisitor extends GroovyIsoVisitor<PluginMetadata> {
 
             // Empty args means Java 8 in Windows and Linux
             if (args.size() == 1 && args.get(0) instanceof J.Empty) {
-                pluginMetadata.addPlatform(new PlatformConfig(Platform.LINUX, JDK.JAVA_8, null, true));
-                pluginMetadata.addPlatform(new PlatformConfig(Platform.WINDOWS, JDK.JAVA_8, null, true));
+                pluginMetadata.addPlatform(new PlatformConfig(Platform.LINUX, JDK.getImplicit(), null, true));
+                pluginMetadata.addPlatform(new PlatformConfig(Platform.WINDOWS, JDK.getImplicit(), null, true));
                 return method;
             }
 
@@ -112,7 +112,7 @@ public class JenkinsfileVisitor extends GroovyIsoVisitor<PluginMetadata> {
                 for (PlatformConfig pc : platforms) {
                     if (!pc.name().equals(Platform.UNKNOWN)) {
                         if (platforms.stream().allMatch(p -> p.jdk() == null)) {
-                            newPlatforms.add(new PlatformConfig(pc.name(), JDK.JAVA_8, null, false));
+                            newPlatforms.add(new PlatformConfig(pc.name(), JDK.getImplicit(), null, false));
                             continue;
                         }
                         for (PlatformConfig pc2 : platforms) {

@@ -83,6 +83,20 @@ public class StaticPomParser {
     }
 
     /**
+     * Return the Jenkins baseline of the POM file.
+     * @return the Jenkins baseline or null if not found
+     */
+    public String getBaseline() {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        try {
+            return xPath.compile("/project/properties/jenkins.baseline").evaluate(document);
+        } catch (Exception e) {
+            LOG.warn("Error getting baseline: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Return the groupId of the POM file.
      * @return the groupId or null if not found
      */
