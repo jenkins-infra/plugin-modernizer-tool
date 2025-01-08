@@ -93,11 +93,11 @@ public class GHService {
         }
         if (getGithubOwner() == null) {
             throw new ModernizerException(
-                    "GitHub owner (username/organization) is not set. Please set GH_OWNER or GITHUB_OWNER environment variable. Or use --github-owner if running from CLI");
+                    "GitHub owner (username/organization) is not set. Please set GH_OWNER or GITHUB_OWNER environment variable. Or use --github-owner if running from CLI.");
         }
         if (config.getGithubAppId() != null && config.getGithubAppSourceInstallationId() != null) {
             if (Settings.GITHUB_APP_PRIVATE_KEY_FILE == null) {
-                throw new ModernizerException("GitHub App not configured. Please set GH_APP_PRIVATE_KEY_FILE");
+                throw new ModernizerException("GitHub App is not configured. Please set GH_APP_PRIVATE_KEY_FILE.");
             }
         }
     }
@@ -125,7 +125,7 @@ public class GHService {
             if (config.getGithubAppId() != null
                     && config.getGithubAppSourceInstallationId() != null
                     && config.getGithubAppTargetInstallationId() != null) {
-                LOG.debug("Connecting to GitHub using GitHub App...");
+                LOG.debug("Connecting to GitHub using GitHub App…");
                 LOG.debug("GitHub App ID: {}", config.getGithubAppId());
                 LOG.debug("GitHub App Source Installation ID: {}", config.getGithubAppSourceInstallationId());
                 LOG.debug("GitHub App Target Installation ID: {}", config.getGithubAppTargetInstallationId());
@@ -146,7 +146,7 @@ public class GHService {
             }
             // Connect with token
             else {
-                LOG.debug("Connecting to GitHub using token...");
+                LOG.debug("Connecting to GitHub using token…");
                 github = new GitHubBuilder()
                         .withEndpoint(config.getGithubApiUrl().toString())
                         .withOAuthToken(Settings.GITHUB_TOKEN)
@@ -287,7 +287,7 @@ public class GHService {
             LOG.info("Plugin {} is archived. Not forking", plugin);
             return;
         }
-        LOG.info("Forking plugin {} locally from repo {}...", plugin, plugin.getRepositoryName());
+        LOG.info("Forking plugin {} locally from repo {}…", plugin, plugin.getRepositoryName());
         try {
             GHRepository fork = forkPlugin(plugin);
             LOG.debug("Forked repository: {}", fork.getHtmlUrl());
@@ -345,11 +345,11 @@ public class GHService {
             throws IOException, InterruptedException {
         if (organization == null) {
             LOG.info(
-                    "Forking the repository to personal account {}...",
+                    "Forking the repository to personal account {}…",
                     getCurrentUser().getLogin());
             return originalRepo.fork();
         } else {
-            LOG.info("Forking the repository to organisation {}...", organization.getLogin());
+            LOG.info("Forking the repository to organisation {}…", organization.getLogin());
             return originalRepo.forkTo(organization);
         }
     }
@@ -499,9 +499,9 @@ public class GHService {
             return;
         }
         if (config.isDebug()) {
-            LOG.debug("Deleting fork for plugin {} from repo {}...", plugin, repository.getHtmlUrl());
+            LOG.debug("Deleting fork for plugin {} from repo {}…", plugin, repository.getHtmlUrl());
         } else {
-            LOG.info("Deleting fork for plugin {}...", plugin);
+            LOG.info("Deleting fork for plugin {}…", plugin);
         }
         try {
             repository.delete();
@@ -528,12 +528,12 @@ public class GHService {
 
         if (config.isDebug()) {
             LOG.debug(
-                    "Fetch plugin code {} from {} into directory {}...",
+                    "Fetch plugin code {} from {} into directory {}…",
                     plugin,
                     repository.getHtmlUrl(),
                     plugin.getRepositoryName());
         } else {
-            LOG.info("Fetching plugin code locally {}...", plugin);
+            LOG.info("Fetching plugin code locally {}…", plugin);
         }
         try {
             fetchRepository(plugin);
@@ -742,12 +742,12 @@ public class GHService {
         try {
             // Get myself
             if (config.getGithubAppId() == null) {
-                LOG.debug("Getting current user using token...");
+                LOG.debug("Getting current user using token…");
                 return github.getMyself();
             }
             // Get the bot user
             else {
-                LOG.debug("Getting current user using GitHub App...");
+                LOG.debug("Getting current user using GitHub App…");
                 LOG.debug("GitHub App name: {}", app.getName());
                 return github.getUser("%s[bot]".formatted(app.getName()));
             }

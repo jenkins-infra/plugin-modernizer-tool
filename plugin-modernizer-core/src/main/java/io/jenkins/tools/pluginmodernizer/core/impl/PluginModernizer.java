@@ -271,7 +271,7 @@ public class PluginModernizer {
 
             // Handle outdated plugin or unparsable Jenkinsfile
             if (plugin.getMetadata().getJdks().stream().allMatch(jdk -> jdk.equals(JDK.getImplicit()))) {
-                LOG.info("Plugin looks outdated or without Jenkinsfile.");
+                LOG.info("Plugin looks outdated, or without Jenkinsfile.");
                 StaticPomParser parser = new StaticPomParser(
                         plugin.getLocalRepository().resolve("pom.xml").toString());
                 String jenkinsVersion = parser.getJenkinsVersion();
@@ -357,7 +357,7 @@ public class PluginModernizer {
      * @param plugin The plugin
      */
     private void collectMetadata(Plugin plugin, boolean retryAfterFirstCompile) {
-        LOG.trace("Collecting metadata for plugin {}... Please be patient", plugin.getName());
+        LOG.trace("Collecting metadata for plugin {}… Please be patient.", plugin.getName());
         plugin.withJDK(JDK.JAVA_17);
         try {
             plugin.collectMetadata(mavenInvoker);

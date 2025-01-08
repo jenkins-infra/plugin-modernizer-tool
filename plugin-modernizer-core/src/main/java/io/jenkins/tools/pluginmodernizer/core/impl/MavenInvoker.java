@@ -70,7 +70,7 @@ public class MavenInvoker {
             }
             return new ComparableVersion(versionValue);
         } catch (MavenInvocationException e) {
-            LOG.error("Failed to check for maven version", e);
+            LOG.error("Failed to check for maven version.", e);
             return null;
         }
     }
@@ -81,9 +81,9 @@ public class MavenInvoker {
      * @param goals The goals to run. For example, "clean"
      */
     public void invokeGoal(Plugin plugin, String... goals) {
-        LOG.debug("Running {} phase for plugin {}", goals, plugin.getName());
+        LOG.debug("Running {} phase for plugin {}.", goals, plugin.getName());
         LOG.debug(
-                "Running maven on directory {}",
+                "Running maven on directory {}.",
                 plugin.getLocalRepository().toAbsolutePath().toFile());
         invokeGoals(plugin, goals);
     }
@@ -93,9 +93,9 @@ public class MavenInvoker {
      * @param plugin The plugin to run the rewrite on
      */
     public void collectMetadata(Plugin plugin) {
-        LOG.info("Collecting metadata for plugin {}... Please be patient", plugin);
+        LOG.info("Collecting metadata for plugin {}… Please be patient.", plugin);
         invokeGoals(plugin, getSingleRecipeArgs(Settings.FETCH_METADATA_RECIPE));
-        LOG.info("Done");
+        LOG.info("Done.");
     }
 
     /**
@@ -105,7 +105,7 @@ public class MavenInvoker {
     public void invokeRewrite(Plugin plugin) {
         plugin.addTags(config.getRecipe().getTags());
         LOG.info(
-                "Running recipes {} for plugin {}... Please be patient",
+                "Running recipes {} for plugin {}… Please be patient.",
                 config.getRecipe().getName(),
                 plugin);
         invokeGoals(plugin, getSingleRecipeArgs(config.getRecipe()));
@@ -144,7 +144,7 @@ public class MavenInvoker {
 
                 // In order to rewrite on outdated plugins set add-opens
                 if (jdk.getMajor() >= 17) {
-                    LOG.debug("Adding --add-opens for JDK 17+");
+                    LOG.debug("Adding --add-opens for JDK 17+.");
                     request.setMavenOpts(
                             "--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED");
                 }
@@ -152,7 +152,7 @@ public class MavenInvoker {
             request.setBatchMode(true);
             request.setNoTransferProgress(false);
             request.setErrorHandler((message) -> {
-                LOG.error(plugin.getMarker(), String.format("Something went wrong when running maven: %s", message));
+                LOG.error(plugin.getMarker(), String.format("Something went wrong when running maven: %s.", message));
             });
             request.setOutputHandler((message) -> {
                 LOG.info(plugin.getMarker(), message);
@@ -160,7 +160,7 @@ public class MavenInvoker {
             InvocationResult result = invoker.execute(request);
             handleInvocationResult(plugin, result);
         } catch (MavenInvocationException | InterruptedException | IOException e) {
-            plugin.addError("Maven invocation failed", e);
+            plugin.addError("Maven invocation failed.", e);
         }
     }
 
@@ -169,10 +169,10 @@ public class MavenInvoker {
      * @param plugin The plugin to validate
      */
     private void validatePom(Plugin plugin) {
-        LOG.debug("Validating POM for plugin: {}", plugin);
+        LOG.debug("Validating POM for plugin: {}.", plugin);
         if (!plugin.getLocalRepository().resolve("pom.xml").toFile().isFile()) {
-            plugin.addError("POM file not found");
-            throw new PluginProcessingException("POM file not found", plugin);
+            plugin.addError("POM file not found.");
+            throw new PluginProcessingException("POM file not found.", plugin);
         }
     }
 
@@ -184,7 +184,7 @@ public class MavenInvoker {
         Path mavenHome = config.getMavenHome();
         if (mavenHome == null) {
             throw new ModernizerException(
-                    "Neither MAVEN_HOME nor M2_HOME environment variables are set. Or use --maven-home if running from CLI");
+                    "Neither MAVEN_HOME nor M2_HOME environment variables are set. Or use --maven-home if running from CLI.");
         }
 
         if (!Files.isDirectory(mavenHome) || !Files.isExecutable(mavenHome.resolve("bin/mvn"))) {
@@ -206,14 +206,14 @@ public class MavenInvoker {
      */
     public void validateMavenVersion() {
         ComparableVersion mavenVersion = getMavenVersion();
-        LOG.debug("Maven version detected: {}", mavenVersion);
+        LOG.debug("Detected Maven version: {}.", mavenVersion);
         if (mavenVersion == null) {
-            LOG.error("Failed to check Maven version. Aborting build.");
-            throw new ModernizerException("Failed to check Maven version.");
+            LOG.error("Failed to check the Maven version. Aborting build.");
+            throw new ModernizerException("Failed to check the Maven version.");
         }
         if (mavenVersion.compareTo(Settings.MAVEN_MINIMAL_VERSION) < 0) {
             LOG.error(
-                    "Maven version detected {}, is too old. Please use at least version {}",
+                    "Detected Maven version ({}) is too old. Please use at least version {}.",
                     mavenVersion,
                     Settings.MAVEN_MINIMAL_VERSION);
             throw new ModernizerException("Maven version is too old.");
@@ -244,15 +244,15 @@ public class MavenInvoker {
      */
     private void handleInvocationResult(Plugin plugin, InvocationResult result) {
         if (result.getExitCode() != 0) {
-            LOG.error(plugin.getMarker(), "Build fail with code: {}", result.getExitCode());
+            LOG.error(plugin.getMarker(), "Build failed with code: {}.", result.getExitCode());
             if (result.getExecutionException() != null) {
-                plugin.addError("Maven generic exception occurred", result.getExecutionException());
+                plugin.addError("Maven generic exception occurred.", result.getExecutionException());
             } else {
                 String errorMessage;
                 if (config.isDebug()) {
                     errorMessage = "Build failed with code: " + result.getExitCode();
                 } else {
-                    errorMessage = "Build failed";
+                    errorMessage = "Build failed.";
                 }
                 plugin.addError(errorMessage);
             }

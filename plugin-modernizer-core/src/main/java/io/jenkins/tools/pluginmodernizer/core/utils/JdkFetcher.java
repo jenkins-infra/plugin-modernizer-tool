@@ -69,21 +69,21 @@ public class JdkFetcher {
      * @throws InterruptedException If the operation is interrupted.
      */
     private void downloadAndSetupJdk(int jdkVersion, Path extractionDir) throws IOException, InterruptedException {
-        LOG.info("Downloading the JDK...");
+        LOG.info("Downloading the JDK…");
         Path downloadedFile = downloadJdk(jdkVersion);
-        LOG.info("Download successful");
+        LOG.info("Download successful.");
 
-        LOG.info("Extracting...");
+        LOG.info("Extracting…");
         Files.createDirectories(extractionDir);
         String os = getOSName();
         if (os.contains("windows")) {
             extractZip(downloadedFile, extractionDir);
         } else if (os.contains("linux") || os.contains("mac")) {
             extractTarGz(downloadedFile, extractionDir);
-            LOG.info("Setting executable permissions for files in bin directory");
+            LOG.info("Setting executable permissions for files in bin directory.");
             setJavaBinariesPermissions(extractionDir);
         }
-        LOG.info("Extraction successful");
+        LOG.info("Extraction successful.");
     }
 
     /**
