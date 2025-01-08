@@ -159,7 +159,7 @@ public class JdkFetcher {
                 }
             }
         } else {
-            LOG.error("Failed to fetch releases. HTTP Status Code: {}", response.statusCode());
+            LOG.error("Failed to fetch releases. HTTP Status Code: {}.", response.statusCode());
         }
         return null;
     }
@@ -316,7 +316,7 @@ public class JdkFetcher {
         Path binDir = jdkPath.resolve("bin");
 
         if (!Files.isDirectory(binDir)) {
-            LOG.error("The bin directory does not exist: {}", binDir);
+            LOG.error("The bin directory does not exist: {}.", binDir);
             return;
         }
 
@@ -332,11 +332,11 @@ public class JdkFetcher {
                 try {
                     Files.setPosixFilePermissions(file, executablePermissions);
                 } catch (IOException e) {
-                    LOG.error("Failed to set executable permissions for {}: {}", file, e.getMessage());
+                    LOG.error("Failed to set executable permissions for {}: {}.", file, e.getMessage());
                 }
             });
         } catch (IOException e) {
-            LOG.error("Failed to list files in directory {}: {}", binDir, e.getMessage());
+            LOG.error("Failed to list files in directory {}: {}.", binDir, e.getMessage());
         }
     }
 }

@@ -501,11 +501,11 @@ public class Plugin {
      */
     public void compile(MavenInvoker maven) {
         if (config.isFetchMetadataOnly()) {
-            LOG.info("Skipping compilation for plugin {} as only metadata is required", name);
+            LOG.info("Skipping compilation for plugin {} as only metadata is required.", name);
             return;
         }
         LOG.info(
-                "Compiling plugin {} with JDK {}… Please be patient",
+                "Compiling plugin {} with JDK {}… Please be patient.",
                 name,
                 this.getJDK().getMajor());
         maven.invokeGoal(this, "compile");
@@ -521,7 +521,7 @@ public class Plugin {
      * @param jdk The JDK to use
      */
     public void verifyQuickBuild(MavenInvoker maven, JDK jdk) {
-        LOG.info("Verifying plugin without tests {} using with JDK {}… Please be patient", name, jdk.getMajor());
+        LOG.info("Verifying plugin {} without tests, using JDK {}… Please be patient.", name, jdk.getMajor());
         this.withJDK(jdk);
         maven.invokeGoal(this, "verify", "-DskipTests", "-Pquick-build", "-Denforcer.skip=true");
         if (!hasErrors()) {
@@ -535,11 +535,11 @@ public class Plugin {
      */
     public void verify(MavenInvoker maven) {
         if (config.isFetchMetadataOnly()) {
-            LOG.info("Skipping verification for plugin {} as only metadata is required", name);
+            LOG.info("Skipping verification for plugin {} as only metadata is required.", name);
             return;
         }
         LOG.info(
-                "Verifying plugin {} with JDK {}… Please be patient",
+                "Verifying plugin {} with JDK {}… Please be patient.",
                 name,
                 this.getJDK().getMajor());
         maven.invokeGoal(this, "verify");
@@ -552,15 +552,15 @@ public class Plugin {
      */
     public void format(MavenInvoker maven) {
         if (!isUsingSpotless()) {
-            LOG.info("Skipping formatting for plugin {} as it is not using Spotless", name);
+            LOG.info("Skipping formatting for plugin {}, as it is not using Spotless.", name);
             return;
         }
         if (config.isFetchMetadataOnly()) {
-            LOG.info("Skipping formatting for plugin {} as only metadata is required", name);
+            LOG.info("Skipping formatting for plugin {}, as only metadata is required.", name);
             return;
         }
         LOG.info(
-                "Formatting plugin {} with JDK {}… Please be patient",
+                "Formatting plugin {} with JDK {}… Please be patient.",
                 name,
                 this.getJDK().getMajor());
         maven.invokeGoal(this, "spotless:apply");
@@ -572,7 +572,7 @@ public class Plugin {
      * @param pluginService The update center service
      */
     public void enrichMetadata(PluginService pluginService) {
-        LOG.debug("Setting extra flags for plugin {}", name);
+        LOG.debug("Setting extra flags for plugin {}.", name);
         if (metadata == null) {
             throw new IllegalStateException("Metadata not found for plugin " + name);
         }
@@ -594,7 +594,7 @@ public class Plugin {
         // Static parse of the pom file and check for pattern preventing minimal build
         Path pom = getLocalRepository().resolve("pom.xml");
         if (!getLocalRepository().resolve("target").toFile().mkdir()) {
-            LOG.trace("Failed to create target directory for plugin {}", name);
+            LOG.trace("Failed to create target directory for plugin {}.", name);
         }
         Document document = staticPomParse(pom);
 
@@ -606,7 +606,7 @@ public class Plugin {
                 .collect(Collectors.toSet()));
 
         if (!pluginMetadata.getErrors().isEmpty()) {
-            LOG.debug("Precondition errors found for plugin {}", name);
+            LOG.debug("Precondition errors found for plugin {}.", name);
             pluginMetadata.save();
             return;
         }
@@ -622,7 +622,7 @@ public class Plugin {
     public void runOpenRewrite(MavenInvoker maven) {
         withJDK(JDK.JAVA_17);
         if (config.isFetchMetadataOnly()) {
-            LOG.info("Skipping OpenRewrite recipe application for plugin {} as only metadata is required", name);
+            LOG.info("Skipping OpenRewrite recipe application for plugin {}, as only metadata is required.", name);
             return;
         }
         maven.invokeRewrite(this);
@@ -634,7 +634,7 @@ public class Plugin {
      */
     public void fork(GHService service) {
         if (config.isFetchMetadataOnly()) {
-            LOG.debug("Skipping fork for plugin {} as only metadata is required", name);
+            LOG.debug("Skipping fork for plugin {}, as only metadata is required.", name);
             return;
         }
         service.fork(this);
@@ -646,7 +646,7 @@ public class Plugin {
      */
     public void sync(GHService service) {
         if (config.isFetchMetadataOnly()) {
-            LOG.debug("Skipping sync for plugin {} as only metadata is required", name);
+            LOG.debug("Skipping sync for plugin {}, as only metadata is required.", name);
             return;
         }
         service.sync(this);
@@ -813,7 +813,7 @@ public class Plugin {
                 CacheManager.PLUGIN_METADATA_CACHE_KEY,
                 new PluginMetadata(pluginCacheManager)));
         LOG.debug(
-                "Copied plugin {} metadata to cache: {}",
+                "Copied {} plugin metadata to cache: {}.",
                 getName(),
                 getMetadata().getLocation().toAbsolutePath());
     }
@@ -839,7 +839,7 @@ public class Plugin {
      */
     private Document staticPomParse(Path pom) {
         if (pom == null || !pom.toFile().exists()) {
-            addError("No pom file found");
+            addError("No pom file found.");
             raiseLastError();
             return null;
         }
