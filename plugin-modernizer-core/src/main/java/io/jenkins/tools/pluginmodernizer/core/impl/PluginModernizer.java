@@ -329,6 +329,11 @@ public class PluginModernizer {
                         plugin.getName(),
                         plugin.getMetadata().toJson());
 
+                // Clean target folder before committing changes
+                if (!config.isDryRun()) {
+                    plugin.clean(mavenInvoker);
+                }
+
                 plugin.commit(ghService);
                 plugin.push(ghService);
                 plugin.openPullRequest(ghService);
