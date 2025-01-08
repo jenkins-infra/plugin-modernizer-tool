@@ -97,6 +97,20 @@ public class StaticPomParser {
     }
 
     /**
+     * Return gitHubRepo property of the POM file or null if not found.
+     * @return the gitHubRepo property or null if not found
+     */
+    public String getGithubRepoProperty() {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        try {
+            return xPath.compile("/project/properties/gitHubRepo").evaluate(document);
+        } catch (Exception e) {
+            LOG.warn("Error getting github.repo: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Return the groupId of the POM file.
      * @return the groupId or null if not found
      */

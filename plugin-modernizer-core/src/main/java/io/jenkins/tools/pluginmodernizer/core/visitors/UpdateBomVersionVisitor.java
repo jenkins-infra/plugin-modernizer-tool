@@ -63,10 +63,23 @@ public class UpdateBomVersionVisitor extends MavenIsoVisitor<ExecutionContext> {
         String artifactId =
                 bomTag.getChild("artifactId").orElseThrow().getValue().orElseThrow();
         String version = bomTag.getChild("version").orElseThrow().getValue().orElseThrow();
+        Xml.Tag versionProperty = null;
+        if (version.contains("${")) {
+            versionProperty = getProperties
+                    .getChild(version.substring(2, version.length() - 1))
+                    .orElse(null);
+            version = versionProperty != null ? versionProperty.getValue().orElseThrow() : null;
+        }
         LOG.debug("Updating bom version from {} to latest.release", version);
         if (artifactId.equals("bom-${jenkins.baseline}.x")) {
             artifactId =
                     "bom-" + getProperties.getChildValue("jenkins.baseline").orElseThrow() + ".x";
+        }
+
+        if (artifactId.contains("${")) {
+            artifactId = getProperties
+                    .getChildValue(artifactId.substring(2, artifactId.length() - 1))
+                    .orElseThrow();
         }
 
         String newBomVersion = getLatestBomVersion(artifactId, version, ctx);
@@ -76,6 +89,11 @@ public class UpdateBomVersionVisitor extends MavenIsoVisitor<ExecutionContext> {
         }
         LOG.debug("Newer version available for {}: {}", artifactId, newBomVersion);
 
+        // Change the property
+        if (versionProperty != null) {
+            return (Xml.Document)
+                    new ChangeTagValueVisitor<>(versionProperty, newBomVersion).visitNonNull(document, ctx);
+        }
         return (Xml.Document) new ChangeTagValueVisitor<>(versionTag, newBomVersion).visitNonNull(document, ctx);
     }
 

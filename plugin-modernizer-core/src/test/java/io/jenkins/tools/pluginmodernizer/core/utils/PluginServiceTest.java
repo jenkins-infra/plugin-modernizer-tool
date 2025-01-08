@@ -18,6 +18,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginInstallationStatsData;
 import io.jenkins.tools.pluginmodernizer.core.model.UpdateCenterData;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -123,6 +124,48 @@ class PluginServiceTest {
         PluginService service = getService();
         String result = service.extractRepoName(Plugin.build("valid-plugin").withConfig(config));
         assertEquals("valid-url", result);
+    }
+
+    @Test
+    public void shouldExtractRepoNameForLocalDefaultPluginWithGitHubRepo() throws Exception {
+        PluginService service = getService();
+
+        // language=xml
+        String pom =
+                """
+                    <project>
+                        <properties>
+                            <gitHubRepo>jenkinsci/foobar</gitHubRepo>
+                        </properties>
+                    </project>
+                    """;
+
+        Plugin plugin = Plugin.build("valid-plugin").withConfig(config);
+        plugin.withLocal(true);
+        plugin.withLocalRepository(tempDir);
+        Files.writeString(tempDir.resolve("pom.xml"), pom);
+        String result = service.extractRepoName(plugin);
+        assertEquals("foobar", result);
+    }
+
+    @Test
+    public void shouldExtractRepoNameForLocalDefaultPluginFallbackFolder() throws Exception {
+        PluginService service = getService();
+
+        // language=xml
+        String pom =
+                """
+                    <project>
+                        <properties/>
+                    </project>
+                    """;
+
+        Plugin plugin = Plugin.build("valid-plugin").withConfig(config);
+        plugin.withLocal(true);
+        plugin.withLocalRepository(tempDir);
+        Files.writeString(tempDir.resolve("pom.xml"), pom);
+        String result = service.extractRepoName(plugin);
+        assertEquals(tempDir.getFileName().toString(), result);
     }
 
     @Test

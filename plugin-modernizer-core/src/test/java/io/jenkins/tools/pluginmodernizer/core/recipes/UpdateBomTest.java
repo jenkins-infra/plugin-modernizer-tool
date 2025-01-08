@@ -290,4 +290,78 @@ public class UpdateBomTest implements RewriteTest {
                  </project>
                  """));
     }
+
+    @Test
+    void shouldUpgradePropertyForVersion() {
+        rewriteRun(
+                spec -> spec.recipe(new UpdateBom()),
+                // language=xml
+                pomXml(
+                        """
+                 <?xml version="1.0" encoding="UTF-8"?>
+                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                   <modelVersion>4.0.0</modelVersion>
+                   <groupId>io.jenkins.plugins</groupId>
+                   <artifactId>non-standard</artifactId>
+                   <version>1.0.0-SNAPSHOT</version>
+                   <packaging>hpi</packaging>
+                   <name>Checks Plugin</name>
+                   <properties>
+                     <jenkins.version>2.401.3</jenkins.version>
+                     <bom.artifactId>bom-2.401.x</bom.artifactId>
+                     <bom.version>2555.v3190a_8a_c60c6</bom.version>
+                   </properties>
+                   <dependencyManagement>
+                     <dependencies>
+                       <dependency>
+                         <groupId>io.jenkins.tools.bom</groupId>
+                         <artifactId>${bom.artifactId}</artifactId>
+                         <version>${bom.version}</version>
+                         <type>pom</type>
+                         <scope>import</scope>
+                       </dependency>
+                     </dependencies>
+                   </dependencyManagement>
+                   <repositories>
+                     <repository>
+                       <id>repo.jenkins-ci.org</id>
+                       <url>https://repo.jenkins-ci.org/public/</url>
+                     </repository>
+                   </repositories>
+                 </project>
+                 """,
+                        """
+                 <?xml version="1.0" encoding="UTF-8"?>
+                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                   <modelVersion>4.0.0</modelVersion>
+                   <groupId>io.jenkins.plugins</groupId>
+                   <artifactId>non-standard</artifactId>
+                   <version>1.0.0-SNAPSHOT</version>
+                   <packaging>hpi</packaging>
+                   <name>Checks Plugin</name>
+                   <properties>
+                     <jenkins.version>2.401.3</jenkins.version>
+                     <bom.artifactId>bom-2.401.x</bom.artifactId>
+                     <bom.version>2745.vc7b_fe4c876fa_</bom.version>
+                   </properties>
+                   <dependencyManagement>
+                     <dependencies>
+                       <dependency>
+                         <groupId>io.jenkins.tools.bom</groupId>
+                         <artifactId>${bom.artifactId}</artifactId>
+                         <version>${bom.version}</version>
+                         <type>pom</type>
+                         <scope>import</scope>
+                       </dependency>
+                     </dependencies>
+                   </dependencyManagement>
+                   <repositories>
+                     <repository>
+                       <id>repo.jenkins-ci.org</id>
+                       <url>https://repo.jenkins-ci.org/public/</url>
+                     </repository>
+                   </repositories>
+                 </project>
+                 """));
+    }
 }

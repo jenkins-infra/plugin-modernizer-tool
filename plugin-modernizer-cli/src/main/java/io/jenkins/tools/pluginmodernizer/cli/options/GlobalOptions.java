@@ -22,22 +22,22 @@ public class GlobalOptions implements IOption {
     @CommandLine.Option(
             names = {"--debug"},
             description = "Enable debug logging.")
-    public boolean debug;
+    private boolean debug;
 
     @CommandLine.Option(
             names = {"--cache-path"},
             description = "Path to the cache directory.")
-    public Path cachePath = Settings.DEFAULT_CACHE_PATH;
+    private Path cachePath = Settings.DEFAULT_CACHE_PATH;
 
     @CommandLine.Option(
             names = {"--maven-home"},
             description = "Path to the Maven Home directory.")
-    public Path mavenHome = Settings.DEFAULT_MAVEN_HOME;
+    private Path mavenHome = Settings.DEFAULT_MAVEN_HOME;
 
     @CommandLine.Option(
             names = {"--maven-local-repo"},
             description = "Path to the Maven local repository.")
-    public Path mavenLocalRepo = Settings.DEFAULT_MAVEN_LOCAL_REPO;
+    private Path mavenLocalRepo = Settings.DEFAULT_MAVEN_LOCAL_REPO;
 
     /**
      * Create a new config build for the global options

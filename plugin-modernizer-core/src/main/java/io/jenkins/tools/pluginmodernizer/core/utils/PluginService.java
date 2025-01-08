@@ -34,9 +34,19 @@ public class PluginService {
      */
     @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public String extractRepoName(Plugin plugin) {
-        // Let's consider the repo is the name of the folder
+
         if (plugin.isLocal() && plugin.getLocalRepository() != null) {
-            return plugin.getLocalRepository().getFileName().toString();
+            StaticPomParser parser = new StaticPomParser(
+                    plugin.getLocalRepository().resolve("pom.xml").toString());
+            String githubRepo = parser.getGithubRepoProperty();
+            // Let's consider the repo is the name of the folder which might not be accurate
+            if (githubRepo == null || githubRepo.isEmpty()) {
+                LOG.debug(
+                        "No GitHub repo found in POM file for plugin. Assuming current folder is the repo name: {}",
+                        plugin.getName());
+                return plugin.getLocalRepository().getFileName().toString();
+            }
+            return githubRepo.replaceAll(Settings.ORGANIZATION + "/", "");
         }
         UpdateCenterData updateCenterData = getUpdateCenterData();
         UpdateCenterData.UpdateCenterPlugin updateCenterPlugin =

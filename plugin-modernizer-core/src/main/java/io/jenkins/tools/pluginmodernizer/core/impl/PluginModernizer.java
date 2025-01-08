@@ -181,6 +181,7 @@ public class PluginModernizer {
             // Determine repo name
             plugin.withRepositoryName(pluginService.extractRepoName(plugin));
 
+            LOG.debug("Repository name: {}", plugin.getRepositoryName());
             LOG.debug("Plugin {} latest version: {}", plugin.getName(), pluginService.extractVersion(plugin));
             LOG.debug("Plugin {} health score: {}", plugin.getName(), pluginService.extractScore(plugin));
             LOG.debug("Plugin {} installations: {}", plugin.getName(), pluginService.extractInstallationStats(plugin));
