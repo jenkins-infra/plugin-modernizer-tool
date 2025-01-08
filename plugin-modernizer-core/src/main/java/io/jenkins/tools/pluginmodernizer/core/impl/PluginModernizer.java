@@ -271,7 +271,7 @@ public class PluginModernizer {
 
             // Handle outdated plugin or unparsable Jenkinsfile
             if (plugin.getMetadata().getJdks().stream().allMatch(jdk -> jdk.equals(JDK.getImplicit()))) {
-                LOG.info("Plugin look outdated or without Jenkinsfile.");
+                LOG.info("Plugin looks outdated or without Jenkinsfile.");
                 StaticPomParser parser = new StaticPomParser(
                         plugin.getLocalRepository().resolve("pom.xml").toString());
                 String jenkinsVersion = parser.getJenkinsVersion();
@@ -281,7 +281,7 @@ public class PluginModernizer {
                 }
                 LOG.debug("Found jenkins version from pom {}", jenkinsVersion);
                 JDK jdk = JDK.get(jenkinsVersion).stream().findFirst().orElse(JDK.min());
-                LOG.info("Plugin support Java {}. Need a first compile to generate classes", jdk.getMajor());
+                LOG.info("Plugin supports Java {}. Need a first compilation to generate classes", jdk.getMajor());
                 plugin.verifyQuickBuild(mavenInvoker, jdk);
                 if (plugin.hasErrors()) {
                     plugin.raiseLastError();
