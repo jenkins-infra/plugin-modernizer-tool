@@ -389,4 +389,23 @@ public class TemplateUtilsTest {
         // Assert
         assertEquals("Setup .gitignore file", result);
     }
+
+    @Test
+    public void testPrTitleForMergeGitIgnoreRecipe() {
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.MergeGitIgnoreRecipe")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Merges .gitignore entries from archetype with existing .gitignore file.", result);
+    }
 }
