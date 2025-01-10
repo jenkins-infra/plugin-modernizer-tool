@@ -197,7 +197,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("Require 2.462.3", result);
+        assertEquals("feat: upgrade to Jenkins LTS Core 2.462.3 for Java 11 support", result);
     }
 
     @Test
