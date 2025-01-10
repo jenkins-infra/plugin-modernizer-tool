@@ -1,6 +1,7 @@
 package io.jenkins.tools.pluginmodernizer.core.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -51,6 +52,27 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testFriendlyPrBodyUpgradeBomVersion() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("3208.vb_21177d4b_cd9").when(metadata).getBomVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.UpgradeBomVersion")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+    }
+
+    @Test
     public void testFriendlyPrTitleUpgradeParentVersion() {
 
         // Mocks
@@ -69,6 +91,71 @@ public class TemplateUtilsTest {
 
         // Assert
         assertEquals("Bump parent pom to 4.88", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyUpgradeParentVersion() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("4.88").when(metadata).getParentVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.UpgradeParentVersion")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+        assertTrue(
+                result.contains("https://www.jenkins.io/doc/developer/tutorial-improve/update-parent-pom/"),
+                "Missing or invalid link");
+    }
+
+    @Test
+    public void testFriendlyPrTitleUpdateScmUrl() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("2.452.4").when(metadata).getJenkinsVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.UpdateScmUrl").when(recipe).getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Updates SCM URLs in POM files from git:// to https:// protocol.", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyUpdateScmUrl() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("2.452.4").when(metadata).getJenkinsVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.UpdateScmUrl").when(recipe).getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+        assertTrue(
+                result.contains("https://www.jenkins.io/doc/developer/tutorial-improve/update-scm-url/"),
+                "Missing or invalid link");
     }
 
     @Test
@@ -178,6 +265,28 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testFriendlyPrBodyMigrateToJenkinsBaseLineProperty() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("2.479.1").when(metadata).getJenkinsVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Just ensure it's using some key overall text
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+        assertTrue(result.contains("https://github.com/jenkinsci/archetypes/pull/737"), "Missing or invalid link");
+    }
+
+    @Test
     public void testFriendlyPrTitleSetupDependabot() {
 
         // Mocks
@@ -218,6 +327,30 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testFriendlyPrBodyRemoveReleaseDrafter() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.RemoveReleaseDrafter")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+        assertTrue(
+                result.contains(
+                        "https://www.jenkins.io/doc/developer/publishing/releasing-cd/#configure-release-drafter"),
+                "Missing or invalid link");
+    }
+
+    @Test
     public void testFriendlyPrTitleEnsureRelativePath() {
 
         // Mocks
@@ -255,5 +388,24 @@ public class TemplateUtilsTest {
 
         // Assert
         assertEquals("Setup .gitignore file", result);
+    }
+
+    @Test
+    public void testPrTitleForMergeGitIgnoreRecipe() {
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.MergeGitIgnoreRecipe")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Merges .gitignore entries from archetype with existing .gitignore file.", result);
     }
 }

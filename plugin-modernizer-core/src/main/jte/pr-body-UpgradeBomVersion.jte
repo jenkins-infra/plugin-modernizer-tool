@@ -10,3 +10,7 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <p><em>${recipe.getName()}</em></p>
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
+
+## Why is this important?
+
+By using the latest version of the Jenkins BOM for the given baseline, you can ensure the plugin relies on the correct versions of Jenkins plugins and libraries. This can help prevent compatibility issues.

@@ -10,3 +10,9 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <p><em>${recipe.getName()}</em></p>
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
+
+## Why is this important?
+
+GitHub has deprecated one of the unauthenticated access protocols (git:// protocol). The pom.xml section that defines the scm for the plugin should refer to the repository with the https:// protocol instead of the git:// protocol.
+
+More information can be found on this [Documentation](https://www.jenkins.io/doc/developer/tutorial-improve/update-scm-url/).

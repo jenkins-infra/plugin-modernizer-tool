@@ -10,3 +10,9 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <p><em>${recipe.getName()}</em></p>
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
+
+## Why is this important?
+
+When the plugin is using continuous delivery, release drafter configuration can be safely removed from the repository since it extends by default `_extends: .github`.
+
+More information can be found on this [Documentation](https://www.jenkins.io/doc/developer/publishing/releasing-cd/#configure-release-drafter).

@@ -222,7 +222,7 @@ The above command creates pull requests in the respective remote repositories af
 ### with dry-run
 
 ```shell
-plugin-modernizer run --plugins git,git-client,jobcacher --recipe AddPluginsBom --dry-run
+plugin-modernizer dry-run --plugins git,git-client,jobcacher --recipe AddPluginsBom
 ```
 
 The above command generates patch files instead of applying changes directly. These patch files are saved in `/target/rewrite/rewrite.patch` inside each plugin directory. No pull requests will be created.

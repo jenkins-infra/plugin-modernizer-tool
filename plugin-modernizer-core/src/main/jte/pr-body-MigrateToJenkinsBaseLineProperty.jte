@@ -10,3 +10,9 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <p><em>${recipe.getName()}</em></p>
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
+
+## Why is this important?
+
+Starting from July 2024, Jenkins recommends using the `jenkins.baseline` property in the `pom.xml` file to reduce mistake when updating the Jenkins version.
+
+More information can be found on this [PR](https://github.com/jenkinsci/archetypes/pull/737).
