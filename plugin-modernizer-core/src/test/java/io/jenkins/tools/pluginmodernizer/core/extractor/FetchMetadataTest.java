@@ -9,6 +9,7 @@ import static org.openrewrite.yaml.Assertions.yaml;
 
 import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.Platform;
+import io.jenkins.tools.pluginmodernizer.core.recipes.DeclarativeRecipesTest;
 import io.jenkins.tools.pluginmodernizer.core.recipes.FetchMetadata;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -19,6 +20,7 @@ import java.util.Set;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RewriteTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,7 @@ public class FetchMetadataTest implements RewriteTest {
         EXPECTED_METADATA.setBomArtifactId("bom-2.414.x");
         EXPECTED_METADATA.setBomVersion("2950.va_633b_f42f759");
         EXPECTED_METADATA.setUseContainerAgent(null);
+        EXPECTED_METADATA.setUseContainerTests(null);
         EXPECTED_METADATA.setForkCount(null);
         Map<String, String> properties = new LinkedHashMap<>();
         properties.put("revision", "1.8.1");
@@ -295,9 +298,15 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testWithManyCommonFiles() throws Exception {
+    void testWithManyCommonFilesAndTestContainers() throws Exception {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    DeclarativeRecipesTest.collectRewriteTestDependencies().stream()
+                            .filter(entry -> entry.getFileName().toString().contains("testcontainers"))
+                            .forEach(parser::addClasspathEntry);
+                    spec.recipe(new FetchMetadata()).parser(parser);
+                },
                 pomXml(POM_XML),
                 // language=groovy
                 groovy(
@@ -314,6 +323,7 @@ public class FetchMetadataTest implements RewriteTest {
                 java(
                         """
                             package com.uppercase.camelcase;
+                            import org.testcontainers.containers.GenericContainer;
                             class FooBar {}
                         """),
                 // language=yaml
@@ -356,13 +366,39 @@ public class FetchMetadataTest implements RewriteTest {
         // Check rest
         Set<JDK> jdkVersion = pluginMetadata.getJdks();
         assertEquals(2, jdkVersion.size());
-        assertTrue(pluginMetadata.isUseContainerAgent());
+        assertTrue(pluginMetadata.isUseContainerAgent(), "Should use container agent");
+        assertTrue(pluginMetadata.isUseContainerTests(), "Should use container tests");
         assertEquals(EXPECTED_METADATA.getParentVersion(), pluginMetadata.getParentVersion());
         assertEquals(EXPECTED_METADATA.getPluginName(), pluginMetadata.getPluginName());
         assertEquals(EXPECTED_METADATA.getJenkinsVersion(), pluginMetadata.getJenkinsVersion());
         assertEquals(EXPECTED_METADATA.getBomVersion(), pluginMetadata.getBomVersion());
         assertEquals(EXPECTED_METADATA.getProperties(), pluginMetadata.getProperties());
         assertEquals(EXPECTED_METADATA.getFlags(), pluginMetadata.getFlags());
+    }
+
+    @Test
+    void testWithDockerFixtures() throws Exception {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    DeclarativeRecipesTest.collectRewriteTestDependencies().stream()
+                            .filter(entry -> entry.getFileName().toString().contains("docker-fixtures"))
+                            .forEach(parser::addClasspathEntry);
+                    spec.recipe(new FetchMetadata()).parser(parser);
+                },
+                // language=java
+                java(
+                        """
+                            package com.uppercase.camelcase;
+                            import org.jenkinsci.test.acceptance.docker.DockerClassRule;
+                            class FooBar {}
+                        """));
+
+        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
+
+        // Check use container test
+        assertTrue(pluginMetadata.isUseContainerTests(), "Should use container tests");
     }
 
     @Test
@@ -398,6 +434,8 @@ public class FetchMetadataTest implements RewriteTest {
         assertEquals(2, platforms.size());
         assertTrue(platforms.contains(Platform.WINDOWS));
         assertTrue(platforms.contains(Platform.LINUX));
+
+        assertFalse(pluginMetadata.isUseContainerTests());
     }
 
     @Test

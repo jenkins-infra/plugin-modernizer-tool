@@ -260,6 +260,17 @@
                   <artifactId>javax.servlet-api</artifactId>
                   <version>4.0.1</version>
                 </dependency>
+                <!-- Testcontainers and docker-fixtures to check if package exists -->
+                <dependency>
+                  <groupId>org.testcontainers</groupId>
+                  <artifactId>testcontainers</artifactId>
+                  <version>1.20.4</version>
+                </dependency>
+                <dependency>
+                  <groupId>org.jenkins-ci.test</groupId>
+                  <artifactId>docker-fixtures</artifactId>
+                  <version>200.v22a_e8766731c</version>
+                </dependency>
                 <!-- SSH slave migration from 1.12 to latest -->
                 <dependency>
                   <groupId>org.jenkins-ci.plugins</groupId>

@@ -55,6 +55,14 @@ public class MetadataVisitor extends TreeVisitor<Tree, ExecutionContext> {
             executionContext.putMessage("pomMetadata", pomMetadata); // Is there better than context messaging ?
             return tree;
         }
+        // Extract metadata from java file
+        else if (PathUtils.matchesGlob(sourceFile.getSourcePath(), "**/*.java")) {
+            LOG.debug("Visiting Java file {}", sourceFile.getSourcePath());
+            PluginMetadata javaMetadata = new JavaFileVisitor().reduce(tree, commonMetadata);
+            LOG.debug("Java metadata: {}", JsonUtils.toJson(javaMetadata));
+            executionContext.putMessage("javaMetadata", javaMetadata); // Is there better than context messaging ?
+            return tree;
+        }
 
         // Just add the common
         else {

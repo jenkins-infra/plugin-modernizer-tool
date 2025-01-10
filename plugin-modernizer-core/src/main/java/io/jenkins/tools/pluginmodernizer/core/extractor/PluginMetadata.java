@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -52,6 +53,11 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
      * Use container agent for build extracted from Jenkinsfile
      */
     private Boolean useContainerAgent;
+
+    /**
+     * If the plugin is using container tests
+     */
+    private Boolean useContainerTests;
 
     /**
      * forkCount extracted from Jenkinsfile
@@ -238,6 +244,14 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
 
     public void setUseContainerAgent(Boolean useContainerAgent) {
         this.useContainerAgent = useContainerAgent;
+    }
+
+    public Boolean isUseContainerTests() {
+        return Objects.requireNonNullElse(useContainerTests, false);
+    }
+
+    public void setUseContainerTests(Boolean useContainerTests) {
+        this.useContainerTests = useContainerTests;
     }
 
     public String getForkCount() {
