@@ -11,8 +11,11 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 
+@Execution(ExecutionMode.CONCURRENT)
 public class ConfigTest {
 
     @Test

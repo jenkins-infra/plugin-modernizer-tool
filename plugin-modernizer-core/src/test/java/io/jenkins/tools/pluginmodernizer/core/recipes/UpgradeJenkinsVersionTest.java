@@ -4,6 +4,8 @@ import static org.openrewrite.maven.Assertions.pomXml;
 
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.test.RewriteTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test for {@link UpgradeJenkinsVersion}.
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class UpgradeJenkinsVersionTest implements RewriteTest {
 
     /**

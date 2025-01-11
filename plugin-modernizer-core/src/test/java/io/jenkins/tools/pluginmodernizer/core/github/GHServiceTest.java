@@ -37,6 +37,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.kohsuke.github.GHCommitPointer;
 import org.kohsuke.github.GHIssueState;
@@ -53,6 +55,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({MockitoExtension.class})
+@Execution(ExecutionMode.CONCURRENT)
 public class GHServiceTest {
 
     @Mock
@@ -79,16 +82,17 @@ public class GHServiceTest {
     public void setup() throws Exception {
 
         // Create service
-        service = Guice.createInjector(new GuiceModule(config)).getInstance(GHService.class);
-
-        // Set github mock
-        Field field = ReflectionUtils.findFields(
-                        GHService.class,
-                        f -> f.getName().equals("github"),
-                        ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
-                .get(0);
-        field.setAccessible(true);
-        field.set(service, github);
+        if (service == null) {
+            service = Guice.createInjector(new GuiceModule(config)).getInstance(GHService.class);
+            // Set github mock
+            Field field = ReflectionUtils.findFields(
+                            GHService.class,
+                            f -> f.getName().equals("github"),
+                            ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
+                    .get(0);
+            field.setAccessible(true);
+            field.set(service, github);
+        }
     }
 
     @Test

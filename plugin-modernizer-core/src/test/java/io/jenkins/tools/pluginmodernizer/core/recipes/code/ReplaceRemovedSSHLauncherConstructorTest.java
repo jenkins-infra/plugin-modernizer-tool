@@ -6,12 +6,15 @@ import static org.openrewrite.java.Assertions.srcTestJava;
 import io.jenkins.tools.pluginmodernizer.core.recipes.DeclarativeRecipesTest;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RewriteTest;
 
 /**
  * Test for {@link ReplaceRemovedSSHLauncherConstructor}
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class ReplaceRemovedSSHLauncherConstructorTest implements RewriteTest {
 
     @Language("java")

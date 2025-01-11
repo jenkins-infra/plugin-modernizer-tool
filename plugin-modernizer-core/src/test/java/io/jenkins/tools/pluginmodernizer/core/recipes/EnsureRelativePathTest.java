@@ -5,9 +5,12 @@ import static org.openrewrite.yaml.Assertions.yaml;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
+@Execution(ExecutionMode.CONCURRENT)
 public class EnsureRelativePathTest implements RewriteTest {
 
     @Override

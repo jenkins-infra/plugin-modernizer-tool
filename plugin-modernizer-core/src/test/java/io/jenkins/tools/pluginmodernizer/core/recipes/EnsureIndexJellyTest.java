@@ -7,11 +7,14 @@ import static org.openrewrite.test.SourceSpecs.text;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.test.RewriteTest;
 
 /**
  * Test for {@link EnsureIndexJelly}.
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class EnsureIndexJellyTest implements RewriteTest {
 
     @Test

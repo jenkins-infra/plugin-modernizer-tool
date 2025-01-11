@@ -31,10 +31,13 @@ import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.CleanupMode;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -49,6 +52,7 @@ import org.testcontainers.shaded.org.bouncycastle.jce.provider.BouncyCastleProvi
 @WireMockTest
 @Testcontainers(disabledWithoutDocker = true)
 @ExtendWith(ModernizerTestWatcher.class)
+@Execution(ExecutionMode.SAME_THREAD) // Need split or not using shared resources like logs folder
 public class CommandLineITCase {
 
     static {
@@ -125,6 +129,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Always")
     public void testVersion() throws Exception {
         Path logFile = setupLogs("testVersion");
         Invoker invoker = buildInvoker();
@@ -147,6 +152,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Always")
     public void testHelp() throws Exception {
         Path logFile = setupLogs("testHelp");
         Invoker invoker = buildInvoker();
@@ -159,6 +165,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testCleanupWithDryRun() throws Exception {
         Path logFile = setupLogs("testCleanupWithDryRun");
         Invoker invoker = buildInvoker();
@@ -171,6 +178,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testCleanup() throws Exception {
         Path logFile = setupLogs("testCleanup");
         Invoker invoker = buildInvoker();
@@ -183,6 +191,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testValidateWithSshKey(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testValidateWithSshKey");
@@ -211,6 +220,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testValidate(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testValidate");
@@ -234,6 +244,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testListRecipes() throws Exception {
         Path logFile = setupLogs("testListRecipes");
         Invoker invoker = buildInvoker();
@@ -250,6 +261,7 @@ public class CommandLineITCase {
 
     @ParameterizedTest
     @MethodSource("testsPlugins")
+    @Tag("Slow")
     public void testBuildMetadata(PluginMetadata expectedMetadata, WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = logFolder.resolve("testBuildMetadata-%s.txt".formatted(expectedMetadata.getPluginName()));
@@ -303,6 +315,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testDryRunReplaceLibrariesWithApiPlugin(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile1 = setupLogs("testDryRunReplaceLibrariesWithApiPlugin1");
@@ -361,6 +374,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testRunAddDependabot(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testRunAddDependabot");
@@ -401,6 +415,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testDryRunAddDependabot(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testDryRunAddDependabot");
@@ -442,6 +457,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testRecipeOnLocalPlugin(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testRecipeOnLocalPlugin");
@@ -487,6 +503,7 @@ public class CommandLineITCase {
     }
 
     @Test
+    @Tag("Slow")
     public void testRecipeOnLocalPluginWithRunMode(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testRecipeOnLocalPluginWithRunMode");

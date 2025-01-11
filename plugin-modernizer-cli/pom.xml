@@ -165,6 +165,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <groups>Always</groups>
+        </configuration>
         <executions>
           <execution>
             <id>integration-tests</id>
@@ -255,6 +258,29 @@
   </build>
 
   <profiles>
+    <profile>
+      <!-- Activate slow test that modernize samples plugins -->
+      <!-- Only run such test on CI and linux -->
+      <id>slow-tests</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+        <property>
+          <name>env.CI</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <groups>Always,Slow</groups>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>maven-repo-local</id>
       <activation>

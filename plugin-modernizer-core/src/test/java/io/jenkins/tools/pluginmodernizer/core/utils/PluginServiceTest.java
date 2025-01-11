@@ -26,6 +26,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -33,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({MockitoExtension.class})
 @WireMockTest
+@Execution(ExecutionMode.SAME_THREAD) // Shared some resources, need refactoring
 class PluginServiceTest {
 
     @Mock

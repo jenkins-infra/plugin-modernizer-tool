@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 public class JDKTest {
 
     // Write tests for JDK enum here

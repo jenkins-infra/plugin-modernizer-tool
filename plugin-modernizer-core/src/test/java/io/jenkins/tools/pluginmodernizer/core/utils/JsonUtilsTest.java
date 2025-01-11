@@ -9,7 +9,10 @@ import io.jenkins.tools.pluginmodernizer.core.model.PreconditionError;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 public class JsonUtilsTest {
 
     @Test

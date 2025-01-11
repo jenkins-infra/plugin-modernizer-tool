@@ -21,6 +21,8 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.test.RewriteTest;
@@ -30,6 +32,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Test for declarative recipes from recipes.yml.
  */
+// ConcurrentModification on rewriteRun (need fix upstream?
+// This only occur on recipeFromResource
+@Execution(ExecutionMode.SAME_THREAD)
 public class DeclarativeRecipesTest implements RewriteTest {
 
     @Language("xml")

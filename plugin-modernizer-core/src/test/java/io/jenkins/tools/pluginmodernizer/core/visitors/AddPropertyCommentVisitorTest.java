@@ -4,6 +4,8 @@ import static org.openrewrite.maven.Assertions.pomXml;
 import static org.openrewrite.test.RewriteTest.toRecipe;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.test.RewriteTest;
@@ -12,6 +14,7 @@ import org.openrewrite.xml.tree.Xml;
 /**
  * Tests for {@link AddPropertyCommentVisitor}.
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class AddPropertyCommentVisitorTest implements RewriteTest {
 
     @Test

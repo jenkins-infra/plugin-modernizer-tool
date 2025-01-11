@@ -9,7 +9,10 @@ import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
+@Execution(ExecutionMode.CONCURRENT)
 public class TemplateUtilsTest {
 
     @Test

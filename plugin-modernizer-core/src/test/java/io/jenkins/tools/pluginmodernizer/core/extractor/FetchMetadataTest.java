@@ -21,6 +21,8 @@ import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.Issue;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RewriteTest;
@@ -30,6 +32,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Tests for {@link FetchMetadata}.
  */
+// CacheManager is not thread safe. Test also manipulate shared metadata file.
+// To fix at some point (maybe when adding concurrency in plugin modernizer)
+@Execution(ExecutionMode.SAME_THREAD)
 public class FetchMetadataTest implements RewriteTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(FetchMetadataTest.class);

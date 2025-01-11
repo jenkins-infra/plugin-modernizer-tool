@@ -3,11 +3,14 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 import static org.openrewrite.maven.Assertions.pomXml;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.test.RewriteTest;
 
 /**
  * Test for {@link UpdateScmUrl}.
  */
+@Execution(ExecutionMode.CONCURRENT)
 public class UpdateScmUrlTest implements RewriteTest {
 
     @Test
