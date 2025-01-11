@@ -574,6 +574,94 @@ public class DeclarativeRecipesTest implements RewriteTest {
     }
 
     @Test
+    void upgradeToRecommendCoreVersionTestWithoutPluginDependencies() {
+        rewriteRun(
+                spec -> spec.recipeFromResource(
+                        "/META-INF/rewrite/recipes.yml",
+                        "io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion"),
+                // language=xml
+                srcMainResources(text(
+                        null,
+                        EXPECTED_JELLY,
+                        s -> s.path(ArchetypeCommonFile.INDEX_JELLY.getPath().getFileName()))),
+                // language=xml
+                pomXml(
+                        """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                          <modelVersion>4.0.0</modelVersion>
+                          <parent>
+                            <groupId>org.jenkins-ci.plugins</groupId>
+                            <artifactId>plugin</artifactId>
+                            <version>4.87</version>
+                          </parent>
+                          <groupId>io.jenkins.plugins</groupId>
+                          <artifactId>empty</artifactId>
+                          <version>1.0.0-SNAPSHOT</version>
+                          <packaging>hpi</packaging>
+                          <name>Empty Plugin</name>
+                          <scm>
+                            <connection>scm:git:git://github.com/jenkinsci/empty-plugin.git</connection>
+                          </scm>
+                          <properties>
+                            <jenkins.version>2.440.3</jenkins.version>
+                             <maven.compiler.source>17</maven.compiler.source>
+                             <maven.compiler.release>17</maven.compiler.release>
+                             <maven.compiler.target>17</maven.compiler.target>
+                          </properties>
+                          <repositories>
+                            <repository>
+                              <id>repo.jenkins-ci.org</id>
+                              <url>https://repo.jenkins-ci.org/public/</url>
+                            </repository>
+                          </repositories>
+                          <pluginRepositories>
+                            <pluginRepository>
+                              <id>repo.jenkins-ci.org</id>
+                              <url>https://repo.jenkins-ci.org/public/</url>
+                            </pluginRepository>
+                          </pluginRepositories>
+                        </project>
+                        """,
+                        """
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                          <modelVersion>4.0.0</modelVersion>
+                          <parent>
+                            <groupId>org.jenkins-ci.plugins</groupId>
+                            <artifactId>plugin</artifactId>
+                            <version>4.88</version>
+                            <relativePath />
+                          </parent>
+                          <groupId>io.jenkins.plugins</groupId>
+                          <artifactId>empty</artifactId>
+                          <version>1.0.0-SNAPSHOT</version>
+                          <packaging>hpi</packaging>
+                          <name>Empty Plugin</name>
+                          <scm>
+                            <connection>scm:git:https://github.com/jenkinsci/empty-plugin.git</connection>
+                          </scm>
+                          <properties>
+                            <jenkins.version>2.452.4</jenkins.version>
+                          </properties>
+                          <repositories>
+                            <repository>
+                              <id>repo.jenkins-ci.org</id>
+                              <url>https://repo.jenkins-ci.org/public/</url>
+                            </repository>
+                          </repositories>
+                          <pluginRepositories>
+                            <pluginRepository>
+                              <id>repo.jenkins-ci.org</id>
+                              <url>https://repo.jenkins-ci.org/public/</url>
+                            </pluginRepository>
+                          </pluginRepositories>
+                        </project>
+                        """
+                                .formatted(Settings.getBomVersion())));
+    }
+
+    @Test
     void upgradeToRecommendCoreVersionTestWithBaseline() {
         rewriteRun(
                 spec -> spec.recipeFromResource(

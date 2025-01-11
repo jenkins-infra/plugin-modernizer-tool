@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RewriteTest;
 
 /**
- * Test for {@link IsMissingBom}.
+ * Test for {@link RemoveProperty}.
  */
 public class RemovePropertyTest implements RewriteTest {
 

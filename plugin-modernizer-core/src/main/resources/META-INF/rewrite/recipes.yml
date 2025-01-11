@@ -112,8 +112,6 @@ name: io.jenkins.tools.pluginmodernizer.AddPluginsBom
 displayName: Add plugins BOM
 description: Add the Jenkins BOM to the dependenciesManagement section of the pom.xml.
 tags: ['chore', 'dependencies']
-preconditions:
-  - io.jenkins.tools.pluginmodernizer.core.recipes.IsMissingBom
 recipeList:
   - org.openrewrite.jenkins.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
@@ -412,6 +410,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
   - io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
+  - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.452.4
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
@@ -429,6 +428,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
   - io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
+  - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.462.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
@@ -450,6 +450,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
   - io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
+  - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - org.openrewrite.maven.UpgradeParentVersion:
       groupId: org.jenkins-ci.plugins
       artifactId: plugin
