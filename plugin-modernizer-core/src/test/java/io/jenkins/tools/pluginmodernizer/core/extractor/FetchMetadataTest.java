@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.Set;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.Issue;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.test.RewriteTest;
 import org.slf4j.Logger;
@@ -428,6 +430,45 @@ public class FetchMetadataTest implements RewriteTest {
         assertEquals(2, jdkVersion.size());
         assertFalse(pluginMetadata.isUseContainerAgent());
         assertEquals("1C", pluginMetadata.getForkCount());
+
+        // Assert platform
+        Set<Platform> platforms = pluginMetadata.getPlatforms();
+        assertEquals(2, platforms.size());
+        assertTrue(platforms.contains(Platform.WINDOWS));
+        assertTrue(platforms.contains(Platform.LINUX));
+
+        assertFalse(pluginMetadata.isUseContainerTests());
+    }
+
+    @Test
+    @Issue("https://github.com/jenkins-infra/plugin-modernizer-tool/issues/580")
+    @Disabled
+    void testWithJenkinsfileOnlyShebangAndComment() {
+        rewriteRun(
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                // language=groovy
+                groovy(
+                        """
+                        #!/usr/bin/env groovy
+                        /* `buildPlugin` step provided by: https://github.com/jenkins-infra/pipeline-library */
+                        buildPlugin(
+                                useContainerAgent: true,
+                                configurations: [
+                                        [platform: 'linux', jdk: 21],
+                                        [platform: 'windows', jdk: 17],
+                                ])
+                        """,
+                        spec -> spec.path("Jenkinsfile")));
+
+        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
+        // Only Jenkinsfile here
+        assertEquals(List.of(ArchetypeCommonFile.JENKINSFILE), pluginMetadata.getCommonFiles());
+
+        // Assert JDK
+        Set<JDK> jdkVersion = pluginMetadata.getJdks();
+        assertEquals(2, jdkVersion.size());
+        assertTrue(pluginMetadata.isUseContainerAgent());
 
         // Assert platform
         Set<Platform> platforms = pluginMetadata.getPlatforms();
