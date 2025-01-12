@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
@@ -55,9 +56,12 @@ import org.slf4j.LoggerFactory;
 public class GHService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GHService.class);
+    private static final Logger BRANCH_NAMELOG = LoggerFactory.getLogger(GHService.class);
 
-    // TODO: Use unique branch name (with prefix ?) to avoid conflicts
-    private static final String BRANCH_NAME = "plugin-modernizer-tool";
+    /**
+     * Allowed github tags for PR
+     */
+    private static final Set<String> ALLOWED_TAGS = Set.of("chore", "dependencies", "developer");
 
     @Inject
     private Config config;
@@ -635,15 +639,16 @@ public class GHService {
             LOG.info("Plugin {} is local. Not checking out branch", plugin);
             return;
         }
+        String branchName = TemplateUtils.renderBranchName(plugin, config.getRecipe());
         try (Git git = Git.open(plugin.getLocalRepository().toFile())) {
             try {
-                git.checkout().setCreateBranch(true).setName(BRANCH_NAME).call();
+                git.checkout().setCreateBranch(true).setName(branchName).call();
             } catch (RefAlreadyExistsException e) {
                 String defaultBranch = config.isDryRun() || config.isFetchMetadataOnly() || plugin.isArchived(this)
                         ? plugin.getRemoteRepository(this).getDefaultBranch()
                         : plugin.getRemoteForkRepository(this).getDefaultBranch();
                 LOG.debug("Branch already exists. Checking out the branch");
-                git.checkout().setName(BRANCH_NAME).call();
+                git.checkout().setName(branchName).call();
                 git.reset()
                         .setMode(ResetCommand.ResetType.HARD)
                         .setRef(defaultBranch)
@@ -799,12 +804,13 @@ public class GHService {
             return;
         }
         try (Git git = Git.open(plugin.getLocalRepository().toFile())) {
+            String branchName = TemplateUtils.renderBranchName(plugin, config.getRecipe());
             List<PushResult> results = StreamSupport.stream(
                             git.push()
                                     .setForce(true)
                                     .setRemote("origin")
                                     .setCredentialsProvider(getCredentialProvider())
-                                    .setRefSpecs(new RefSpec(BRANCH_NAME + ":" + BRANCH_NAME))
+                                    .setRefSpecs(new RefSpec(branchName + ":" + branchName))
                                     .call()
                                     .spliterator(),
                             false)
@@ -867,9 +873,10 @@ public class GHService {
         }
 
         try {
+            String branchName = TemplateUtils.renderBranchName(plugin, config.getRecipe());
             GHPullRequest pr = repository.createPullRequest(
                     prTitle,
-                    getGithubOwner() + ":" + BRANCH_NAME,
+                    getGithubOwner() + ":" + branchName,
                     repository.getDefaultBranch(),
                     prBody,
                     false,
@@ -877,7 +884,10 @@ public class GHService {
             LOG.info("Pull request created: {}", pr.getHtmlUrl());
             plugin.withPullRequest();
             try {
-                String[] tags = plugin.getTags().toArray(String[]::new);
+                String[] tags = plugin.getTags().stream()
+                        .filter(ALLOWED_TAGS::contains)
+                        .sorted()
+                        .toArray(String[]::new);
                 if (tags.length > 0) {
                     pr.addLabels(tags);
                 }
@@ -940,6 +950,7 @@ public class GHService {
      */
     private Optional<GHPullRequest> checkIfPullRequestExists(Plugin plugin) {
         GHRepository repository = plugin.getRemoteRepository(this);
+        String branchName = TemplateUtils.renderBranchName(plugin, config.getRecipe());
         try {
             List<GHPullRequest> pullRequests = repository
                     .queryPullRequests()
@@ -947,7 +958,7 @@ public class GHService {
                     .list()
                     .toList();
             return pullRequests.stream()
-                    .filter(pr -> pr.getHead().getRef().equals(BRANCH_NAME))
+                    .filter(pr -> pr.getHead().getRef().equals(branchName))
                     .findFirst();
         } catch (IOException e) {
             plugin.addError("Failed to check if pull request exists", e);

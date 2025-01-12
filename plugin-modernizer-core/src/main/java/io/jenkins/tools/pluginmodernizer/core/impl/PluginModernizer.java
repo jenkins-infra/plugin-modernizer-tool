@@ -13,6 +13,7 @@ import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,6 +197,9 @@ public class PluginModernizer {
                 plugin.addError("Plugin is archived");
                 return;
             }
+            if (config.isSkipVerification()) {
+                LOG.info("Skipping verification for plugin {}", plugin.getName());
+            }
 
             if (config.isRemoveForks()) {
                 plugin.deleteFork(ghService);
@@ -213,7 +217,7 @@ public class PluginModernizer {
 
             // Compile only if we are able to find metadata
             // For the moment it's local cache only but later will fetch on remote storage
-            if (!config.isFetchMetadataOnly()) {
+            if (!config.isFetchMetadataOnly() && !config.isSkipVerification()) {
                 if (plugin.getMetadata() != null && !plugin.hasPreconditionErrors()) {
                     JDK jdk = compilePlugin(plugin);
                     LOG.debug("Plugin {} compiled successfully with JDK {}", plugin.getName(), jdk.getMajor());
@@ -271,7 +275,8 @@ public class PluginModernizer {
 
             // Handle outdated plugin or unparsable Jenkinsfile
             if (plugin.getMetadata().getJdks().stream().allMatch(jdk -> jdk.equals(JDK.getImplicit()))) {
-                LOG.info("Plugin look outdated or without Jenkinsfile.");
+                LOG.info(
+                        "Plugin look outdated or without Jenkinsfile. Or fail it's parsing, falling back to jenkins.version");
                 StaticPomParser parser = new StaticPomParser(
                         plugin.getLocalRepository().resolve("pom.xml").toString());
                 String jenkinsVersion = parser.getJenkinsVersion();
@@ -279,16 +284,28 @@ public class PluginModernizer {
                 if (baseline != null && jenkinsVersion != null && jenkinsVersion.contains("${jenkins.baseline}")) {
                     jenkinsVersion = jenkinsVersion.replace("${jenkins.baseline}", baseline);
                 }
-                LOG.debug("Found jenkins version from pom {}", jenkinsVersion);
                 JDK jdk = JDK.get(jenkinsVersion).stream().findFirst().orElse(JDK.min());
-                LOG.info("Plugin support Java {}. Need a first compile to generate classes", jdk.getMajor());
-                plugin.verifyQuickBuild(mavenInvoker, jdk);
-                if (plugin.hasErrors()) {
-                    plugin.raiseLastError();
-                }
+                LOG.info("Found jenkins version {} from pom which support Java {}", jenkinsVersion, jdk.getMajor());
+                plugin.getMetadata().setJdks(Set.of(jdk));
+                plugin.getMetadata().save();
+                LOG.debug("Metadata after fallback: {}", plugin.getMetadata().toJson());
+                if (jdk.getMajor() <= 8) {
+                    LOG.info("Need a first compile to generate classes due to Java 8 and lower");
+                    plugin.verifyQuickBuild(mavenInvoker, jdk);
+                    if (plugin.hasErrors()) {
+                        if (!config.isSkipVerification()) {
+                            plugin.raiseLastError();
+                        } else {
+                            LOG.info(
+                                    "Quick build failed for plugin {}. Skip verification is enabled, trying to run recipe any.",
+                                    plugin.getName());
+                            plugin.removeErrors();
+                        }
+                    }
 
-                // Ensure we recollect metadata
-                collectMetadata(plugin, false);
+                    // Ensure we recollect metadata
+                    collectMetadata(plugin, false);
+                }
 
                 // Reset the repo to not keep changes for build-metadata
                 // and try to set the right JDK and jenkins version
@@ -307,7 +324,7 @@ public class PluginModernizer {
             }
 
             // Verify plugin
-            if (!config.isFetchMetadataOnly()) {
+            if (!config.isFetchMetadataOnly() && !config.isSkipVerification()) {
                 JDK jdk = verifyPlugin(plugin);
                 LOG.info("Plugin {} verified successfully with JDK {}", plugin.getName(), jdk.getMajor());
             }

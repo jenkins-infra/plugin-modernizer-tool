@@ -169,7 +169,7 @@ public class MavenInvoker {
      * @param plugin The plugin to validate
      */
     private void validatePom(Plugin plugin) {
-        LOG.debug("Validating POM for plugin: {}", plugin);
+        LOG.debug("Check POM exist for plugin: {}", plugin);
         if (!plugin.getLocalRepository().resolve("pom.xml").toFile().isFile()) {
             plugin.addError("POM file not found");
             throw new PluginProcessingException("POM file not found", plugin);

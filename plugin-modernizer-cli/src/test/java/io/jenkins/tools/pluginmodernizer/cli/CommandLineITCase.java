@@ -400,6 +400,8 @@ public class CommandLineITCase {
             assertAll(
                     () -> assertEquals(0, result.getExitCode()),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches("(.*)Skipping verification (.*)"))),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
                             .anyMatch(line -> line.matches("(.*)Pull request was open on (.*)"))));
 
             // Check that new file was created

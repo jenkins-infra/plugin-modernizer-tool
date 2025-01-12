@@ -60,11 +60,11 @@ public class RemoveReleaseDrafter extends ScanningRecipe<AtomicBoolean> {
             public Tree visit(Tree tree, ExecutionContext ctx) {
                 LOG.info("Checking if release drafter should be removed");
                 if (shouldRemove.get() && tree instanceof SourceFile sourceFile) {
-                    if (sourceFile.getSourcePath().equals(ArchetypeCommonFile.RELEASE_DRAFTER.getPath())) {
+                    if (ArchetypeCommonFile.RELEASE_DRAFTER.same(sourceFile.getSourcePath())) {
                         LOG.info("Deleting release drafter file: {}", sourceFile.getSourcePath());
                         return null;
                     }
-                    if (sourceFile.getSourcePath().equals(ArchetypeCommonFile.RELEASE_DRAFTER_WORKFLOW.getPath())) {
+                    if (ArchetypeCommonFile.RELEASE_DRAFTER_WORKFLOW.same(sourceFile.getSourcePath())) {
                         LOG.info("Deleting release drafter workflow file: {}", sourceFile.getSourcePath());
                         return null;
                     }

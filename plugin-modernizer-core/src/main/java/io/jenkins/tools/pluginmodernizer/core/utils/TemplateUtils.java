@@ -52,7 +52,26 @@ public class TemplateUtils {
      * @return The rendered commit message
      */
     public static String renderCommitMessage(Plugin plugin, Recipe recipe) {
+        if (hasCommitTemplate(recipe)) {
+            return renderTemplate(
+                    getTemplateNameForRecipe("commit", recipe), Map.of("plugin", plugin, "recipe", recipe));
+        }
+        // Fallback to title if exists
+        if (hasTitleTemplate(recipe)) {
+            return renderPullRequestTitle(plugin, recipe);
+        }
         return renderTemplate("commit.jte", Map.of("plugin", plugin, "recipe", recipe));
+    }
+
+    /**
+     * Render the branch name
+     *
+     * @param plugin Plugin to modernize
+     * @param recipe Recipe to apply
+     * @return The rendered commit message
+     */
+    public static String renderBranchName(Plugin plugin, Recipe recipe) {
+        return renderTemplate("branch.jte", Map.of("plugin", plugin, "recipe", recipe));
     }
 
     /**
@@ -99,6 +118,18 @@ public class TemplateUtils {
         String shortName = recipe.getName().replaceAll(Settings.RECIPE_FQDN_PREFIX + ".", "");
         TemplateEngine templateEngine = TemplateEngine.createPrecompiled(ContentType.Html);
         return templateEngine.hasTemplate("pr-title-%s.jte".formatted(shortName));
+    }
+
+    /**
+     * Check if a commit template exists for one recipe
+     *
+     * @param recipe The recipe to check
+     * @return True if a commit template exists
+     */
+    private static boolean hasCommitTemplate(Recipe recipe) {
+        String shortName = recipe.getName().replaceAll(Settings.RECIPE_FQDN_PREFIX + ".", "");
+        TemplateEngine templateEngine = TemplateEngine.createPrecompiled(ContentType.Html);
+        return templateEngine.hasTemplate("commit-%s.jte".formatted(shortName));
     }
 
     /**

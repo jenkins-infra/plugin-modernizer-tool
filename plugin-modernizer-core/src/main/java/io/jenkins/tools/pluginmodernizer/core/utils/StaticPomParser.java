@@ -111,6 +111,20 @@ public class StaticPomParser {
     }
 
     /**
+     * Return scm connection property of the POM file or null if not found.
+     * @return the scm connection property or null if not found
+     */
+    public String getScmConnectionProperty() {
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        try {
+            return xPath.compile("/project/properties/scm/connection").evaluate(document);
+        } catch (Exception e) {
+            LOG.warn("Error getting scm connection: {}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Return the groupId of the POM file.
      * @return the groupId or null if not found
      */

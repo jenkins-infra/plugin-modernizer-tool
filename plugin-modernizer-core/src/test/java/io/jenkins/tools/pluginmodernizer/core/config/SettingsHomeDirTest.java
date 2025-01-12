@@ -1,8 +1,10 @@
 package io.jenkins.tools.pluginmodernizer.core.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.file.Paths;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -17,6 +19,13 @@ public class SettingsHomeDirTest {
 
     @SystemStub
     private SystemProperties properties = new SystemProperties("user.home", "/home/foobar");
+
+    @BeforeEach
+    public void beforeEach() {
+        assumeTrue(
+                System.getenv("RUN_IN_MAVEN") != null,
+                "Skipping test from IDE: not running via Maven due to static mocking of env vars");
+    }
 
     @Test
     public void test() throws Exception {

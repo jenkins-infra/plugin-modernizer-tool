@@ -295,6 +295,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <environmentVariables>
+            <RUN_IN_MAVEN>true</RUN_IN_MAVEN>
             <GH_TOKEN>fake-token</GH_TOKEN>
             <GH_OWNER>fake-owner</GH_OWNER>
             <GH_TARGET_ORGANISATION>jenkinsci</GH_TARGET_ORGANISATION>

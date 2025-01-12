@@ -34,6 +34,42 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testDefaultCommit() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.FakeRecipe").when(recipe).getName();
+
+        // Test
+        String result = TemplateUtils.renderCommitMessage(plugin, recipe);
+
+        // Assert
+        assertEquals("Applied recipe FakeRecipe", result);
+    }
+
+    @Test
+    public void testDefaultBranchName() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.FakeRecipe").when(recipe).getName();
+
+        // Test
+        String result = TemplateUtils.renderBranchName(plugin, recipe);
+
+        // Assert
+        assertEquals("plugin-modernizer/fakerecipe", result);
+    }
+
+    @Test
     public void testFriendlyPrTitleUpgradeBomVersion() {
 
         // Mocks
@@ -49,6 +85,27 @@ public class TemplateUtilsTest {
 
         // Test
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Bump bom to 3208.vb_21177d4b_cd9", result);
+    }
+
+    @Test
+    public void testFriendlyCommitUpgradeBomVersion() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("3208.vb_21177d4b_cd9").when(metadata).getBomVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.UpgradeBomVersion")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderCommitMessage(plugin, recipe);
 
         // Assert
         assertEquals("Bump bom to 3208.vb_21177d4b_cd9", result);

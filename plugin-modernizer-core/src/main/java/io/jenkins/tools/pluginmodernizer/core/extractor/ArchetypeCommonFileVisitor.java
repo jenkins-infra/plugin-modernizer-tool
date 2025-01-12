@@ -21,8 +21,7 @@ public class ArchetypeCommonFileVisitor extends TreeVisitor<Tree, PluginMetadata
 
         SourceFile sourceFile = (SourceFile) tree;
 
-        ArchetypeCommonFile commonFile =
-                ArchetypeCommonFile.fromFile(sourceFile.getSourcePath().toString());
+        ArchetypeCommonFile commonFile = ArchetypeCommonFile.fromPath(sourceFile.getSourcePath());
 
         // Store common files into metadata
         if (commonFile != null) {

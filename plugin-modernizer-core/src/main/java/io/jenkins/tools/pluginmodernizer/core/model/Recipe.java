@@ -29,6 +29,14 @@ public class Recipe implements Comparable<Recipe> {
      */
     private Set<String> tags;
 
+    /**
+     * Return if the execution the recipe will be skipped
+     * @return True if the recipe will skip verification
+     */
+    public boolean isSkipVerification() {
+        return tags != null && tags.contains("skip-verification");
+    }
+
     @JsonIgnore
     private Object type;
 
