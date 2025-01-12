@@ -27,7 +27,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 displayName: Setup the Jenkinsfile
 description: Add a missing Jenkinsfile to the Jenkins plugin.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - org.openrewrite.text.CreateTextFile:
       relativeFileName: Jenkinsfile
@@ -49,7 +49,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupGitIgnore
 displayName: Setup the .gitignore
 description: Add a missing .gitignore to the Jenkins plugin.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
     # Keep in sync with https://github.com/jenkinsci/archetypes/blob/master/common-files/gitignore
   - org.openrewrite.text.CreateTextFile:
@@ -76,7 +76,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupSecurityScan
 displayName: Setup the .github/workflows/jenkins-security-scan.yml
 description: Add a missing .github/workflows/jenkins-security-scan.yml to the Jenkins plugin.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   # Keep in sync with https://github.com/jenkinsci/archetypes/blob/master/common-files/.github/workflows/jenkins-security-scan.yml
   - org.openrewrite.yaml.CreateYamlFile:
@@ -132,7 +132,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.AddCodeOwner
 displayName: Add CODEOWNERS file
 description: Adds a CODEOWNERS file to a Jenkins plugin.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - org.openrewrite.jenkins.github.AddTeamToCodeowners
 ---
@@ -473,7 +473,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupDependabot
 displayName: Setup dependabot
 description: Setup dependabot for the Jenkins plugin if it doesn't exist.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.SetupDependabot
 ---
@@ -481,7 +481,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.RemoveReleaseDrafter
 displayName: Remove Release Drafter if CD is enabled
 description: Remove Release Drafter if CD is enabled. See https://www.jenkins.io/doc/developer/publishing/releasing-cd/#configure-release-drafter.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveReleaseDrafter
 ---
@@ -489,7 +489,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.FixJellyIssues
 displayName: Add XML declaration to Jelly files and create index.jelly if it doesn't exist
 description: Ensure the XML declaration `<?jelly escape-by-default='true'?>` is present in all `.jelly` files and create index.jelly if it doesn't exist.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - org.openrewrite.jenkins.CreateIndexJelly
   - org.openrewrite.jenkins.AddJellyXmlDeclaration

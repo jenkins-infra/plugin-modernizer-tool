@@ -1,6 +1,8 @@
 package io.jenkins.tools.pluginmodernizer.core.extractor;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * An archetype repository file with location
@@ -21,22 +23,22 @@ public enum ArchetypeCommonFile {
     /**
      * The workflow CD file
      */
-    WORKFLOW_CD(".github/workflows/cd.yaml"),
+    WORKFLOW_CD(".github/workflows/cd.yml", ".github/workflows/cd.yaml"),
 
     /**
      * The workflow Jenkins security scan
      */
-    WORKFLOW_SECURITY(".github/workflows/jenkins-security-scan.yml"),
+    WORKFLOW_SECURITY(".github/workflows/jenkins-security-scan.yml", ".github/workflows/jenkins-security-scan.yaml"),
 
     /**
      * Release drafter file
      */
-    RELEASE_DRAFTER(".github/release-drafter.yml"),
+    RELEASE_DRAFTER(".github/release-drafter.yml", ".github/release-drafter.yaml"),
 
     /**
      * Release workflows
      */
-    RELEASE_DRAFTER_WORKFLOW(".github/workflows/release-drafter.yml"),
+    RELEASE_DRAFTER_WORKFLOW(".github/workflows/release-drafter.yml", ".github/workflows/release-drafter.yaml"),
 
     /**
      * Pull request template file
@@ -61,7 +63,7 @@ public enum ArchetypeCommonFile {
     /**
      * License file
      */
-    LICENSE("LICENSE.md"),
+    LICENSE("LICENSE.md", "LICENSE.adoc", "LICENSE.txt", "LICENSE"),
 
     /**
      * Contributing file
@@ -71,7 +73,7 @@ public enum ArchetypeCommonFile {
     /**
      * Dependabot configuration file
      */
-    DEPENDABOT(".github/dependabot.yml"),
+    DEPENDABOT(".github/dependabot.yml", ".github/dependabot.yaml"),
 
     /**
      * Renovate configuration file.
@@ -92,30 +94,38 @@ public enum ArchetypeCommonFile {
     /**
      * README
      */
-    README("README.md"),
+    README("README.md", "README.adoc"),
     ;
 
     /**
      * Relative path
      */
-    private final String path;
+    private final String[] paths;
 
     /**
-     * Private constructor
+     * Private constructor for one single path
      * @param value the path
      */
     ArchetypeCommonFile(String value) {
-        this.path = value;
+        this.paths = new String[] {value};
+    }
+
+    /**
+     * Private constructor for multiple path
+     * @param paths the paths
+     */
+    ArchetypeCommonFile(String... paths) {
+        this.paths = paths;
     }
 
     /**
      * Return the enum from a file path or null if not found
-     * @param file the file path
+     * @param path path of the file
      * @return the enum or null
      */
-    public static ArchetypeCommonFile fromFile(String file) {
+    public static ArchetypeCommonFile fromPath(Path path) {
         for (ArchetypeCommonFile f : ArchetypeCommonFile.values()) {
-            if (f.getPath().equals(Path.of(file))) {
+            if (f.getPaths().contains(path)) {
                 return f;
             }
         }
@@ -123,10 +133,27 @@ public enum ArchetypeCommonFile {
     }
 
     /**
-     * Get the path
+     * Get the path default path
      * @return the path
      */
     public Path getPath() {
-        return Path.of(path);
+        return Path.of(paths[0]);
+    }
+
+    /**
+     * Get the paths
+     * @return the paths
+     */
+    public Set<Path> getPaths() {
+        return Set.copyOf(Arrays.stream(paths).map(Path::of).toList());
+    }
+
+    /**
+     * Return if the common file is the same as the file
+     * @param path the path
+     * @return true if the file is the same
+     */
+    public boolean same(Path path) {
+        return getPaths().contains(path);
     }
 }

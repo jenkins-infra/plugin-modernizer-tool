@@ -278,6 +278,24 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
+    void testWithOneCommonFileAlternate() throws Exception {
+        rewriteRun(
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                // language=yaml
+                yaml("""
+                ---
+                name: Empty
+                """, sourceSpecs -> {
+                    sourceSpecs.path(".github/dependabot.yaml");
+                }));
+
+        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
+        // Only dependabot.yml here
+        assertEquals(List.of(ArchetypeCommonFile.DEPENDABOT), pluginMetadata.getCommonFiles());
+    }
+
+    @Test
     void testWithPomAndJavaFile() throws Exception {
         rewriteRun(
                 recipeSpec -> recipeSpec.recipe(new FetchMetadata()),

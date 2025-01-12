@@ -46,6 +46,7 @@ Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/proj
     - [without dry-run](#without-dry-run)
     - [with dry-run](#with-dry-run)
 - [Running with Docker](#running-with-docker)
+- [Running with GitPod](#running-with-gitpod)
 - [Reproducibility](#reproducibility)
 - [Contributing](#contributing)
 - [Debugging recipes](#how-to-debug-recipes)
@@ -264,6 +265,15 @@ docker run \
 - `--recipe AddPluginsBom,`: Specifies the recipe to apply.
 
 This command will run the Plugin Modernizer Tool inside the Docker container using the specified environment variables and plugin file.
+
+## Running with GitPod
+
+You can try this tool directly in your browser if you have a GitPod account connected to GitHub.  
+If you already have the [GitPod extension](https://www.gitpod.io/docs/configure/user-settings/browser-extension) installed in your browser, you can open a workspace for this project by clicking the big green "Open" button next to "Code."  
+If you haven’t installed the GitPod extension yet, you can access a workspace by clicking [this link](https://gitpod.io/?autostart=true#https://github.com/jenkins-infra/plugin-modernizer-tool).  
+
+Please note that the Plugin Modernizer Tool has not yet been installed in the workspace as a standalone binary. However, you can still use it by running the following command:  
+`java -jar plugin-modernizer-cli/target/jenkins-plugin-modernizer-999999-SNAPSHOT.jar [...]`
 
 ## Reproducibility
 

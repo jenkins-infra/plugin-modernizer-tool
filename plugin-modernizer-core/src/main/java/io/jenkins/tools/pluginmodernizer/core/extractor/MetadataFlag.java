@@ -153,7 +153,7 @@ public enum MetadataFlag {
             return false;
         }
         boolean result = isApplicablePlugin.test(plugin, pluginService);
-        LOG.debug("Flag {} applicable for plugin {}: {}", this, plugin.getName(), result);
+        LOG.trace("Flag {} applicable for plugin {}: {}", this, plugin.getName(), result);
         return result;
     }
 

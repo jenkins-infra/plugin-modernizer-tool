@@ -152,6 +152,30 @@ class PluginServiceTest {
     }
 
     @Test
+    public void shouldExtractRepoNameForLocalDefaultPluginWithScmRepoRepo() throws Exception {
+        PluginService service = getService();
+
+        // language=xml
+        String pom =
+                """
+                    <project>
+                        <properties>
+                            <scm>
+                               <connection>scm:git:https://github.com/jenkinsci/FOO_Bar-plugin.git</connection>
+                            </scm>
+                        </properties>
+                    </project>
+                    """;
+
+        Plugin plugin = Plugin.build("valid-plugin").withConfig(config);
+        plugin.withLocal(true);
+        plugin.withLocalRepository(tempDir);
+        Files.writeString(tempDir.resolve("pom.xml"), pom);
+        String result = service.extractRepoName(plugin);
+        assertEquals("FOO_Bar-plugin", result);
+    }
+
+    @Test
     public void shouldExtractRepoNameForLocalDefaultPluginFallbackFolder() throws Exception {
         PluginService service = getService();
 
@@ -169,6 +193,16 @@ class PluginServiceTest {
         Files.writeString(tempDir.resolve("pom.xml"), pom);
         String result = service.extractRepoName(plugin);
         assertEquals(tempDir.getFileName().toString(), result);
+    }
+
+    @Test
+    public void shouldExtractRepoNameForLocalDefaultPluginFallbackFolderParent() throws Exception {
+        PluginService service = getService();
+        Plugin plugin = Plugin.build("valid-plugin").withConfig(config);
+        plugin.withLocal(true);
+        plugin.withLocalRepository(Path.of(".").toAbsolutePath());
+        String result = service.extractRepoName(plugin);
+        assertEquals("plugin-modernizer-core", result);
     }
 
     @Test

@@ -521,7 +521,7 @@ public class Plugin {
      * @param jdk The JDK to use
      */
     public void verifyQuickBuild(MavenInvoker maven, JDK jdk) {
-        LOG.info("Verifying plugin without tests {} using with JDK {} ... Please be patient", name, jdk.getMajor());
+        LOG.info("Quick build without tests {} using with JDK {} ... Please be patient", name, jdk.getMajor());
         this.withJDK(jdk);
         maven.invokeGoal(this, "verify", "-DskipTests", "-Pquick-build", "-Denforcer.skip=true");
         if (!hasErrors()) {

@@ -113,6 +113,14 @@ public class Config {
         return recipe != null && recipe.getName().equals(Settings.FETCH_METADATA_RECIPE.getName());
     }
 
+    /**
+     * Return if the execution the recipe will be skipped
+     * @return True if the recipe will skip verification
+     */
+    public boolean isSkipVerification() {
+        return recipe.isSkipVerification();
+    }
+
     public URL getJenkinsUpdateCenter() {
         return jenkinsUpdateCenter;
     }

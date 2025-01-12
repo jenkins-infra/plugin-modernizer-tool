@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -750,6 +751,9 @@ public class GHServiceTest {
         doReturn(false).when(config).isDraft();
         doReturn(true).when(plugin).hasChangesPushed();
         doReturn(repository).when(plugin).getRemoteRepository(eq(service));
+        doReturn(Set.of("dependencies", "skip-build", "foo, bar", "developer"))
+                .when(plugin)
+                .getTags();
 
         // Return no open PR
         doReturn(prQuery).when(repository).queryPullRequests();
@@ -763,6 +767,8 @@ public class GHServiceTest {
 
         // Test
         service.openPullRequest(plugin);
+
+        verify(pr, times(1)).addLabels(List.of("dependencies", "developer").toArray(String[]::new));
     }
 
     @Test

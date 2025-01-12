@@ -11,6 +11,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginInstallationStatsData;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
 import io.jenkins.tools.pluginmodernizer.core.model.UpdateCenterData;
 import jakarta.inject.Inject;
+import java.nio.file.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,12 +40,25 @@ public class PluginService {
             StaticPomParser parser = new StaticPomParser(
                     plugin.getLocalRepository().resolve("pom.xml").toString());
             String githubRepo = parser.getGithubRepoProperty();
-            // Let's consider the repo is the name of the folder which might not be accurate
+            // Use SCM connection property and fallback to folder which might not be accurate
             if (githubRepo == null || githubRepo.isEmpty()) {
+
+                String scmConnection = parser.getScmConnectionProperty();
+                if (scmConnection != null && !scmConnection.isEmpty()) {
+                    String localRepo = scmConnection.substring(scmConnection.lastIndexOf("/") + 1);
+                    return localRepo.replaceAll(".git$", "");
+                }
+
+                Path localRepo = plugin.getLocalRepository().getFileName();
+                // Take the name of the parent
+                if (localRepo.toString().equals(".")) {
+                    localRepo = localRepo.toAbsolutePath().getParent().getFileName();
+                    LOG.debug("Parent folder is the repo name: {}", localRepo);
+                }
                 LOG.debug(
                         "No GitHub repo found in POM file for plugin. Assuming current folder is the repo name: {}",
-                        plugin.getName());
-                return plugin.getLocalRepository().getFileName().toString();
+                        localRepo);
+                return localRepo.toString();
             }
             return githubRepo.replaceAll(Settings.ORGANIZATION + "/", "");
         }
