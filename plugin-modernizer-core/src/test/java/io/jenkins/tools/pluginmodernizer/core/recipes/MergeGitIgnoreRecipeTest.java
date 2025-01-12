@@ -31,53 +31,24 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
         rewriteRun(
                 spec -> spec.recipe(new MergeGitIgnoreRecipe(ArchetypeCommonFile.GITIGNORE.getPath())),
                 text(
-                        """
-                # Existing user-defined entries
-                *.log
-                build/
-                .idea/
-
-                # Custom section
-                custom/*.tmp
-                """,
-                        sourceSpecs -> sourceSpecs.path(".gitignore")),
-                text(
-                        ARCHETYPE_GITIGNORE_CONTENT,
-                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())),
-                text(
-                        """
-                # Existing user-defined entries
-                *.log
-                build/
-                .idea/
-
-                # Custom section
-                custom/*.tmp
-
-                # Added from archetype
-                target
-                work
-                *.iml
-                *.iws
-                *.ipr
-                .settings
-                .classpath
-                .project
-                """,
-                        sourceSpecs -> sourceSpecs.path(".gitignore")));
-    }
-
-    @Test
-    void shouldNotChangeGitIgnoreWhenNoChangesNeeded() {
-        // Test case where the existing .gitignore already contains all entries from archetype.
-        rewriteRun(
-                spec -> spec.recipe(new MergeGitIgnoreRecipe(ArchetypeCommonFile.GITIGNORE.getPath())),
-                text(
+                        // Initial content
                         """
                         # Existing user-defined entries
                         *.log
                         build/
                         .idea/
+                        # Custom section
+                        custom/*.tmp
+                        """,
+                        // Expected content after transformation
+                        """
+                        # Existing user-defined entries
+                        *.log
+                        build/
+                        .idea/
+                        # Custom section
+                        custom/*.tmp
+                        # Added from archetype
                         target
                         work
                         *.iml
@@ -86,33 +57,11 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                         .settings
                         .classpath
                         .project
-
-                        # Custom section
-                        custom/*.tmp
                         """,
                         sourceSpecs -> sourceSpecs.path(".gitignore")),
                 text(
                         ARCHETYPE_GITIGNORE_CONTENT,
-                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())),
-                text(
-                        """
-                        # Existing user-defined entries
-                        *.log
-                        build/
-                        .idea/
-                        target
-                        work
-                        *.iml
-                        *.iws
-                        *.ipr
-                        .settings
-                        .classpath
-                        .project
-
-                        # Custom section
-                        custom/*.tmp
-                        """,
-                        sourceSpecs -> sourceSpecs.path(".gitignore")));
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
     }
 
     @Test
@@ -147,7 +96,7 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
 
     @Test
     void shouldMergeEntriesInCorrectOrder() {
-        // Test case where it check if the entries are in the correct order
+        // Test case to check if the entries are in the correct order.
         rewriteRun(
                 spec -> spec.recipe(new MergeGitIgnoreRecipe(ArchetypeCommonFile.GITIGNORE.getPath())),
                 text(
