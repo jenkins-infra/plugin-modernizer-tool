@@ -363,7 +363,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("Automate dependency updates with Dependabot", result);
+        assertEquals("chore(dependencies): Automate dependency updates with Dependabot", result);
     }
 
     @Test
