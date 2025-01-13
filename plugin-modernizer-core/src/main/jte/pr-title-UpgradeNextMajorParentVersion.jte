@@ -2,4 +2,4 @@
 @import io.jenkins.tools.pluginmodernizer.core.model.Recipe
 @param Plugin plugin
 @param Recipe recipe
-Require ${plugin.getMetadata().getJenkinsVersion()} and Java 17
+feat(java): Require Jenkins core ${plugin.getMetadata().getJenkinsVersion()} and Java 17.
