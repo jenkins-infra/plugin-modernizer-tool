@@ -68,8 +68,9 @@ public class MergeGitIgnoreRecipe extends Recipe {
                     String archetypeContent = Files.readString(archetypeGitIgnorePath);
                     String mergedContent = mergeGitIgnoreFiles(existingContent, archetypeContent);
 
-                    // Instead of writing directly to file, return modified LST
-                    return text.withText(mergedContent);
+                    if (!mergedContent.equals(existingContent)) {
+                        return text.withText(mergedContent);
+                    }
                 }
             } catch (IOException e) {
                 LOG.error("Error reading archetype .gitignore file", e);
@@ -80,23 +81,43 @@ public class MergeGitIgnoreRecipe extends Recipe {
         }
 
         private String mergeGitIgnoreFiles(String existing, String fromArchetype) {
-            List<String> existingLines = existing.lines().collect(Collectors.toList());
-            List<String> archetypeLines = fromArchetype.lines().collect(Collectors.toList());
+            List<String> existingLines = existing.lines().map(String::trim).collect(Collectors.toList());
 
-            StringBuilder merged = new StringBuilder(existing);
-            if (!existing.endsWith("\n")) {
-                merged.append("\n");
+            List<String> archetypeLines = fromArchetype
+                    .lines()
+                    .map(String::trim)
+                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                    .collect(Collectors.toList());
+
+            StringBuilder merged = new StringBuilder();
+
+            // Add existing content
+            if (!existing.isEmpty()) {
+                merged.append(existing);
+                if (!existing.endsWith("\n")) {
+                    merged.append("\n");
+                }
             }
-            merged.append("\n# Added from archetype\n");
 
+            // Add archetype entries
+            boolean hasNewEntries = false;
             for (String line : archetypeLines) {
-                String trimmed = line.trim();
-                if (!trimmed.isEmpty() && !trimmed.startsWith("#") && !existingLines.contains(trimmed)) {
+                if (!existingLines.contains(line)) {
+                    if (!hasNewEntries) {
+                        merged.append("# Added from archetype\n");
+                        hasNewEntries = true;
+                    }
                     merged.append(line).append("\n");
                 }
             }
 
-            return merged.toString();
+            // Remove final newline if the result is not empty
+            String result = merged.toString();
+            if (!result.isEmpty() && result.endsWith("\n")) {
+                result = result.substring(0, result.length() - 1);
+            }
+
+            return result;
         }
     }
 }
