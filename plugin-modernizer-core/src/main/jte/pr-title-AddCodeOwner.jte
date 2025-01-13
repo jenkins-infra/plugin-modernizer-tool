@@ -2,4 +2,4 @@
 @import io.jenkins.tools.pluginmodernizer.core.model.Recipe
 @param Plugin plugin
 @param Recipe recipe
-chore(dependencies): Automate dependency updates with Dependabot
+chore(github): Add CODEOWNERS
