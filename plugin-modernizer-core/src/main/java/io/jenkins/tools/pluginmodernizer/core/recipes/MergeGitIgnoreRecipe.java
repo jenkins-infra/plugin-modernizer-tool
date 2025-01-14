@@ -15,12 +15,18 @@ public class MergeGitIgnoreRecipe extends Recipe {
 
     private static final String ARCHETYPE_GITIGNORE_CONTENT =
             """
-            # Added from archetype
             target
+
+            # mvn hpi:run
             work
+
+            # IntelliJ IDEA project files
             *.iml
             *.iws
             *.ipr
+            .idea
+
+            # Eclipse project files
             .settings
             .classpath
             .project
@@ -38,27 +44,32 @@ public class MergeGitIgnoreRecipe extends Recipe {
 
     @Override
     public PlainTextVisitor<ExecutionContext> getVisitor() {
-        return new GitIgnoreMerger(ARCHETYPE_GITIGNORE_CONTENT);
+        return new GitIgnoreMerger();
     }
 
     private static class GitIgnoreMerger extends PlainTextVisitor<ExecutionContext> {
-        private final String archetypeContent;
-
-        GitIgnoreMerger(String archetypeContent) {
-            this.archetypeContent = archetypeContent;
-        }
-
         @Override
         public PlainText visitText(PlainText text, ExecutionContext ctx) {
             Path sourcePath = text.getSourcePath();
 
-            // Ensure the file is a .gitignore
-            if (sourcePath == null || !sourcePath.getFileName().toString().equals(".gitignore")) {
+            // Early return if source path is null
+            if (sourcePath == null) {
                 return text;
             }
 
+            // Safely get filename with null checks
+            Path fileNamePath = sourcePath.getFileName();
+            if (fileNamePath == null) {
+                return text;
+            }
+
+            String fileName = fileNamePath.toString();
+            if (!".gitignore".equals(fileName)) {
+                return text; // Return early if not a .gitignore file
+            }
+
             String existingContent = text.getText();
-            String mergedContent = mergeGitIgnoreFiles(existingContent, archetypeContent);
+            String mergedContent = mergeGitIgnoreFiles(existingContent);
 
             // Only update if there are changes
             if (!mergedContent.equals(existingContent)) {
@@ -69,34 +80,54 @@ public class MergeGitIgnoreRecipe extends Recipe {
             return text;
         }
 
-        private String mergeGitIgnoreFiles(String existing, String fromArchetype) {
-            List<String> existingLines = existing.lines().map(String::trim).collect(Collectors.toList());
-            List<String> archetypeLines = fromArchetype
-                    .lines()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .collect(Collectors.toList());
+        private String mergeGitIgnoreFiles(String existingContent) {
+            // Get existing non-empty lines
+            List<String> existingLines =
+                    existingContent.lines().map(String::trim).collect(Collectors.toList());
 
             StringBuilder merged = new StringBuilder();
 
             // Add existing content
-            if (!existing.isEmpty()) {
-                merged.append(existing);
-                if (!existing.endsWith("\n")) {
+            if (!existingContent.isEmpty()) {
+                merged.append(existingContent);
+                if (!existingContent.endsWith("\n")) {
                     merged.append("\n");
                 }
             }
 
-            // Add new archetype entries
+            // Maintain proper formatting
+            String[] archetypeEntries = ARCHETYPE_GITIGNORE_CONTENT.split("\n");
             boolean hasNewEntries = false;
-            for (String line : archetypeLines) {
-                if (!existingLines.contains(line)) {
-                    if (!hasNewEntries) {
-                        merged.append("# Added from archetype\n");
-                        hasNewEntries = true;
-                    }
-                    merged.append(line).append("\n");
+            StringBuilder newContent = new StringBuilder();
+
+            // Process each line from archetype content
+            for (int i = 0; i < archetypeEntries.length; i++) {
+                String line = archetypeEntries[i].trim();
+
+                // Skip empty lines at the start
+                if (!hasNewEntries && line.isEmpty()) {
+                    continue;
                 }
+
+                // Check if we need to start adding entries
+                if (!hasNewEntries) {
+                    if (!line.isEmpty() && !existingLines.contains(line)) {
+                        hasNewEntries = true;
+                        newContent.append("# Added from archetype\n");
+                    } else {
+                        continue;
+                    }
+                }
+
+                // Add all the lines
+                if (line.startsWith("#") || line.isEmpty() || !existingLines.contains(line)) {
+                    newContent.append(line).append("\n");
+                }
+            }
+
+            // Only append new content if we have new entries
+            if (hasNewEntries) {
+                merged.append(newContent);
             }
 
             String result = merged.toString();

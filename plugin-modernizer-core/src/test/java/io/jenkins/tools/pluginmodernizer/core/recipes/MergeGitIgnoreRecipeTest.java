@@ -15,33 +15,38 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                 text(""), // Need one minimum file to trigger the recipe
                 text(
                         """
-                # Existing entries
-                *.log
-                build/
-                .idea/
-                # Custom section
-                custom/*.tmp
-                """,
+                    # Existing entries
+                    *.log
+                    build/
+                    .idea/
+                    # Custom section
+                    custom/*.tmp
+                    """,
                         """
-                # Existing entries
-                *.log
-                build/
-                .idea/
-                # Custom section
-                custom/*.tmp
-                # Added from archetype
-                target
-                work
-                *.iml
-                *.iws
-                *.ipr
-                .settings
-                .classpath
-                .project
-                """,
-                        sourceSpecs -> {
-                            sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath());
-                        }));
+                    # Existing entries
+                    *.log
+                    build/
+                    .idea/
+                    # Custom section
+                    custom/*.tmp
+                    # Added from archetype
+                    target
+
+                    # mvn hpi:run
+                    work
+
+                    # IntelliJ IDEA project files
+                    *.iml
+                    *.iws
+                    *.ipr
+                    .idea
+
+                    # Eclipse project files
+                    .settings
+                    .classpath
+                    .project
+                    """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
     }
 
     @Test
@@ -52,19 +57,24 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                 text(
                         "",
                         """
-                # Added from archetype
-                target
-                work
-                *.iml
-                *.iws
-                *.ipr
-                .settings
-                .classpath
-                .project
-                """,
-                        sourceSpecs -> {
-                            sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath());
-                        }));
+                    # Added from archetype
+                    target
+
+                    # mvn hpi:run
+                    work
+
+                    # IntelliJ IDEA project files
+                    *.iml
+                    *.iws
+                    *.ipr
+                    .idea
+
+                    # Eclipse project files
+                    .settings
+                    .classpath
+                    .project
+                    """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
     }
 
     @Test
@@ -74,26 +84,31 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                 text(""), // Need one minimum file to trigger the recipe
                 text(
                         """
-                # Existing entries
-                target
-                *.iml
-                .settings
-                """,
+                    # Existing entries
+                    target
+                    *.iml
+                    .settings
+                    .idea
+                    """,
                         """
-                # Existing entries
-                target
-                *.iml
-                .settings
-                # Added from archetype
-                work
-                *.iws
-                *.ipr
-                .classpath
-                .project
-                """,
-                        sourceSpecs -> {
-                            sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath());
-                        }));
+                    # Existing entries
+                    target
+                    *.iml
+                    .settings
+                    .idea
+                    # Added from archetype
+                    # mvn hpi:run
+                    work
+
+                    # IntelliJ IDEA project files
+                    *.iws
+                    *.ipr
+
+                    # Eclipse project files
+                    .classpath
+                    .project
+                    """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
     }
 
     @Test
@@ -103,32 +118,37 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                 text(""), // Need one minimum file to trigger the recipe
                 text(
                         """
-               # Existing entries
-               *.log
-               build/
-               .idea/
-               # Custom section
-               custom/*.tmp""",
+                    # Existing entries
+                    *.log
+                    build/
+                    .idea/
+                    # Custom section
+                    custom/*.tmp""",
                         """
-               # Existing entries
-               *.log
-               build/
-               .idea/
-               # Custom section
-               custom/*.tmp
-               # Added from archetype
-               target
-               work
-               *.iml
-               *.iws
-               *.ipr
-               .settings
-               .classpath
-               .project
-               """,
-                        sourceSpecs -> {
-                            sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath());
-                        }));
+                    # Existing entries
+                    *.log
+                    build/
+                    .idea/
+                    # Custom section
+                    custom/*.tmp
+                    # Added from archetype
+                    target
+
+                    # mvn hpi:run
+                    work
+
+                    # IntelliJ IDEA project files
+                    *.iml
+                    *.iws
+                    *.ipr
+                    .idea
+
+                    # Eclipse project files
+                    .settings
+                    .classpath
+                    .project
+                    """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
     }
 
     @Test
@@ -138,18 +158,22 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                 text(""), // Need one minimum file to trigger the recipe
                 text(
                         """
-              # Existing entries
-              target
-              work
-              *.iml
-              *.iws
-              *.ipr
-              .settings
-              .classpath
-              .project
-              """,
-                        sourceSpecs -> {
-                            sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath());
-                        }));
+                    target
+
+                    # mvn hpi:run
+                    work
+
+                    # IntelliJ IDEA project files
+                    *.iml
+                    *.iws
+                    *.ipr
+                    .idea
+
+                    # Eclipse project files
+                    .settings
+                    .classpath
+                    .project
+                    """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
     }
 }
