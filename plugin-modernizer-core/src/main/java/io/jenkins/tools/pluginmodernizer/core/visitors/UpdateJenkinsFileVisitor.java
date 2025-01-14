@@ -1,11 +1,19 @@
 package io.jenkins.tools.pluginmodernizer.core.visitors;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Tree;
 import org.openrewrite.groovy.GroovyIsoVisitor;
 import org.openrewrite.groovy.tree.G;
 import org.openrewrite.java.TreeVisitingPrinter;
+import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
+import org.openrewrite.java.tree.JRightPadded;
+import org.openrewrite.java.tree.JavaType;
+import org.openrewrite.java.tree.Space;
 import org.openrewrite.java.tree.TextComment;
 import org.openrewrite.marker.Markers;
 import org.slf4j.Logger;
@@ -26,10 +34,44 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
              https://github.com/jenkins-infra/pipeline-library/
             """;
 
+    // TODO: Find how we can insert the comment suffix
+    public static final String CONTAINER_AGENT_COMMENT =
+            "// Set to `false` if you need to use Docker for containerized tests";
+    public static final String FORK_COUNT_COMMENT =
+            "// run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores";
+
     /**
      * LOGGER.
      */
     private static final Logger LOG = LoggerFactory.getLogger(UpdateJenkinsFileVisitor.class);
+
+    /**
+     * Use container agent flag
+     */
+    private final Boolean useContainerAgent;
+
+    /**
+     * Fork count flag
+     */
+    private final String forkCount;
+
+    /**
+     * Default constructor that create a buildPlugin() without any argument
+     */
+    public UpdateJenkinsFileVisitor() {
+        // Default
+        this.useContainerAgent = true;
+        this.forkCount = "1C";
+    }
+
+    /**
+     * Constructor that create a buildPlugin() with arguments
+     * @param useContainerAgent the useContainerAgent flag
+     */
+    public UpdateJenkinsFileVisitor(Boolean useContainerAgent, String forkCount) {
+        this.useContainerAgent = Objects.requireNonNullElse(useContainerAgent, true);
+        this.forkCount = Objects.requireNonNullElse(forkCount, "1C");
+    }
 
     @Override
     public G.CompilationUnit visitCompilationUnit(G.CompilationUnit cu, ExecutionContext ctx) {
@@ -50,8 +92,168 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
                 ? null
                 : (TextComment) method.getComments().get(0);
         if (method.getComments().isEmpty() || !existingComment.getText().equals(METHOD_COMMENT)) {
-            return method.withComments(List.of(new TextComment(true, METHOD_COMMENT, "\n", Markers.EMPTY)));
+            method = method.withComments(List.of(new TextComment(true, METHOD_COMMENT, "\n", Markers.EMPTY)));
         }
+
+        // Remove legacy arguments
+        method = removeLegacyArguments(method);
+
+        List<Expression> arguments = new LinkedList<>(method.getArguments());
+
+        // Remove argument if contains only one element that is J.Empty
+        // Since we will never create anymore a buildPlugin() without any argument
+        arguments = arguments.stream().filter(arg -> !(arg instanceof J.Empty)).collect(Collectors.toList());
+
+        // Fork count
+        G.MapEntry forkCountEntry = buildForkCountEntry();
+        if (!hasArgument(method, "forkCount")) {
+            // Add argument at the end
+            arguments.add(forkCountEntry);
+            method = method.withArguments(arguments);
+        }
+
+        // Container agent
+        G.MapEntry useContainerAgentEntry = buildContainerAgentEntry();
+        if (!hasArgument(method, "useContainerAgent")) {
+            arguments.add(useContainerAgentEntry);
+            method = method.withArguments(arguments);
+        }
+
+        if (!hasArgument(method, "configurations")) {
+            G.MapEntry configurationsEntry = buildConfigurations();
+            arguments.add(configurationsEntry);
+            method = method.withArguments(arguments);
+        }
+
         return method;
+    }
+
+    /**
+     * Check if the method invocation has an argument with the given name
+     * @param method the method invocation
+     * @param argumentName the argument name
+     * @return true if the argument is present
+     */
+    private boolean hasArgument(J.MethodInvocation method, String argumentName) {
+        return method.getArguments().stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry
+                        && ((G.MapEntry) arg).getKey() instanceof J.Literal
+                        && ((J.Literal) ((G.MapEntry) arg).getKey()).getValue().equals(argumentName));
+    }
+
+    /**
+     * Remove the legacy arguments from the method invocation
+     * They are replaced by configurations that are more flexible
+     * @param method the method invocation
+     */
+    private J.MethodInvocation removeLegacyArguments(J.MethodInvocation method) {
+
+        // Remove jdkVersions argument if present
+        List<Expression> arguments = method.getArguments().stream()
+                .filter(arg -> !(arg instanceof G.MapEntry
+                        && ((G.MapEntry) arg).getKey() instanceof J.Literal
+                        && ((J.Literal) ((G.MapEntry) arg).getKey()).getValue().equals("jdkVersions")))
+                .collect(Collectors.toList());
+        method = method.withArguments(arguments);
+
+        // Remove platforms argument if present
+        arguments = method.getArguments().stream()
+                .filter(arg -> !(arg instanceof G.MapEntry
+                        && ((G.MapEntry) arg).getKey() instanceof J.Literal
+                        && ((J.Literal) ((G.MapEntry) arg).getKey()).getValue().equals("platforms")))
+                .collect(Collectors.toList());
+        method = method.withArguments(arguments);
+
+        // Remove jenkinsVersions argument if present
+        arguments = method.getArguments().stream()
+                .filter(arg -> !(arg instanceof G.MapEntry
+                        && ((G.MapEntry) arg).getKey() instanceof J.Literal
+                        && ((J.Literal) ((G.MapEntry) arg).getKey()).getValue().equals("jenkinsVersions")))
+                .collect(Collectors.toList());
+        method = method.withArguments(arguments);
+
+        return method;
+    }
+
+    /**
+     * Build the forkCount argument as a G.MapEntry
+     * @return the G.MapEntry
+     */
+    private G.MapEntry buildForkCountEntry() {
+        J.Literal keyLiteral =
+                new J.Literal(Tree.randomId(), Space.EMPTY, Markers.EMPTY, "forkCount", "forkCount", null, null);
+
+        J.Literal valueLiteral = new J.Literal(
+                Tree.randomId(),
+                Space.format(" "),
+                Markers.EMPTY,
+                forkCount,
+                "'" + forkCount + "'",
+                null,
+                JavaType.Primitive.String);
+
+        // Prefix with newline and indentation
+        return new G.MapEntry(
+                Tree.randomId(),
+                Space.format("\n    "),
+                Markers.EMPTY,
+                JRightPadded.build(keyLiteral),
+                valueLiteral,
+                null);
+    }
+
+    /**
+     * Build the useContainerAgent argument as a G.MapEntry
+     * @return the G.MapEntry
+     */
+    private G.MapEntry buildContainerAgentEntry() {
+        J.Literal keyLiteral = new J.Literal(
+                Tree.randomId(), Space.EMPTY, Markers.EMPTY, "useContainerAgent", "useContainerAgent", null, null);
+
+        J.Literal valueLiteral = new J.Literal(
+                Tree.randomId(),
+                Space.format(" "),
+                Markers.EMPTY,
+                useContainerAgent,
+                useContainerAgent.toString(),
+                null,
+                JavaType.Primitive.Boolean);
+
+        // Prefix with newline and indentation
+        return new G.MapEntry(
+                Tree.randomId(),
+                Space.format("\n    "),
+                Markers.EMPTY,
+                JRightPadded.build(keyLiteral),
+                valueLiteral,
+                null);
+    }
+
+    /**
+     * Build an empty configurations argument as a G.MapEntry
+     * @return the G.MapEntry
+     */
+    private G.MapEntry buildConfigurations() {
+        J.Literal keyLiteral = new J.Literal(
+                Tree.randomId(), Space.EMPTY, Markers.EMPTY, "configurations", "configurations", null, null);
+
+        // New configuration is an empty map
+        J.Literal valueLiteral = new J.Literal(
+                Tree.randomId(),
+                Space.format(" "),
+                Markers.EMPTY,
+                new Object[0],
+                "[]\n",
+                null,
+                JavaType.Primitive.String);
+
+        // Prefix with newline and indentation
+        return new G.MapEntry(
+                Tree.randomId(),
+                Space.format("\n    "),
+                Markers.EMPTY,
+                JRightPadded.build(keyLiteral),
+                valueLiteral,
+                null);
     }
 }
