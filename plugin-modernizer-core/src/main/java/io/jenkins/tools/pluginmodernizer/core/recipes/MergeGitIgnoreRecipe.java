@@ -1,7 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,10 +12,11 @@ import org.slf4j.LoggerFactory;
 
 public class MergeGitIgnoreRecipe extends Recipe {
     private static final Logger LOG = LoggerFactory.getLogger(MergeGitIgnoreRecipe.class);
-    private final Path archetypeGitIgnorePath;
+    private final String gitIgnoreContent;
 
-    public MergeGitIgnoreRecipe(Path archetypeGitIgnorePath) {
-        this.archetypeGitIgnorePath = archetypeGitIgnorePath;
+    public MergeGitIgnoreRecipe(String gitIgnoreContent) {
+        this.gitIgnoreContent = gitIgnoreContent;
+        LOG.info("updated MergeGitIgnoreRecipe with given .gitignore content.");
     }
 
     @Override
@@ -32,22 +31,22 @@ public class MergeGitIgnoreRecipe extends Recipe {
 
     @Override
     public PlainTextVisitor<ExecutionContext> getVisitor() {
-        return new GitIgnoreMerger(archetypeGitIgnorePath);
+        return new GitIgnoreMerger(gitIgnoreContent);
     }
 
     private static class GitIgnoreMerger extends PlainTextVisitor<ExecutionContext> {
-        private final Path archetypeGitIgnorePath;
+        private final String archetypeContent;
 
-        GitIgnoreMerger(Path archetypeGitIgnorePath) {
-            this.archetypeGitIgnorePath = archetypeGitIgnorePath;
+        GitIgnoreMerger(String archetypeContent) {
+            this.archetypeContent = archetypeContent;
         }
 
         @Override
         public PlainText visitText(PlainText text, ExecutionContext ctx) {
             Path sourcePath = text.getSourcePath();
 
-            // Early return if source path is null
-            if (sourcePath == null) {
+             // Early return if source path is null
+             if (sourcePath == null) {
                 return text;
             }
 
@@ -56,38 +55,30 @@ public class MergeGitIgnoreRecipe extends Recipe {
             if (fileNamePath == null) {
                 return text;
             }
-
+            
             String fileName = fileNamePath.toString();
             if (!".gitignore".equals(fileName)) {
                 return text; // Return early if not a .gitignore file
             }
 
-            try {
-                if (Files.exists(archetypeGitIgnorePath)) {
-                    String existingContent = text.getText();
-                    String archetypeContent = Files.readString(archetypeGitIgnorePath);
-                    String mergedContent = mergeGitIgnoreFiles(existingContent, archetypeContent);
+            String existingContent = text.getText();
+            String mergedContent = mergeGitIgnoreFiles(existingContent, archetypeContent);
 
-                    if (!mergedContent.equals(existingContent)) {
-                        return text.withText(mergedContent);
-                    }
-                }
-            } catch (IOException e) {
-                LOG.error("Error reading archetype .gitignore file", e);
-                throw new RuntimeException("Failed to read archetype .gitignore file", e);
+            if (!mergedContent.equals(existingContent)) {
+                return text.withText(mergedContent);
             }
 
             return text;
         }
 
         private String mergeGitIgnoreFiles(String existing, String fromArchetype) {
-            List<String> existingLines = existing.lines().map(String::trim).collect(Collectors.toList());
+            List<String> existingLines = existing.lines().map(String::trim)
+                .collect(Collectors.toList());
 
-            List<String> archetypeLines = fromArchetype
-                    .lines()
-                    .map(String::trim)
-                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                    .collect(Collectors.toList());
+            List<String> archetypeLines = fromArchetype.lines()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                .collect(Collectors.toList());
 
             StringBuilder merged = new StringBuilder();
 
@@ -111,7 +102,6 @@ public class MergeGitIgnoreRecipe extends Recipe {
                 }
             }
 
-            // Remove final newline if the result is not empty
             String result = merged.toString();
             if (!result.isEmpty() && result.endsWith("\n")) {
                 result = result.substring(0, result.length() - 1);
