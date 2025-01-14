@@ -45,8 +45,8 @@ public class MergeGitIgnoreRecipe extends Recipe {
         public PlainText visitText(PlainText text, ExecutionContext ctx) {
             Path sourcePath = text.getSourcePath();
 
-             // Early return if source path is null
-             if (sourcePath == null) {
+            // Early return if source path is null
+            if (sourcePath == null) {
                 return text;
             }
 
@@ -55,7 +55,7 @@ public class MergeGitIgnoreRecipe extends Recipe {
             if (fileNamePath == null) {
                 return text;
             }
-            
+
             String fileName = fileNamePath.toString();
             if (!".gitignore".equals(fileName)) {
                 return text; // Return early if not a .gitignore file
@@ -72,13 +72,13 @@ public class MergeGitIgnoreRecipe extends Recipe {
         }
 
         private String mergeGitIgnoreFiles(String existing, String fromArchetype) {
-            List<String> existingLines = existing.lines().map(String::trim)
-                .collect(Collectors.toList());
+            List<String> existingLines = existing.lines().map(String::trim).collect(Collectors.toList());
 
-            List<String> archetypeLines = fromArchetype.lines()
-                .map(String::trim)
-                .filter(line -> !line.isEmpty() && !line.startsWith("#"))
-                .collect(Collectors.toList());
+            List<String> archetypeLines = fromArchetype
+                    .lines()
+                    .map(String::trim)
+                    .filter(line -> !line.isEmpty() && !line.startsWith("#"))
+                    .collect(Collectors.toList());
 
             StringBuilder merged = new StringBuilder();
 
