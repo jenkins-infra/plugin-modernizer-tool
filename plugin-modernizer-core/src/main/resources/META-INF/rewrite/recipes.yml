@@ -49,7 +49,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupGitIgnore
 displayName: Setup the .gitignore
 description: Add a missing .gitignore to the Jenkins plugin.
-tags: ['chore', 'skip-verification']
+tags: ['chore', 'skip-verification', 'wip']
 recipeList:
     # Keep in sync with https://github.com/jenkinsci/archetypes/blob/master/common-files/gitignore
   - org.openrewrite.text.CreateTextFile:
