@@ -12,12 +12,18 @@ import org.slf4j.LoggerFactory;
 
 public class MergeGitIgnoreRecipe extends Recipe {
     private static final Logger LOG = LoggerFactory.getLogger(MergeGitIgnoreRecipe.class);
-    private final String gitIgnoreContent;
 
-    public MergeGitIgnoreRecipe(String gitIgnoreContent) {
-        this.gitIgnoreContent = gitIgnoreContent;
-        LOG.info("updated MergeGitIgnoreRecipe with given .gitignore content.");
-    }
+    private static final String ARCHETYPE_GITIGNORE_CONTENT = """
+            # Added from archetype
+            target
+            work
+            *.iml
+            *.iws
+            *.ipr
+            .settings
+            .classpath
+            .project
+            """;
 
     @Override
     public String getDisplayName() {
@@ -26,12 +32,12 @@ public class MergeGitIgnoreRecipe extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Merges .gitignore entries from archetype with existing .gitignore file.";
+        return "Merges predefined archetype .gitignore entries with the existing .gitignore file.";
     }
 
     @Override
     public PlainTextVisitor<ExecutionContext> getVisitor() {
-        return new GitIgnoreMerger(gitIgnoreContent);
+        return new GitIgnoreMerger(ARCHETYPE_GITIGNORE_CONTENT);
     }
 
     private static class GitIgnoreMerger extends PlainTextVisitor<ExecutionContext> {
@@ -45,26 +51,17 @@ public class MergeGitIgnoreRecipe extends Recipe {
         public PlainText visitText(PlainText text, ExecutionContext ctx) {
             Path sourcePath = text.getSourcePath();
 
-            // Early return if source path is null
-            if (sourcePath == null) {
+            // Ensure the file is a .gitignore
+            if (sourcePath == null || !sourcePath.getFileName().toString().equals(".gitignore")) {
                 return text;
-            }
-
-            // Safely get filename with null checks
-            Path fileNamePath = sourcePath.getFileName();
-            if (fileNamePath == null) {
-                return text;
-            }
-
-            String fileName = fileNamePath.toString();
-            if (!".gitignore".equals(fileName)) {
-                return text; // Return early if not a .gitignore file
             }
 
             String existingContent = text.getText();
             String mergedContent = mergeGitIgnoreFiles(existingContent, archetypeContent);
 
+            // Only update if there are changes
             if (!mergedContent.equals(existingContent)) {
+                LOG.info("Merging .gitignore for file: {}", sourcePath);
                 return text.withText(mergedContent);
             }
 
@@ -73,7 +70,6 @@ public class MergeGitIgnoreRecipe extends Recipe {
 
         private String mergeGitIgnoreFiles(String existing, String fromArchetype) {
             List<String> existingLines = existing.lines().map(String::trim).collect(Collectors.toList());
-
             List<String> archetypeLines = fromArchetype
                     .lines()
                     .map(String::trim)
@@ -90,7 +86,7 @@ public class MergeGitIgnoreRecipe extends Recipe {
                 }
             }
 
-            // Add archetype entries
+            // Add new archetype entries
             boolean hasNewEntries = false;
             for (String line : archetypeLines) {
                 if (!existingLines.contains(line)) {
