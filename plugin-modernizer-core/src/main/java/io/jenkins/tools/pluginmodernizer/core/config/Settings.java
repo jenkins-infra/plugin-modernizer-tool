@@ -133,7 +133,9 @@ public class Settings {
             List<Recipe> recipes = new ArrayList<>();
             while (yamlParser.nextToken() != null) {
                 Recipe recipe = mapper.readValue(yamlParser, Recipe.class);
-                if (recipe.getTags().contains("condition") || recipe.getName().contains(".conditions.")) {
+                if (recipe.getTags().contains("condition")
+                        || recipe.getName().contains(".conditions.")
+                        || recipe.getTags().contains("wip")) {
                     continue;
                 }
                 recipes.add(recipe);
