@@ -1,5 +1,7 @@
 package io.jenkins.tools.pluginmodernizer.core.visitors;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.jenkins.tools.pluginmodernizer.core.model.PlatformConfig;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -8,7 +10,6 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Tree;
 import org.openrewrite.groovy.GroovyIsoVisitor;
 import org.openrewrite.groovy.tree.G;
-import org.openrewrite.java.TreeVisitingPrinter;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.JRightPadded;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A visitor to update the Jenkinsfile with recommended configuration
  */
+@SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE", justification = "Newline is used for formatting")
 public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext> {
 
     /**
@@ -34,7 +36,6 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
              https://github.com/jenkins-infra/pipeline-library/
             """;
 
-    // TODO: Find how we can insert the comment suffix
     public static final String CONTAINER_AGENT_COMMENT =
             "Set to `false` if you need to use Docker for containerized tests";
     public static final String FORK_COUNT_COMMENT =
@@ -56,28 +57,27 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
     private final String forkCount;
 
     /**
+     * List of platform config to insert
+     */
+    private final List<PlatformConfig> platformConfigs;
+
+    /**
      * Default constructor that create a buildPlugin() without any argument
      */
     public UpdateJenkinsFileVisitor() {
-        // Default
         this.useContainerAgent = true;
         this.forkCount = "1C";
+        this.platformConfigs = PlatformConfig.getDefaults();
     }
 
     /**
      * Constructor that create a buildPlugin() with arguments
      * @param useContainerAgent the useContainerAgent flag
      */
-    public UpdateJenkinsFileVisitor(Boolean useContainerAgent, String forkCount) {
+    public UpdateJenkinsFileVisitor(Boolean useContainerAgent, String forkCount, List<PlatformConfig> platformConfigs) {
         this.useContainerAgent = Objects.requireNonNullElse(useContainerAgent, true);
         this.forkCount = Objects.requireNonNullElse(forkCount, "1C");
-    }
-
-    @Override
-    public G.CompilationUnit visitCompilationUnit(G.CompilationUnit cu, ExecutionContext ctx) {
-        // Debug purpose
-        LOG.debug(TreeVisitingPrinter.printTree(cu));
-        return super.visitCompilationUnit(cu, ctx);
+        this.platformConfigs = platformConfigs;
     }
 
     @Override
@@ -195,7 +195,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         // Prefix with newline and indentation
         return new G.MapEntry(
                 Tree.randomId(),
-                Space.format("\n    "),
+                Space.format("\n  "),
                 Markers.EMPTY,
                 JRightPadded.build(keyLiteral),
                 valueLiteral,
@@ -222,7 +222,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         // Prefix with newline and indentation
         return new G.MapEntry(
                 Tree.randomId(),
-                Space.build(" ", List.of(new TextComment(false, " " + FORK_COUNT_COMMENT, "\n    ", Markers.EMPTY))),
+                Space.build(" ", List.of(new TextComment(false, " " + FORK_COUNT_COMMENT, "\n  ", Markers.EMPTY))),
                 Markers.EMPTY,
                 JRightPadded.build(keyLiteral),
                 valueLiteral,
@@ -238,20 +238,46 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
                 Tree.randomId(), Space.EMPTY, Markers.EMPTY, "configurations", "configurations", null, null);
 
         // New configuration is an empty map
-        J.Literal valueLiteral = new J.Literal(
-                Tree.randomId(),
-                Space.format(" "),
-                Markers.EMPTY,
-                new Object[0],
-                "[]\n",
-                null,
-                JavaType.Primitive.String);
+        J.Literal valueLiteral;
+        if (platformConfigs.isEmpty()) {
+            valueLiteral = new J.Literal(
+                    Tree.randomId(),
+                    Space.format(" "),
+                    Markers.EMPTY,
+                    new Object[0],
+                    "[]\n",
+                    null,
+                    JavaType.Primitive.String);
+        } else {
+
+            String valueSource = platformConfigs.stream()
+                    .map(platformConfig -> {
+                        String platform = platformConfig.name().toString().toLowerCase();
+                        int major = platformConfig.jdk().getMajor();
+                        String jenkinsVersion = platformConfig.jenkins();
+                        if (jenkinsVersion == null) {
+                            return String.format("\n    [platform: '%s', jdk: %s]", platform, major);
+                        } else {
+                            return String.format(
+                                    "\n    [platform: '%s', jdk: %s, jenkins: '%s']", platform, major, jenkinsVersion);
+                        }
+                    })
+                    .collect(Collectors.joining(","));
+
+            valueLiteral = new J.Literal(
+                    Tree.randomId(),
+                    Space.format(" "),
+                    Markers.EMPTY,
+                    new Object[0],
+                    "[%s,\n]".formatted(valueSource), // Keep last comma and return to next line
+                    null,
+                    JavaType.Primitive.String);
+        }
 
         // Prefix with newline and indentation
         return new G.MapEntry(
                 Tree.randomId(),
-                Space.build(
-                        " ", List.of(new TextComment(false, " " + CONTAINER_AGENT_COMMENT, "\n    ", Markers.EMPTY))),
+                Space.build(" ", List.of(new TextComment(false, " " + CONTAINER_AGENT_COMMENT, "\n  ", Markers.EMPTY))),
                 Markers.EMPTY,
                 JRightPadded.build(keyLiteral),
                 valueLiteral,
