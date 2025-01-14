@@ -71,7 +71,7 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
         rewriteRun(
                 spec -> spec.recipe(new MergeGitIgnoreRecipe(archetypeGitignorePath)),
                 text(
-                        "",
+                        null,
                         """
                 # Added from archetype
                 target
