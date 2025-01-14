@@ -36,7 +36,6 @@ public class ReplaceRemovedSSHLauncherConstructor extends Recipe {
      * Visitor that replace the removed SSHLauncher removed constructor by the new one.
      */
     public static class UseDataBoundConstructor extends JavaIsoVisitor<ExecutionContext> {
-
         // We will replace by the @DataBoundConstructor
         JavaTemplate newConstructorTemplate = JavaTemplate.builder(
                         "new SSHLauncher(#{any(java.lang.String)}, #{any(int)}, null)")
