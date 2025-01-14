@@ -110,22 +110,22 @@ Generate a SSH key pair if you don't already have one.
 ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
-Add the public SSH key to your GitHub account:
+Add the public SSH key to your GitHub account.
 - Go to GitHub Settings > SSH and GPG keys > New SSH key.
 - Give your key a title and paste the contents of your public key file (usually `~/.ssh/id_ed25519.pub`).
 
-Configure Git to use SSH for signing:
+Configure Git to use SSH for signing.
 ```shell
 git config --global gpg.format ssh
 git config --global user.signingkey ~/.ssh/id_ed25519.pub
 ```
 Replace `id_ed25519.pub` with your actual public key filename.
 
-Set up commit signing globally:
+Set up commit signing globally.
 ```shell
 git config --global commit.gpgsign true
 ```
-If you prefer to configure signing for individual repositories:
+If you prefer to configure signing for individual repositories.
 ```shell
 git config user.signingkey ~/.ssh/id_ed25519.pub
 git config gpg.format ssh
