@@ -36,9 +36,9 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
 
     // TODO: Find how we can insert the comment suffix
     public static final String CONTAINER_AGENT_COMMENT =
-            "// Set to `false` if you need to use Docker for containerized tests";
+            "Set to `false` if you need to use Docker for containerized tests";
     public static final String FORK_COUNT_COMMENT =
-            "// run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores";
+            "run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores";
 
     /**
      * LOGGER.
@@ -222,7 +222,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         // Prefix with newline and indentation
         return new G.MapEntry(
                 Tree.randomId(),
-                Space.format("\n    "),
+                Space.build(" ", List.of(new TextComment(false, " " + FORK_COUNT_COMMENT, "\n    ", Markers.EMPTY))),
                 Markers.EMPTY,
                 JRightPadded.build(keyLiteral),
                 valueLiteral,
@@ -250,7 +250,8 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         // Prefix with newline and indentation
         return new G.MapEntry(
                 Tree.randomId(),
-                Space.format("\n    "),
+                Space.build(
+                        " ", List.of(new TextComment(false, " " + CONTAINER_AGENT_COMMENT, "\n    ", Markers.EMPTY))),
                 Markers.EMPTY,
                 JRightPadded.build(keyLiteral),
                 valueLiteral,

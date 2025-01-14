@@ -35,7 +35,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                         """
                 buildPlugin(
                     dontRemoveMe: 'true',
-                    jdkVersions: ['8', '11'], // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    jdkVersions: ['8', '11'],
                     jenkinsVersions: ['2.222.1', '2.249.1'],
                     platforms: ['linux', 'windows']
                 )
@@ -47,8 +48,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                 */
                 buildPlugin(
                     dontRemoveMe: 'true',
-                    forkCount: '1C',
-                    useContainerAgent: true,
+                    forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                     configurations: []
                 )
                 """,
@@ -79,8 +80,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                  https://github.com/jenkins-infra/pipeline-library/
                 */
                 buildPlugin(
-                    forkCount: '1C',
-                    useContainerAgent: true,
+                    forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                     configurations: []
                 )
                 """,
@@ -112,8 +113,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                  https://github.com/jenkins-infra/pipeline-library/
                 */
                 buildPlugin(
-                    forkCount: '1C',
-                    useContainerAgent: true,
+                    forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                     configurations: []
                 )
                 """,
@@ -144,8 +145,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                  https://github.com/jenkins-infra/pipeline-library/
                 */
                 buildPlugin(
-                    forkCount: '1C',
-                    useContainerAgent: true,
+                    forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                     configurations: []
                 )
                 """,
@@ -176,8 +177,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                  https://github.com/jenkins-infra/pipeline-library/
                 */
                 buildPlugin(
-                    forkCount: '2C',
-                    useContainerAgent: true,
+                    forkCount: '2C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                     configurations: []
                 )
                 """,
@@ -212,8 +213,8 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                  https://github.com/jenkins-infra/pipeline-library/
                 */
                 buildPlugin(
-                    forkCount: '1C',
-                    useContainerAgent: false,
+                    forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                    useContainerAgent: false, // Set to `false` if you need to use Docker for containerized tests
                     configurations: []
                 )
                 """,
