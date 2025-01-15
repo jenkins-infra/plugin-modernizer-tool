@@ -107,25 +107,106 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         // Fork count
         G.MapEntry forkCountEntry = buildForkCountEntry();
         if (!hasArgument(method, "forkCount")) {
-            // Add argument at the end
             arguments.add(forkCountEntry);
             method = method.withArguments(arguments);
+        }
+        // Perform the update if the value is different
+        else {
+            removeOrphanedVariable(method, "forkCount");
+            if (shouldReplaceForkCount(arguments)) {
+                arguments = arguments.stream()
+                        .filter(arg -> !(arg instanceof G.MapEntry mapEntry
+                                && mapEntry.getKey() instanceof J.Literal key
+                                && "forkCount".equals(key.getValue())))
+                        .collect(Collectors.toList());
+                arguments.add(forkCountEntry);
+                method = method.withArguments(arguments);
+            }
         }
 
         // Container agent
         G.MapEntry useContainerAgentEntry = buildContainerAgentEntry();
+        removeOrphanedVariable(method, "useContainerAgent");
         if (!hasArgument(method, "useContainerAgent")) {
             arguments.add(useContainerAgentEntry);
             method = method.withArguments(arguments);
         }
+        // Perform the update if the value is different
+        else {
+            if (shouldReplaceUseContainerAgent(arguments)) {
+                arguments = arguments.stream()
+                        .filter(arg -> !(arg instanceof G.MapEntry mapEntry
+                                && mapEntry.getKey() instanceof J.Literal key
+                                && "useContainerAgent".equals(key.getValue())))
+                        .collect(Collectors.toList());
+                arguments.add(useContainerAgentEntry);
+                method = method.withArguments(arguments);
+            }
+        }
 
+        // Add or update configurations
+        G.MapEntry configurationsEntry = buildConfigurations();
+        removeOrphanedVariable(method, "configurations");
         if (!hasArgument(method, "configurations")) {
-            G.MapEntry configurationsEntry = buildConfigurations();
             arguments.add(configurationsEntry);
             method = method.withArguments(arguments);
+        } else {
+            if (shouldReplaceConfigurations(arguments)) {
+                arguments = arguments.stream()
+                        .filter(arg -> !(arg instanceof G.MapEntry mapEntry
+                                && mapEntry.getKey() instanceof J.Literal key
+                                && "configurations".equals(key.getValue())))
+                        .collect(Collectors.toList());
+                arguments.add(configurationsEntry);
+                method = method.withArguments(arguments);
+            }
         }
 
         return method;
+    }
+
+    /**
+     * Return if configurtions must be replaced
+     * @param arguments the arguments of the method
+     * @return true if configurations must be replaced
+     */
+    private boolean shouldReplaceConfigurations(List<Expression> arguments) {
+        return arguments.stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry mapEntry
+                        && mapEntry.getKey() instanceof J.Literal key
+                        && "configurations".equals(key.getValue())
+                        && (mapEntry.getValue() instanceof G.ListLiteral
+                                || mapEntry.getValue() instanceof J.Identifier));
+    }
+
+    /**
+     * Return if useContainerAgent must be replaced
+     * @param arguments the arguments of the method
+     * @return true if useContainerAgent must be replaced
+     */
+    private boolean shouldReplaceUseContainerAgent(List<Expression> arguments) {
+        return arguments.stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry mapEntry
+                        && mapEntry.getKey() instanceof J.Literal key
+                        && "useContainerAgent".equals(key.getValue())
+                        && ((mapEntry.getValue() instanceof J.Literal value
+                                        && !value.getValue().equals(useContainerAgent))
+                                || mapEntry.getValue() instanceof J.Identifier));
+    }
+
+    /**
+     * Return if forkCount must be replaced
+     * @param arguments the arguments of the method
+     * @return true if forkCount must be replaced
+     */
+    private boolean shouldReplaceForkCount(List<Expression> arguments) {
+        return arguments.stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry mapEntry
+                        && mapEntry.getKey() instanceof J.Literal key
+                        && "forkCount".equals(key.getValue())
+                        && ((mapEntry.getValue() instanceof J.Literal value
+                                        && !value.getValue().equals(forkCount))
+                                || mapEntry.getValue() instanceof J.Identifier));
     }
 
     /**

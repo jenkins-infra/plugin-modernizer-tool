@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.127</version>
+    <version>1.128</version>
     <relativePath />
   </parent>
 
@@ -45,9 +45,9 @@
     <spotless.check.skip>false</spotless.check.skip>
 
     <!-- Version -->
-    <openrewrite.bom.version>3.0.0</openrewrite.bom.version>
-    <openrewrite.maven.plugin.version>6.0.0</openrewrite.maven.plugin.version>
-    <micrometer.version>1.14.2</micrometer.version>
+    <openrewrite.bom.version>3.0.1</openrewrite.bom.version>
+    <openrewrite.maven.plugin.version>6.0.1</openrewrite.maven.plugin.version>
+    <micrometer.version>1.14.3</micrometer.version>
     <slf4j.version>2.0.16</slf4j.version>
     <logback.version>1.5.16</logback.version>
     <picocli.version>4.7.6</picocli.version>
@@ -72,7 +72,7 @@
     <checker.qual.version>3.48.4</checker.qual.version>
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
     <jwt.version>0.12.6</jwt.version>
-    <bouncycastle.version>1.79</bouncycastle.version>
+    <bouncycastle.version>1.80</bouncycastle.version>
     <maven.surefire.version>3.5.2</maven.surefire.version>
     <maven.failsafe.version>3.5.2</maven.failsafe.version>
     <testcontainers.version>1.20.4</testcontainers.version>
