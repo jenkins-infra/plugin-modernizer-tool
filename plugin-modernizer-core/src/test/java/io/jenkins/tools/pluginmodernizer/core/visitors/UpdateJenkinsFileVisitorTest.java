@@ -338,4 +338,75 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                             sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
                         }));
     }
+
+    @Test
+    void noChangesOnCustomPipeline() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor(false, null, List.of()));
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                        pipeline {
+                            agent any
+                            stages {
+                                stage('Build') {
+                                    steps {
+                                        echo 'Building..'
+                                    }
+                                }
+                            }
+                        }
+                        """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
+
+    @Test
+    void removeVariables() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor(
+                                false, null, List.of(PlatformConfig.build(Platform.LINUX, JDK.JAVA_17))));
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                        def versions = [21, 17]
+                        def platforms = ['linux', 'windows']
+                        def jenkinsVersions = ['2.249.1', '2.222.1']
+                        buildPlugin(
+                            jdkVersions: versions,
+                            jenkinsVersions: jenkinsVersions,
+                            platforms: platforms
+                        )
+                        """,
+                        """
+                        /*
+                         See the documentation for more options:
+                         https://github.com/jenkins-infra/pipeline-library/
+                        */
+                        buildPlugin(
+                          forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                          useContainerAgent: false, // Set to `false` if you need to use Docker for containerized tests
+                          configurations: [
+                            [platform: 'linux', jdk: 17],
+                        ])
+                        """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
 }

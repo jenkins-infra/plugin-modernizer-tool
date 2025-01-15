@@ -96,7 +96,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         }
 
         // Remove legacy arguments
-        method = removeLegacyArguments(method);
+        method = removeArguments(method);
 
         List<Expression> arguments = new LinkedList<>(method.getArguments());
 
@@ -142,13 +142,53 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
     }
 
     /**
-     * Remove the legacy arguments from the method invocation
+     * Remove variable reference on a removed arg of the method
+     */
+    private void removeOrphanedVariable(J.MethodInvocation method, String name) {
+        Expression expression = method.getArguments().stream()
+                .filter(arg -> arg instanceof G.MapEntry
+                        && ((G.MapEntry) arg).getKey() instanceof J.Literal
+                        && ((J.Literal) ((G.MapEntry) arg).getKey()).getValue().equals(name))
+                .map(arg -> ((G.MapEntry) arg).getValue())
+                .findFirst()
+                .orElse(null);
+
+        if (expression instanceof J.Identifier identifier) {
+            doAfterVisit(new GroovyIsoVisitor<>() {
+                @Override
+                public J.VariableDeclarations visitVariableDeclarations(
+                        J.VariableDeclarations multiVariable, ExecutionContext ctx) {
+                    if (multiVariable.getVariables().stream()
+                            .anyMatch(v -> v.getSimpleName().equals(identifier.getSimpleName()))) {
+                        // Cleanup empty newline after removing any variable declaration on top of Jenkins
+                        doAfterVisit(new GroovyIsoVisitor<>() {
+                            @Override
+                            public J.MethodInvocation visitMethodInvocation(
+                                    J.MethodInvocation method, ExecutionContext executionContext) {
+                                if (method.getPrefix().getWhitespace().equals("\n")) {
+                                    method =
+                                            method.withPrefix(method.getPrefix().withWhitespace(""));
+                                }
+                                return method;
+                            }
+                        });
+                        return null;
+                    }
+                    return super.visitVariableDeclarations(multiVariable, ctx);
+                }
+            });
+        }
+    }
+
+    /**
+     * Remove the arguments from the method invocation
      * They are replaced by configurations that are more flexible
      * @param method the method invocation
      */
-    private J.MethodInvocation removeLegacyArguments(J.MethodInvocation method) {
+    private J.MethodInvocation removeArguments(J.MethodInvocation method) {
 
         // Remove jdkVersions argument if present
+        removeOrphanedVariable(method, "jdkVersions");
         List<Expression> arguments = method.getArguments().stream()
                 .filter(arg -> !(arg instanceof G.MapEntry
                         && ((G.MapEntry) arg).getKey() instanceof J.Literal
@@ -157,6 +197,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         method = method.withArguments(arguments);
 
         // Remove platforms argument if present
+        removeOrphanedVariable(method, "platforms");
         arguments = method.getArguments().stream()
                 .filter(arg -> !(arg instanceof G.MapEntry
                         && ((G.MapEntry) arg).getKey() instanceof J.Literal
@@ -165,6 +206,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         method = method.withArguments(arguments);
 
         // Remove jenkinsVersions argument if present
+        removeOrphanedVariable(method, "jenkinsVersions");
         arguments = method.getArguments().stream()
                 .filter(arg -> !(arg instanceof G.MapEntry
                         && ((G.MapEntry) arg).getKey() instanceof J.Literal
