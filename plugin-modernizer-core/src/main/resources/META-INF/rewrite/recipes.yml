@@ -11,7 +11,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MergeGitIgnoreRecipe
 displayName: Merge .gitignore Entries
 description: Merges the .gitignore entries from the archetype with the existing .gitignore file.
-tags: ['chore']
+tags: ['chore', 'skip-verification', 'wip']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.MergeGitIgnoreRecipe
 ---
@@ -19,7 +19,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpdateScmUrl
 displayName: Update scm urls from git:// to https://
 description: Updates scm urls in POM files from git:// to https:// protocol as git:// protocol is deprecated by GitHub
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
 ---
@@ -49,7 +49,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupGitIgnore
 displayName: Setup the .gitignore
 description: Add a missing .gitignore to the Jenkins plugin.
-tags: ['chore', 'skip-verification', 'wip']
+tags: ['chore', 'skip-verification']
 recipeList:
     # Keep in sync with https://github.com/jenkinsci/archetypes/blob/master/common-files/gitignore
   - org.openrewrite.text.CreateTextFile:
@@ -122,7 +122,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
 displayName: Migrate pom to using jenkins.baseline property if bom is present
 description: Migrate pom to using jenkins.baseline property if bom is present.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 preconditions:
   - io.jenkins.tools.pluginmodernizer.core.recipes.IsUsingBom
 recipeList:
@@ -387,7 +387,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-text-api
-      pluginVersion: 1.12.0-129.v99a_50df237f7
+      pluginVersion: 1.13.0-150.vfc0d7966fc38
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-text

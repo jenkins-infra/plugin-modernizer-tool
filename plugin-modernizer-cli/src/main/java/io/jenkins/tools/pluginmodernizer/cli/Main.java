@@ -7,6 +7,7 @@ import io.jenkins.tools.pluginmodernizer.cli.command.ListRecipesCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.RunCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.ValidateCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.VersionCommand;
+import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import picocli.AutoComplete;
 import picocli.CommandLine;
@@ -41,7 +42,9 @@ public class Main {
      * @param args Command line arguments
      */
     public static void main(final String[] args) {
+        GlobalOptions globalOptions = GlobalOptions.getInstance();
         CommandLine cmd = new CommandLine(new Main());
+        cmd.addMixin("globalOptions", globalOptions);
         CommandLine gen = cmd.getSubcommands().get("generate-completion");
         gen.getCommandSpec().usageMessage().hidden(true);
         System.exit(cmd.execute(args));

@@ -51,7 +51,7 @@ public class DryRunCommand implements ICommand {
      * Global options for all commands
      */
     @CommandLine.Mixin
-    private GlobalOptions options;
+    private GlobalOptions options = GlobalOptions.getInstance();
 
     /**
      * GitHub options

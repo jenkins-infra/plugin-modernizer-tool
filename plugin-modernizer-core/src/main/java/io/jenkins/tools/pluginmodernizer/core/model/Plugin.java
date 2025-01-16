@@ -8,7 +8,9 @@ import io.jenkins.tools.pluginmodernizer.core.github.GHService;
 import io.jenkins.tools.pluginmodernizer.core.impl.CacheManager;
 import io.jenkins.tools.pluginmodernizer.core.impl.MavenInvoker;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -468,7 +470,7 @@ public class Plugin {
      * @return Path of the log file
      */
     public Path getLogFile() {
-        return Path.of("logs", getName() + ".log");
+        return Path.of(getName(), "logs", "invoker.logs");
     }
 
     /**
@@ -477,6 +479,18 @@ public class Plugin {
      */
     public Marker getMarker() {
         return MarkerFactory.getMarker(name);
+    }
+
+    /**
+     * Ensures that the directories exist to store the logs.
+     * @param logPath The path to check for the missing directories
+     */
+    private void ensureLogDirectoryExists(Path logPath) {
+        try {
+            Files.createDirectories(logPath.getParent());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create log directory: " + logPath.getParent(), e);
+        }
     }
 
     /**

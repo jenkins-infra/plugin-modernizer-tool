@@ -10,7 +10,11 @@ import java.util.List;
 public class Config {
 
     @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Because usage on ConsoleLogFilter")
-    public static boolean DEBUG = false;
+    private static boolean DEBUG = false;
+
+    public static void setDebug(boolean debug) {
+        DEBUG = debug;
+    }
 
     private final String version;
     private final List<Plugin> plugins;
@@ -163,7 +167,7 @@ public class Config {
         return dryRun;
     }
 
-    public boolean isDebug() {
+    public static boolean isDebug() {
         return DEBUG;
     }
 

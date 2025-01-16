@@ -12,7 +12,7 @@ import picocli.CommandLine;
 public class ListRecipesCommand implements ICommand {
 
     @CommandLine.Mixin
-    private GlobalOptions options;
+    private GlobalOptions options = GlobalOptions.getInstance();
 
     @Override
     public Config setup(Config.Builder builder) {
