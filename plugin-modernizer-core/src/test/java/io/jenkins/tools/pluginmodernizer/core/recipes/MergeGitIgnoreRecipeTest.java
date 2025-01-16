@@ -96,6 +96,7 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                     .settings
                     .idea
                     # Added from archetype
+                    # mvn hpi:run
                     work
 
                     # IntelliJ IDEA project files
@@ -194,6 +195,9 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                     .idea/
                     .settings/
                     # Added from archetype
+                    # mvn hpi:run
+
+                    # IntelliJ IDEA project files
                     *.iml
                     *.iws
                     *.ipr

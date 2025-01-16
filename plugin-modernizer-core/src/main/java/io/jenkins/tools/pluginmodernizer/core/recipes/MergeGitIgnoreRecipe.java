@@ -1,7 +1,8 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -80,19 +81,15 @@ public class MergeGitIgnoreRecipe extends Recipe {
             return text;
         }
 
-        private String removeTrailingSlash(String line) {
-            String trimmed = line.trim();
-            return trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
-        }
-
         private String mergeGitIgnoreFiles(String existingContent) {
-            // Get existing non-empty lines with normalized paths (removing trailing slashes)
-            List<String> existingLines = existingContent.lines()
-                    .map(line -> {
-                        String trimmed = line.trim();
-                        return trimmed.startsWith("#") || trimmed.isEmpty() ? trimmed : removeTrailingSlash(trimmed);
-                    })
-                    .collect(Collectors.toList());
+            // Get existing non-empty lines and normalize paths (removing trailing slashes)
+            Set<String> existingLines = new HashSet<>();
+            
+            for (String line : existingContent.lines().map(String::trim).collect(Collectors.toList())) {
+                if (!line.isEmpty()) {
+                    existingLines.add(line.endsWith("/") ? line.substring(0, line.length() - 1) : line);
+                }
+            }
 
             StringBuilder merged = new StringBuilder();
 
@@ -104,34 +101,33 @@ public class MergeGitIgnoreRecipe extends Recipe {
                 }
             }
 
-            // Process archetype entries
+            // Maintain proper formatting for archetype entries
             String[] archetypeEntries = ARCHETYPE_GITIGNORE_CONTENT.split("\n");
             boolean hasNewEntries = false;
             StringBuilder newContent = new StringBuilder();
 
+            // Process each line from archetype content
             for (String line : archetypeEntries) {
-                String trimmed = line.trim();
-                
+                String trimmedLine = line.trim();
+
                 // Skip empty lines at the start
-                if (!hasNewEntries && trimmed.isEmpty()) {
+                if (!hasNewEntries && trimmedLine.isEmpty()) {
                     continue;
                 }
 
                 // Check if we need to start adding entries
                 if (!hasNewEntries) {
-                    if (!trimmed.isEmpty() && !trimmed.startsWith("#")) {
-                        String normalized = removeTrailingSlash(trimmed);
-                        if (!existingLines.contains(normalized)) {
-                            hasNewEntries = true;
-                            newContent.append("# Added from archetype\n");
-                        }
+                    if (!trimmedLine.isEmpty() && !existingLines.contains(trimmedLine)) {
+                        hasNewEntries = true;
+                        newContent.append("# Added from archetype\n");
+                    } else {
+                        continue; // Skip already existing lines or comments
                     }
-                    if (!hasNewEntries) continue;
                 }
 
-                // Add the line if it's a comment, empty, or not already present
-                if (trimmed.startsWith("#") || trimmed.isEmpty() || 
-                    !existingLines.contains(removeTrailingSlash(trimmed))) {
+                // Add all the lines that are comments, empty, or not already present in existing lines
+                if (trimmedLine.startsWith("#") || trimmedLine.isEmpty() || 
+                    !existingLines.contains(trimmedLine)) {
                     newContent.append(line).append("\n");
                 }
             }
@@ -142,7 +138,7 @@ public class MergeGitIgnoreRecipe extends Recipe {
             }
 
             String result = merged.toString();
-            if (result.endsWith("\n")) {
+            if (!result.isEmpty() && result.endsWith("\n")) {
                 result = result.substring(0, result.length() - 1);
             }
 
