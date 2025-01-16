@@ -39,7 +39,7 @@ actions:
   createPullRequest:
     kind: github/pullrequest
     scmid: default
-    title: 'Update json-api plugin version to {{ source "latestCommonsTextApiVersion" }}'
+    title: 'Update commons-text-api plugin version to {{ source "latestCommonsTextApiVersion" }}'
     spec:
       labels:
         - dependencies
