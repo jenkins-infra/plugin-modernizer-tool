@@ -84,7 +84,7 @@ public class MergeGitIgnoreRecipe extends Recipe {
         private String mergeGitIgnoreFiles(String existingContent) {
             // Get existing non-empty lines and normalize paths (removing trailing slashes)
             Set<String> existingLines = new HashSet<>();
-            
+
             for (String line : existingContent.lines().map(String::trim).collect(Collectors.toList())) {
                 if (!line.isEmpty()) {
                     existingLines.add(line.endsWith("/") ? line.substring(0, line.length() - 1) : line);
@@ -126,8 +126,7 @@ public class MergeGitIgnoreRecipe extends Recipe {
                 }
 
                 // Add all the lines that are comments, empty, or not already present in existing lines
-                if (trimmedLine.startsWith("#") || trimmedLine.isEmpty() || 
-                    !existingLines.contains(trimmedLine)) {
+                if (trimmedLine.startsWith("#") || trimmedLine.isEmpty() || !existingLines.contains(trimmedLine)) {
                     newContent.append(line).append("\n");
                 }
             }
