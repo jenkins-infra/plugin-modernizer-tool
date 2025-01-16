@@ -17,16 +17,16 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                         """
                     # Existing entries
                     *.log
-                    build/
-                    .idea/
+                    build
+                    .idea
                     # Custom section
                     custom/*.tmp
                     """,
                         """
                     # Existing entries
                     *.log
-                    build/
-                    .idea/
+                    build
+                    .idea
                     # Custom section
                     custom/*.tmp
                     # Added from archetype
@@ -39,7 +39,6 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                     *.iml
                     *.iws
                     *.ipr
-                    .idea
 
                     # Eclipse project files
                     .settings
@@ -97,7 +96,6 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                     .settings
                     .idea
                     # Added from archetype
-                    # mvn hpi:run
                     work
 
                     # IntelliJ IDEA project files
@@ -120,15 +118,15 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                         """
                     # Existing entries
                     *.log
-                    build/
-                    .idea/
+                    build
+                    .idea
                     # Custom section
                     custom/*.tmp""",
                         """
                     # Existing entries
                     *.log
-                    build/
-                    .idea/
+                    build
+                    .idea
                     # Custom section
                     custom/*.tmp
                     # Added from archetype
@@ -141,7 +139,6 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
                     *.iml
                     *.iws
                     *.ipr
-                    .idea
 
                     # Eclipse project files
                     .settings
@@ -171,6 +168,37 @@ public class MergeGitIgnoreRecipeTest implements RewriteTest {
 
                     # Eclipse project files
                     .settings
+                    .classpath
+                    .project
+                    """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.GITIGNORE.getPath())));
+    }
+
+    @Test
+    void shouldNotDuplicateEntriesWithTrailingSlashes() {
+        rewriteRun(
+                spec -> spec.recipe(new MergeGitIgnoreRecipe()),
+                text(""), // Need one minimum file to trigger the recipe
+                text(
+                        """
+                    # Existing entries
+                    target/
+                    work/
+                    .idea/
+                    .settings/
+                    """,
+                        """
+                    # Existing entries
+                    target/
+                    work/
+                    .idea/
+                    .settings/
+                    # Added from archetype
+                    *.iml
+                    *.iws
+                    *.ipr
+
+                    # Eclipse project files
                     .classpath
                     .project
                     """,

@@ -80,10 +80,19 @@ public class MergeGitIgnoreRecipe extends Recipe {
             return text;
         }
 
+        private String removeTrailingSlash(String line) {
+            String trimmed = line.trim();
+            return trimmed.endsWith("/") ? trimmed.substring(0, trimmed.length() - 1) : trimmed;
+        }
+
         private String mergeGitIgnoreFiles(String existingContent) {
-            // Get existing non-empty lines
-            List<String> existingLines =
-                    existingContent.lines().map(String::trim).collect(Collectors.toList());
+            // Get existing non-empty lines with normalized paths (removing trailing slashes)
+            List<String> existingLines = existingContent.lines()
+                    .map(line -> {
+                        String trimmed = line.trim();
+                        return trimmed.startsWith("#") || trimmed.isEmpty() ? trimmed : removeTrailingSlash(trimmed);
+                    })
+                    .collect(Collectors.toList());
 
             StringBuilder merged = new StringBuilder();
 
@@ -95,32 +104,34 @@ public class MergeGitIgnoreRecipe extends Recipe {
                 }
             }
 
-            // Maintain proper formatting
+            // Process archetype entries
             String[] archetypeEntries = ARCHETYPE_GITIGNORE_CONTENT.split("\n");
             boolean hasNewEntries = false;
             StringBuilder newContent = new StringBuilder();
 
-            // Process each line from archetype content
-            for (int i = 0; i < archetypeEntries.length; i++) {
-                String line = archetypeEntries[i].trim();
-
+            for (String line : archetypeEntries) {
+                String trimmed = line.trim();
+                
                 // Skip empty lines at the start
-                if (!hasNewEntries && line.isEmpty()) {
+                if (!hasNewEntries && trimmed.isEmpty()) {
                     continue;
                 }
 
                 // Check if we need to start adding entries
                 if (!hasNewEntries) {
-                    if (!line.isEmpty() && !existingLines.contains(line)) {
-                        hasNewEntries = true;
-                        newContent.append("# Added from archetype\n");
-                    } else {
-                        continue;
+                    if (!trimmed.isEmpty() && !trimmed.startsWith("#")) {
+                        String normalized = removeTrailingSlash(trimmed);
+                        if (!existingLines.contains(normalized)) {
+                            hasNewEntries = true;
+                            newContent.append("# Added from archetype\n");
+                        }
                     }
+                    if (!hasNewEntries) continue;
                 }
 
-                // Add all the lines
-                if (line.startsWith("#") || line.isEmpty() || !existingLines.contains(line)) {
+                // Add the line if it's a comment, empty, or not already present
+                if (trimmed.startsWith("#") || trimmed.isEmpty() || 
+                    !existingLines.contains(removeTrailingSlash(trimmed))) {
                     newContent.append(line).append("\n");
                 }
             }
@@ -131,7 +142,7 @@ public class MergeGitIgnoreRecipe extends Recipe {
             }
 
             String result = merged.toString();
-            if (!result.isEmpty() && result.endsWith("\n")) {
+            if (result.endsWith("\n")) {
                 result = result.substring(0, result.length() - 1);
             }
 
