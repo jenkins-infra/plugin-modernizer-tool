@@ -1,7 +1,8 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -81,9 +82,14 @@ public class MergeGitIgnoreRecipe extends Recipe {
         }
 
         private String mergeGitIgnoreFiles(String existingContent) {
-            // Get existing non-empty lines
-            List<String> existingLines =
-                    existingContent.lines().map(String::trim).collect(Collectors.toList());
+            // Get existing non-empty lines and normalize paths (removing trailing slashes)
+            Set<String> existingLines = new HashSet<>();
+
+            for (String line : existingContent.lines().map(String::trim).collect(Collectors.toList())) {
+                if (!line.isEmpty()) {
+                    existingLines.add(line.endsWith("/") ? line.substring(0, line.length() - 1) : line);
+                }
+            }
 
             StringBuilder merged = new StringBuilder();
 
@@ -95,32 +101,32 @@ public class MergeGitIgnoreRecipe extends Recipe {
                 }
             }
 
-            // Maintain proper formatting
+            // Maintain proper formatting for archetype entries
             String[] archetypeEntries = ARCHETYPE_GITIGNORE_CONTENT.split("\n");
             boolean hasNewEntries = false;
             StringBuilder newContent = new StringBuilder();
 
             // Process each line from archetype content
-            for (int i = 0; i < archetypeEntries.length; i++) {
-                String line = archetypeEntries[i].trim();
+            for (String line : archetypeEntries) {
+                String trimmedLine = line.trim();
 
                 // Skip empty lines at the start
-                if (!hasNewEntries && line.isEmpty()) {
+                if (!hasNewEntries && trimmedLine.isEmpty()) {
                     continue;
                 }
 
                 // Check if we need to start adding entries
                 if (!hasNewEntries) {
-                    if (!line.isEmpty() && !existingLines.contains(line)) {
+                    if (!trimmedLine.isEmpty() && !existingLines.contains(trimmedLine)) {
                         hasNewEntries = true;
                         newContent.append("# Added from archetype\n");
                     } else {
-                        continue;
+                        continue; // Skip already existing lines or comments
                     }
                 }
 
-                // Add all the lines
-                if (line.startsWith("#") || line.isEmpty() || !existingLines.contains(line)) {
+                // Add all the lines that are comments, empty, or not already present in existing lines
+                if (trimmedLine.startsWith("#") || trimmedLine.isEmpty() || !existingLines.contains(trimmedLine)) {
                     newContent.append(line).append("\n");
                 }
             }
