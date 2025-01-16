@@ -236,7 +236,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("Require 2.452.4", result);
+        assertEquals("chore(pom): Require 2.452.4", result);
     }
 
     @Test
