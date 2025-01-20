@@ -755,12 +755,6 @@ public class GHServiceTest {
                 .when(plugin)
                 .getTags();
 
-        // Return no open PR
-        doReturn(prQuery).when(repository).queryPullRequests();
-        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
-        doReturn(prQueryList).when(prQuery).list();
-        doReturn(List.of()).when(prQueryList).toList();
-
         doReturn(pr)
                 .when(repository)
                 .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(false), eq(false));
@@ -788,12 +782,6 @@ public class GHServiceTest {
         doReturn(true).when(config).isDraft();
         doReturn(true).when(plugin).hasChangesPushed();
         doReturn(repository).when(plugin).getRemoteRepository(eq(service));
-
-        // Return no open PR
-        doReturn(prQuery).when(repository).queryPullRequests();
-        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
-        doReturn(prQueryList).when(prQuery).list();
-        doReturn(List.of()).when(prQueryList).toList();
 
         doReturn(pr)
                 .when(repository)

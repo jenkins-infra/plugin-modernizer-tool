@@ -57,6 +57,10 @@ public class GHService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GHService.class);
     private static final Logger BRANCH_NAMELOG = LoggerFactory.getLogger(GHService.class);
+    private static final String ORIGINAL_TITLE = "Original PR Title";
+    private static final String ORIGINAL_BODY = "Original PR Body";
+    private static final String NEW_TITLE = "New PR Title";
+    private static final String NEW_BODY = "New PR Body";
 
     /**
      * Allowed github tags for PR
@@ -104,6 +108,28 @@ public class GHService {
                 throw new ModernizerException("GitHub App not configured. Please set GH_APP_PRIVATE_KEY_FILE");
             }
         }
+    }
+
+    private GHPullRequest fetchExistingPr(GHRepository repository, String branch) throws IOException {
+        List<GHPullRequest> pullRequests = repository.getPullRequests(GHIssueState.OPEN);
+        for (GHPullRequest pr : pullRequests) {
+            if (pr.getHead().getRef().equals(branch)) {
+                return pr;
+            }
+        }
+        return null;
+    }
+
+    private boolean isPrModified(GHPullRequest pr) throws IOException {
+        String prTitle = pr.getTitle();
+        String prBody = pr.getBody();
+        return !(ORIGINAL_TITLE.equals(prTitle) && ORIGINAL_BODY.equals(prBody));
+    }
+
+    private void updatePrTitleAndBody(GHPullRequest pr, String newTitle, String newBody) throws IOException {
+        pr.setTitle(newTitle);
+        pr.setBody(newBody);
+        LOG.info("PR updated successfully: {}", pr.getHtmlUrl());
     }
 
     public boolean isConnected() {
@@ -839,14 +865,14 @@ public class GHService {
 
         // Ensure to refresh client to target installation
         refreshToken(config.getGithubAppTargetInstallationId());
-
+    
         // Renders parts and log then even if dry-run
         String prTitle = TemplateUtils.renderPullRequestTitle(plugin, config.getRecipe());
         String prBody = TemplateUtils.renderPullRequestBody(plugin, config.getRecipe());
         LOG.debug("Pull request title: {}", prTitle);
         LOG.debug("Pull request body: {}", prBody);
         LOG.debug("Draft mode: {}", config.isDraft());
-
+    
         if (config.isDryRun()) {
             LOG.info("Skipping pull request changes for plugin {} in dry-run mode", plugin);
             return;
@@ -863,41 +889,43 @@ public class GHService {
             LOG.info("Plugin {} is archived. Not opening pull request", plugin);
             return;
         }
-
-        // Check if existing PR exists
-        GHRepository repository = plugin.getRemoteRepository(this);
-        Optional<GHPullRequest> existingPR = checkIfPullRequestExists(plugin);
-        if (existingPR.isPresent()) {
-            LOG.info("Pull request already exists: {}", existingPR.get().getHtmlUrl());
-            return;
-        }
-
+    
         try {
             String branchName = TemplateUtils.renderBranchName(plugin, config.getRecipe());
-            GHPullRequest pr = repository.createPullRequest(
-                    prTitle,
-                    getGithubOwner() + ":" + branchName,
-                    repository.getDefaultBranch(),
-                    prBody,
-                    false,
-                    config.isDraft());
-            LOG.info("Pull request created: {}", pr.getHtmlUrl());
-            plugin.withPullRequest();
-            try {
-                String[] tags = plugin.getTags().stream()
-                        .filter(ALLOWED_TAGS::contains)
-                        .sorted()
-                        .toArray(String[]::new);
-                if (tags.length > 0) {
-                    pr.addLabels(tags);
+            GHRepository repository = plugin.getRemoteRepository(this);
+    
+            // Fetch existing PR
+            GHPullRequest existingPr = fetchExistingPr(repository, branchName);
+            if (existingPr != null && !isPrModified(existingPr)) {
+                // Update the PR title and body if not modified
+                updatePrTitleAndBody(existingPr, NEW_TITLE, NEW_BODY);
+            } else {
+                // Create a new PR if not existing or modified
+                GHPullRequest pr = repository.createPullRequest(
+                        prTitle,
+                        getGithubOwner() + ":" + branchName,
+                        repository.getDefaultBranch(),
+                        prBody,
+                        false,
+                        config.isDraft());
+                LOG.info("Pull request created: {}", pr.getHtmlUrl());
+                plugin.withPullRequest();
+                try {
+                    String[] tags = plugin.getTags().stream()
+                            .filter(ALLOWED_TAGS::contains)
+                            .sorted()
+                            .toArray(String[]::new);
+                    if (tags.length > 0) {
+                        pr.addLabels(tags);
+                    }
+                } catch (Exception e) {
+                    LOG.debug("Failed to add labels to pull request: {}. Probably missing permission.", e.getMessage());
+                } finally {
+                    plugin.withoutTags();
                 }
-            } catch (Exception e) {
-                LOG.debug("Failed to add labels to pull request: {}. Probably missing permission.", e.getMessage());
-            } finally {
-                plugin.withoutTags();
             }
         } catch (IOException e) {
-            plugin.addError("Failed to create pull request", e);
+            plugin.addError("Failed to create or update pull request", e);
             plugin.raiseLastError();
         }
     }
