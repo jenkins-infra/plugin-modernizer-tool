@@ -68,6 +68,12 @@ mvn clean install
 
 The CLI is distributed by Homebrew and can be installed using the following command
 
+Install Homebrew if you don't have it already:
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
 Ensure to have Jenkins infra tap
 
 ```
