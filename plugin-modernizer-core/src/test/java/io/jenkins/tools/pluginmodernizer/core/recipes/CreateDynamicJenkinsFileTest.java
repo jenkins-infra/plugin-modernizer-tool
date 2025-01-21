@@ -1,23 +1,23 @@
 // CreateDynamicJenkinsFileTest.java
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import static org.openrewrite.groovy.Assertions.groovy;
+import static org.openrewrite.test.SourceSpecs.text;
+
+import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RewriteTest;
-import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
-
-import static org.openrewrite.test.SourceSpecs.text;
-import static org.openrewrite.groovy.Assertions.groovy;
 
 class CreateDynamicJenkinsFileTest implements RewriteTest {
 
     @Test
     void shouldAddJenkinsfile() {
         rewriteRun(
-            spec -> spec.recipe(new CreateDynamicJenkinsFile("2.452.4")),
-            text(""), // Trigger the recipe
-            groovy(
-                null,
-                """
+                spec -> spec.recipe(new CreateDynamicJenkinsFile("2.452.4")),
+                text(""), // Trigger the recipe
+                groovy(
+                        null,
+                        """
                 /*
                 See the documentation for more options:
                 https://github.com/jenkins-infra/pipeline-library/
@@ -31,22 +31,14 @@ class CreateDynamicJenkinsFileTest implements RewriteTest {
                     ]
                 )
                 """,
-                sourceSpecs -> sourceSpecs
-                    .path(ArchetypeCommonFile.JENKINSFILE.getPath())
-            )
-        );
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
     }
 
     @Test
     void shouldNotAddJenkinsfileIfAlreadyPresent() {
         rewriteRun(
-            spec -> spec.recipe(new CreateDynamicJenkinsFile("2.452.4")),
-            groovy(
-                "buildPlugin()",
-                sourceSpecs -> {
+                spec -> spec.recipe(new CreateDynamicJenkinsFile("2.452.4")), groovy("buildPlugin()", sourceSpecs -> {
                     sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
-                }
-            )
-        );
+                }));
     }
 }

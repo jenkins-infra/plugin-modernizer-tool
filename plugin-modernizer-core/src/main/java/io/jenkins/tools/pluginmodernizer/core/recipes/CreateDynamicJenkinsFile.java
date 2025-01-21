@@ -1,17 +1,17 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import io.jenkins.tools.pluginmodernizer.core.model.JDK;
-import io.jenkins.tools.pluginmodernizer.core.extractor.PomResolutionVisitor;
+import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFileVisitor;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
+import io.jenkins.tools.pluginmodernizer.core.extractor.PomResolutionVisitor;
+import io.jenkins.tools.pluginmodernizer.core.model.JDK;
+import io.jenkins.tools.pluginmodernizer.core.utils.JsonUtils;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.openrewrite.*;
 import org.openrewrite.text.CreateTextFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.*;
-import java.util.stream.Collectors;
-import io.jenkins.tools.pluginmodernizer.core.utils.JsonUtils;
-import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFileVisitor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CreateDynamicJenkinsFile extends ScanningRecipe<CreateDynamicJenkinsFile.ConfigState> {
     private static final Logger LOG = LoggerFactory.getLogger(CreateDynamicJenkinsFile.class);
@@ -19,7 +19,8 @@ public class CreateDynamicJenkinsFile extends ScanningRecipe<CreateDynamicJenkin
     @Option(displayName = "Version", description = "The version.", example = "2.452.4")
     String minimumVersion;
 
-    private static final String JENKINSFILE_TEMPLATE = """
+    private static final String JENKINSFILE_TEMPLATE =
+            """
     /*
     See the documentation for more options:
     https://github.com/jenkins-infra/pipeline-library/
@@ -67,10 +68,11 @@ public class CreateDynamicJenkinsFile extends ScanningRecipe<CreateDynamicJenkin
 
                     if (PathUtils.matchesGlob(sourceFile.getSourcePath(), "**/pom.xml")) {
                         LOG.debug("Visiting POM {}", sourceFile.getSourcePath());
-                        PluginMetadata commonMetadata = new ArchetypeCommonFileVisitor().reduce(tree, new PluginMetadata());
+                        PluginMetadata commonMetadata =
+                                new ArchetypeCommonFileVisitor().reduce(tree, new PluginMetadata());
                         PluginMetadata pomMetadata = new PomResolutionVisitor().reduce(tree, commonMetadata);
                         LOG.debug("POM metadata: {}", JsonUtils.toJson(pomMetadata));
-                        
+
                         if (pomMetadata.getJenkinsVersion() != null) {
                             state.setJenkinsVersion(pomMetadata.getJenkinsVersion());
                         }
@@ -90,15 +92,15 @@ public class CreateDynamicJenkinsFile extends ScanningRecipe<CreateDynamicJenkin
         // Calculate JDK versions
         String jenkinsVersion = state.getJenkinsVersion() != null ? state.getJenkinsVersion() : minimumVersion;
         List<JDK> supportedJdks = JDK.get(jenkinsVersion);
-        
+
         if (supportedJdks.isEmpty()) {
             LOG.warn("No supported JDKs found for Jenkins version: {}", jenkinsVersion);
             return Collections.emptyList();
         }
 
         List<JDK> sortedJdks = supportedJdks.stream()
-            .sorted((j1, j2) -> Integer.compare(j2.getMajor(), j1.getMajor()))
-            .collect(Collectors.toList());
+                .sorted((j1, j2) -> Integer.compare(j2.getMajor(), j1.getMajor()))
+                .collect(Collectors.toList());
 
         int highestJdk = sortedJdks.get(0).getMajor();
         int nextJdk = sortedJdks.size() > 1 ? sortedJdks.get(1).getMajor() : highestJdk;
@@ -107,11 +109,7 @@ public class CreateDynamicJenkinsFile extends ScanningRecipe<CreateDynamicJenkin
         String jenkinsfileContent = String.format(JENKINSFILE_TEMPLATE, highestJdk, nextJdk);
 
         // Create and return the new file
-        CreateTextFile createJenkinsfile = new CreateTextFile(
-            jenkinsfileContent,
-            "Jenkinsfile",
-            false
-        );
+        CreateTextFile createJenkinsfile = new CreateTextFile(jenkinsfileContent, "Jenkinsfile", false);
 
         return createJenkinsfile.generate(new AtomicBoolean(true), ctx);
     }
