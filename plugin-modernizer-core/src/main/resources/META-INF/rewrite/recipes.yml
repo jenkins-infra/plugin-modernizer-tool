@@ -8,6 +8,14 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.FetchMetadata
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.CreateDynamicJenkinsFile
+displayName: create Dymamic Jenkinsfile
+description: Creates a Jenkinsfile with JDK versions based on Jenkins version compatibility
+tags: ['chore']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.CreateDynamicJenkinsFile
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MergeGitIgnoreRecipe
 displayName: Merge .gitignore Entries
 description: Merges the .gitignore entries from the archetype with the existing .gitignore file.
@@ -371,7 +379,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: byte-buddy-api
-      pluginVersion: 1.16.1-111.vc76cd8b_2dce5
+      pluginVersion: 1.16.0-109.v2a_9f5387f958
       replaces:
         - groupId: net.bytebuddy
           artifactId: byte-buddy
