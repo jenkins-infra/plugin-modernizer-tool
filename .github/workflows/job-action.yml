@@ -31,11 +31,12 @@ jobs:
     - name: Dry run option
       if: ${{ github.event.inputs.dry_run == 'true' }}
 
+      # Enable dry-run steps 
       run: |
           echo "Running in dry run mode"
 
     - name: Use recipe input
-#      uses:
+#      uses: Set list to select recipe from
       run: |
           echo "Using recipe: ${{ github.event.inputs.recipe }}"
 
@@ -56,7 +57,8 @@ jobs:
       with:
         repo-token: ${{ secrets.GH_TOKEN }}
         target-branch: main
-      uses: docker://ghcr.io/jenkins-infra/plugin-modernizer-tool:latest
+      # uses: Use Docker to pull/run and install if image is not available locally  
+      # docker://ghcr.io/jenkins-infra/plugin-modernizer-tool:latest
       args:
         - ${{ secrets.GH_TOKEN }}
         - main
