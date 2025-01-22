@@ -188,6 +188,7 @@ public class GHService {
 
     /**
      * Refresh the JWT token for the GitHub app. Only for GitHub App authentication
+     *
      * @param installationId The installation ID
      */
     public void refreshToken(Long installationId) {
@@ -215,6 +216,7 @@ public class GHService {
 
     /**
      * Get the repository object for a plugin
+     *
      * @param plugin The plugin to get the repository for
      * @return The GHRepository object
      */
@@ -228,6 +230,7 @@ public class GHService {
 
     /**
      * Get a plugin repository to the organization or personal account
+     *
      * @param plugin The plugin
      * @return The GHRepository object
      */
@@ -244,6 +247,7 @@ public class GHService {
 
     /**
      * Check if the plugin repository is forked to the organization or personal account
+     *
      * @param plugin The plugin to check
      * @return True if the repository is forked
      */
@@ -264,6 +268,7 @@ public class GHService {
 
     /**
      * Check if the plugin repository is archived
+     *
      * @param plugin The plugin to check
      * @return True if the repository is archived
      */
@@ -276,6 +281,7 @@ public class GHService {
 
     /**
      * Fork a plugin repository to the organization or personal account
+     *
      * @param plugin The plugin to fork
      */
     public void fork(Plugin plugin) {
@@ -303,8 +309,9 @@ public class GHService {
 
     /**
      * Fork a plugin repository to the organization or personal account
+     *
      * @param plugin The plugin to fork
-     * @throws IOException Forking the repository failed due to I/O error
+     * @throws IOException          Forking the repository failed due to I/O error
      * @throws InterruptedException Forking the repository failed due to interruption
      */
     private GHRepository forkPlugin(Plugin plugin) throws IOException, InterruptedException {
@@ -339,10 +346,11 @@ public class GHService {
 
     /**
      * Fork the repository
+     *
      * @param originalRepo The original repository to fork
      * @param organization The organization to fork the repository to. Can be null for personal account
      * @return The forked repository
-     * @throws IOException If the fork operation failed
+     * @throws IOException          If the fork operation failed
      * @throws InterruptedException If the fork operation was interrupted
      */
     private GHRepository forkRepository(GHRepository originalRepo, GHOrganization organization)
@@ -360,9 +368,10 @@ public class GHService {
 
     /**
      * Fork the repository to the personal account
+     *
      * @param originalRepo The original repository to fork
      * @return The forked repository
-     * @throws IOException If the fork operation failed
+     * @throws IOException          If the fork operation failed
      * @throws InterruptedException If the fork operation was interrupted
      */
     private GHRepository forkRepository(GHRepository originalRepo) throws IOException, InterruptedException {
@@ -371,6 +380,7 @@ public class GHService {
 
     /**
      * Get the organization object for the given owner or null if the owner is not an organization
+     *
      * @return The GHOrganization object or null
      * @throws IOException If the organization access failed
      */
@@ -385,8 +395,9 @@ public class GHService {
 
     /**
      * Check if the repository is forked on the given organization
+     *
      * @param organization The organization to check
-     * @param repoName The name of the repository
+     * @param repoName     The name of the repository
      * @return True if the repository is forked
      * @throws IOException If the repository access failed
      */
@@ -399,8 +410,9 @@ public class GHService {
 
     /**
      * Get the forked repository on the given organization
+     *
      * @param organization The organization to check
-     * @param repoName The name of the repository
+     * @param repoName     The name of the repository
      * @return The forked repository
      * @throws IOException If the repository access failed
      */
@@ -410,6 +422,7 @@ public class GHService {
 
     /**
      * Return if the repository is forked on current access
+     *
      * @param repoName The name of the repository
      * @return True if the repository is forked
      * @throws IOException If the repository access failed
@@ -420,6 +433,7 @@ public class GHService {
 
     /**
      * Get the forked repository on the personal account
+     *
      * @param repoName The name of the repository
      * @return The forked repository
      * @throws IOException If the repository access failed
@@ -430,6 +444,7 @@ public class GHService {
 
     /**
      * Sync a fork repository from its original upstream. Only the main branch is synced in case multiple branches exist.
+     *
      * @param plugin The plugin to sync
      */
     public void sync(Plugin plugin) {
@@ -460,6 +475,7 @@ public class GHService {
 
     /**
      * Sync a fork repository from its original upstream. Only the main branch is synced in case multiple branches exist.
+     *
      * @param forkedRepo Forked repository
      * @throws IOException if an error occurs while syncing the repository
      */
@@ -470,6 +486,7 @@ public class GHService {
 
     /**
      * Delete a plugin repository fork to the organization or personal account
+     *
      * @param plugin The plugin of the fork to delete
      */
     public void deleteFork(Plugin plugin) {
@@ -519,6 +536,7 @@ public class GHService {
 
     /**
      * Fetch a plugin repository code from the fork or original repo in dry-run mode
+     *
      * @param plugin The plugin to fork
      */
     public void fetch(Plugin plugin) {
@@ -553,6 +571,7 @@ public class GHService {
 
     /**
      * Fetch the repository code into local directory of the plugin
+     *
      * @param plugin The plugin to fetch
      * @throws GitAPIException If the fetch operation failed
      */
@@ -619,19 +638,40 @@ public class GHService {
         }
         // Clone the repository
         else {
-            try (Git git = Git.cloneRepository()
-                    .setCredentialsProvider(getCredentialProvider())
-                    .setRemote("origin")
-                    .setURI(remoteUri.toString())
-                    .setDirectory(plugin.getLocalRepository().toFile())
-                    .call()) {
-                LOG.debug("Clone successfully from {}", remoteUri);
+            try {
+                cloneRepository(plugin, remoteUri);
+            } catch (GitAPIException e) {
+                if (e.getCause() instanceof org.apache.sshd.common.SshException) {
+                    LOG.warn("SSH authentication failed. Retrying with HTTPS...");
+                    remoteUri = new URIish(repository.getHttpTransportUrl());
+                    try {
+                        cloneRepository(plugin, remoteUri);
+                    } catch (GitAPIException ex) {
+                        LOG.error("HTTPS clone failed: {}", ex.getMessage());
+                        plugin.addError("Failed to fetch the repository using HTTPS", ex);
+                        plugin.raiseLastError();
+                    }
+                } else {
+                    throw e;
+                }
             }
+        }
+    }
+
+    private void cloneRepository(Plugin plugin, URIish remoteUri) throws GitAPIException {
+        try (Git git = Git.cloneRepository()
+                .setCredentialsProvider(getCredentialProvider())
+                .setRemote("origin")
+                .setURI(remoteUri.toString())
+                .setDirectory(plugin.getLocalRepository().toFile())
+                .call()) {
+            LOG.debug("Clone successfully from {}", remoteUri);
         }
     }
 
     /**
      * Checkout the branch for the plugin. Creates the branch if not exists
+     *
      * @param plugin The plugin to checkout branch for
      */
     public void checkoutBranch(Plugin plugin) {
@@ -663,6 +703,7 @@ public class GHService {
 
     /**
      * Commit all changes in the plugin directory
+     *
      * @param plugin The plugin to commit changes for
      */
     public void commitChanges(Plugin plugin) {
@@ -718,6 +759,7 @@ public class GHService {
 
     /**
      * Sign the commit using SSH key. Set not sign if using GH_TOKEN
+     *
      * @param commit The commit command to sign
      * @return The signed commit command
      * @throws IOException If the SSH key reading failed
@@ -737,6 +779,7 @@ public class GHService {
 
     /**
      * Get the current user
+     *
      * @return The current user
      */
     public GHUser getCurrentUser() {
@@ -763,6 +806,7 @@ public class GHService {
 
     /**
      * Get the primary email of the user
+     *
      * @param user The user to get the primary email for
      * @return The primary email
      */
@@ -784,6 +828,7 @@ public class GHService {
 
     /**
      * Push the changes to the forked repository
+     *
      * @param plugin The plugin to push changes for
      */
     public void pushChanges(Plugin plugin) {
@@ -833,6 +878,7 @@ public class GHService {
 
     /**
      * Open a pull request for the plugin
+     *
      * @param plugin The plugin to open a pull request for
      */
     public void openPullRequest(Plugin plugin) {
@@ -904,6 +950,7 @@ public class GHService {
 
     /**
      * Get the current credentials provider
+     *
      * @return The credentials provider
      */
     private CredentialsProvider getCredentialProvider() {
@@ -915,6 +962,7 @@ public class GHService {
     /**
      * Return if the given repository has any pull request originating from it
      * Typically to avoid deleting fork with open pull requests
+     *
      * @param plugin The plugin to check
      * @return True if the repository has any pull request
      */
@@ -945,6 +993,7 @@ public class GHService {
 
     /**
      * Check if a pull request already exists for the branch to the target repo
+     *
      * @param plugin The plugin to check
      * @return The pull request if it exists
      */
@@ -968,6 +1017,7 @@ public class GHService {
 
     /**
      * Determine the GitHub owner from config or using current token
+     *
      * @return The GitHub owner
      */
     public String getGithubOwner() {
@@ -978,6 +1028,7 @@ public class GHService {
 
     /**
      * Return if SSH auth is used
+     *
      * @return True if SSH key is used
      */
     public boolean isSshKeyAuth() {
@@ -986,8 +1037,9 @@ public class GHService {
 
     /**
      * Ensure the forked reository correspond of the origin parent repository
+     *
      * @param originalRepo The original repository
-     * @param fork The forked repository
+     * @param fork         The forked repository
      * @throws IOException If the check failed
      */
     private void checkSameParentRepository(Plugin plugin, GHRepository originalRepo, GHRepository fork)
