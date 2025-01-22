@@ -1,0 +1,64 @@
+name: Job Action Workflow
+
+on:
+  push:
+    branches:
+      - [ main ]
+  pull_request:
+    branches:
+      - [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+    - name: Download built jar
+      uses: actions/download-artifact@v4
+      with:
+        name: built-jar
+        path: .  # Explicitly set to root to match Dockerfile COPY paths
+
+    - name: Dry run option
+      if: ${{ github.event.inputs.dry_run == 'true' }}
+
+      run: |
+          echo "Running in dry run mode"
+
+    - name: Use recipe input
+#      uses:
+      run: |
+          echo "Using recipe: ${{ github.event.inputs.recipe }}"
+
+
+    - name: Authenticate with GH_TOKEN and run plugin modernizer tool
+      if: ${{ secrets.GH_TOKEN != '' }}
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      uses: jenkins-infra/plugin-modernizer-tool/.github/actions/modernizer-action@main
+      with:
+          repo-token: ${{ secrets.GH_TOKEN }}
+          target-branch: main
+      run: |
+        echo "Authenticated with GH_TOKEN"
+
+    - name: Run plugin modernizer tool
+      if: ${{ secrets.GH_TOKEN == '' }}
+      with:
+        repo-token: ${{ secrets.GH_TOKEN }}
+        target-branch: main
+      uses: docker://ghcr.io/jenkins-infra/plugin-modernizer-tool:latest
+      args:
+        - ${{ secrets.GH_TOKEN }}
+        - main
+
+
