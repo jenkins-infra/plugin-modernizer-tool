@@ -541,8 +541,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </scm>
                           <properties>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                            <jenkins.baseline>2.452</jenkins.baseline>
-                            <jenkins.version>${jenkins.baseline}.4</jenkins.version>
+                            <jenkins.baseline>2.462</jenkins.baseline>
+                            <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                           </properties>
                           <dependencyManagement>
                             <dependencies>
@@ -647,7 +647,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             <connection>scm:git:https://github.com/jenkinsci/empty-plugin.git</connection>
                           </scm>
                           <properties>
-                            <jenkins.version>2.452.4</jenkins.version>
+                            <jenkins.version>2.462.3</jenkins.version>
                           </properties>
                           <repositories>
                             <repository>
@@ -739,8 +739,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <name>Empty Plugin</name>
                           <properties>
                              <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                             <jenkins.baseline>2.452</jenkins.baseline>
-                             <jenkins.version>${jenkins.baseline}.4</jenkins.version>
+                             <jenkins.baseline>2.462</jenkins.baseline>
+                             <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                           </properties>
                           <dependencyManagement>
                             <dependencies>
@@ -865,8 +865,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         <revision>2.17.0</revision>
                         <changelist>999999-SNAPSHOT</changelist>
                         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                        <jenkins.baseline>2.452</jenkins.baseline>
-                        <jenkins.version>${jenkins.baseline}.4</jenkins.version>
+                        <jenkins.baseline>2.462</jenkins.baseline>
+                        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                       </properties>
                       <repositories>
                         <repository>
@@ -1721,7 +1721,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.452.4</jenkins.version>
+                    <jenkins.version>2.462.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -1800,7 +1800,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.452.4</jenkins.version>
+                    <jenkins.version>2.462.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
