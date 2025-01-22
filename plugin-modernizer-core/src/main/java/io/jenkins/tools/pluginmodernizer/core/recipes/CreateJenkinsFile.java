@@ -19,21 +19,17 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
     private static final Logger LOG = LoggerFactory.getLogger(CreateJenkinsFile.class);
 
     @Language("groovy")
-    private static final String JENKINSFILE_TEMPLATE =
-            """
-    /*
-    See the documentation for more options:
-    https://github.com/jenkins-infra/pipeline-library/
-    */
-    buildPlugin(
-        forkCount: '1C', // Run a JVM per core in tests
-        useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
-        configurations: [
-            [platform: 'linux', jdk: %d],
-            [platform: 'windows', jdk: %d]
-        ]
-    )
-    """;
+    private static final String JENKINSFILE_TEMPLATE = "/*%n" + "See the documentation for more options:%n"
+            + "https://github.com/jenkins-infra/pipeline-library/%n"
+            + "*/%n"
+            + "buildPlugin(%n"
+            + "    forkCount: '1C', // Run a JVM per core in tests%n"
+            + "    useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests%n"
+            + "    configurations: [%n"
+            + "        [platform: 'linux', jdk: %d],%n"
+            + "        [platform: 'windows', jdk: %d]%n"
+            + "    ]%n"
+            + ")";
 
     @Override
     public String getDisplayName() {
