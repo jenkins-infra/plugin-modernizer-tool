@@ -91,10 +91,25 @@ This tool requires forking repositories from GitHub, so you need to set the GitH
 Use either `GH_TOKEN` or `GITHUB_TOKEN` for the GitHub token, and either `GH_OWNER` or `GITHUB_OWNER` for the GitHub owner.
 Alternatively, you can pass the GitHub owner through the CLI option `-g` or `--github-owner`.
 
-Your classic token should have the following scopes
+Generate a GitHub Token:
+
+Go to GitHub Settings > Developer settings > Personal access tokens.
+Click on "Generate new token".
+Give your token a descriptive name.
+
+Your classic token should have the following scopes:
 
 - `repo` (Full control of private repositories)
 - `delete_repo` (Delete repositories) (Only if using the `--clean-forks` option)
+
+Set Environment Variables:
+
+Open your terminal and set the GH_TOKEN and GH_OWNER environment variables:
+    
+```shell
+export GH_TOKEN=your_generated_token
+export GH_OWNER=your_github_username
+```
 
 > [!Note]
 > The GitHub owner can be either a personal account or an organization.
@@ -143,7 +158,7 @@ git config commit.gpgsign true
 - `validate`: Validate the configuration and environment variables (work in progress)
 - `run`: Run the modernization process
 - `dry-run`: Run the modernization process in dry-run mode without forking or pushing changes
-- `build-metadata`: Collect metadata for the given plugin and have them on the local cache
+- `build-metadata / fetch-metadata`: Collect metadata for the given plugin and have them on the local cache
 - `recipes`: List available recipes
 
 # Auto completion
