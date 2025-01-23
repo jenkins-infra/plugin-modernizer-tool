@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
@@ -280,8 +279,7 @@ public enum JDK {
 
     /**
      * Returns the top two JDK versions sorted in descending order.
-     * If only one JDK is available, it returns that JDK twice.
-     * 
+     *
      * @param supportedJdks List of supported JDK versions
      * @return Pair of highest and next highest JDK major versions
      */

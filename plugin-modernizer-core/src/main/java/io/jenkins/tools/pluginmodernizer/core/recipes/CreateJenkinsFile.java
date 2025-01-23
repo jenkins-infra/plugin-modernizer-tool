@@ -111,7 +111,10 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
 
         List<Integer> topJdkVersions = JDK.getTopTwoJdkVersions(supportedJdks);
         String jenkinsfileContent = String.format(JENKINSFILE_TEMPLATE, topJdkVersions.get(0), topJdkVersions.get(1));
-        LOG.debug("Generated Jenkinsfile content with JDK versions: {} and {}", topJdkVersions.get(0), topJdkVersions.get(1));
+        LOG.debug(
+                "Generated Jenkinsfile content with JDK versions: {} and {}",
+                topJdkVersions.get(0),
+                topJdkVersions.get(1));
 
         CreateTextFile createJenkinsfile = new CreateTextFile(
                 jenkinsfileContent, ArchetypeCommonFile.JENKINSFILE.getPath().toString(), false);

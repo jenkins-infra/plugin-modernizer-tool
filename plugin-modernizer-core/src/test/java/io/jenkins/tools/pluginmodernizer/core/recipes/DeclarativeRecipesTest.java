@@ -2311,8 +2311,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
         rewriteRun(
                 spec -> spec.recipeFromResource(
                         "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.SetupJenkinsfile"),
-                        pomXml(
-                          """
+                pomXml(
+                        """
                   <?xml version="1.0" encoding="UTF-8"?>
                   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                            xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -2333,9 +2333,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       </repositories>
                   </project>
                   """),
-                  groovy(
-                          null,
-                          """
+                groovy(
+                        null,
+                        """
               /*
               See the documentation for more options:
               https://github.com/jenkins-infra/pipeline-library/
@@ -2348,7 +2348,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       [platform: 'windows', jdk: 17]
                   ]
               )""",
-                          spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
+                        spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
     }
 
     /**
