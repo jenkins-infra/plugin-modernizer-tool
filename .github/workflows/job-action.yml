@@ -26,7 +26,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: built-jar
-        path: .  # Explicitly set to root to match Dockerfile COPY paths
+        path: plugin-modernizer-cli/target/ # Specify the desired directory for the downloaded artifact
 
     - name: Dry run option
       if: ${{ github.event.inputs.dry_run == 'true' }}
