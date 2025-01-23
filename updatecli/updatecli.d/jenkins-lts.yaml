@@ -1,6 +1,7 @@
 ---
-name: Bump last three Jenkins' LTS versions in the documentation
-
+# This pipeline is used to bump the recommended Jenkins core version in the properties file.
+name: Bump the recommended Jenkins core version in the versions.properties file
+# SCM configuration for GitHub repository
 scms:
   default:
     kind: github
@@ -13,32 +14,38 @@ scms:
       username: "{{ .github.username }}"
       branch: "{{ .github.branch }}"
 
+# Source configuration to get the previous Jenkins LTS version
 sources:
   JenkinsPreviousLTS:
     name: Get the previous Jenkins LTS version
     kind: shell
     spec:
-      command: bash ./updatecli/scripts/jenkins-lts.sh 1 # source input value passed as argument
+      command: bash ./updatecli/scripts/jenkins-lts.sh 1 # Shell command to retrieve the previous Jenkins LTS version
+
+# Condition to test that the previous LTS Jenkins version exists
 conditions:
-  # Test that the previous LTS Jenkins version exists
   jenkinsPreviousLTSVersion:
     kind: jenkins
     sourceid: JenkinsPreviousLTS
 
+# Target configuration to update the Jenkins LTS version in the versions.properties file
 targets:
   update-jenkins-lts-version:
-    name: "Update Jenkins LTS version in recipes.yml"
-    kind: yaml
+    name: "Update Jenkins LTS version in versions.properties"
+    kind: file
     spec:
-      file: "plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml"
-      key: "$.recipeList[?(@.name == 'io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion')].recipeList[?(@.minimumVersion)].minimumVersion"
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties # Path to the versions.properties file
+      matchPattern: "(?m)^(jenkins.core.minimum.version =) (.*)" # Regex pattern to match the jenkins.core.minimum.version property
+      replacePattern: '$1 {{ source "JenkinsPreviousLTS" }}' # Replacement pattern to update the version
+    sourceid: JenkinsPreviousLTS
+    scmid: default
 
-
+# Action to create a GitHub pull request with the changes
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: Update Jenkins oldest LTS supported version to {{ source "JenkinsPreviousLTS" }} in the recipes
+    title: 'chore(properties): Bump the recommended Jenkins core version to {{ source "JenkinsPreviousLTS" }} in the `versions.properties` file' # Title of the pull request
     spec:
       labels:
         - dependencies
