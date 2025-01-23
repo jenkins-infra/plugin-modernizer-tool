@@ -9,7 +9,6 @@ import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.utils.JsonUtils;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import org.intellij.lang.annotations.Language;
 import org.openrewrite.*;
 import org.openrewrite.text.CreateTextFile;
@@ -110,15 +109,9 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
             return Collections.emptyList();
         }
 
-        List<JDK> sortedJdks = supportedJdks.stream()
-                .sorted((j1, j2) -> Integer.compare(j2.getMajor(), j1.getMajor()))
-                .collect(Collectors.toList());
-
-        int highestJdk = sortedJdks.get(0).getMajor();
-        int nextJdk = sortedJdks.size() > 1 ? sortedJdks.get(1).getMajor() : highestJdk;
-
-        String jenkinsfileContent = String.format(JENKINSFILE_TEMPLATE, highestJdk, nextJdk);
-        LOG.debug("Generated Jenkinsfile content with JDK versions: {} and {}", highestJdk, nextJdk);
+        List<Integer> topJdkVersions = JDK.getTopTwoJdkVersions(supportedJdks);
+        String jenkinsfileContent = String.format(JENKINSFILE_TEMPLATE, topJdkVersions.get(0), topJdkVersions.get(1));
+        LOG.debug("Generated Jenkinsfile content with JDK versions: {} and {}", topJdkVersions.get(0), topJdkVersions.get(1));
 
         CreateTextFile createJenkinsfile = new CreateTextFile(
                 jenkinsfileContent, ArchetypeCommonFile.JENKINSFILE.getPath().toString(), false);
@@ -126,7 +119,6 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
         return createJenkinsfile.generate(new AtomicBoolean(true), ctx);
     }
 
-    @Override
     public TreeVisitor<?, ExecutionContext> getVisitor(ConfigState state) {
         return new TreeVisitor<>() {
             @Override
