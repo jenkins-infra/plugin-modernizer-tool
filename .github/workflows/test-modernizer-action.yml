@@ -12,7 +12,6 @@ jobs:
       - name: Run Plugin Modernizer Action
         uses: ./.github/actions/modernizer-action
         with:
-          command: 'validate'
-          arguments: '--debug'
+          command: 'version'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
