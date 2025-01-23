@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
@@ -274,5 +275,26 @@ public enum JDK {
                     return jenkinsVersionComparable.compareTo(maxCoreVersion) <= 0;
                 })
                 .toList();
+    }
+
+    /**
+     * Returns the top two JDK versions sorted in descending order.
+     *
+     * @param supportedJdks List of supported JDK versions
+     * @return Pair of highest and next highest JDK major versions
+     */
+    public static List<Integer> getTopTwoJdkVersions(List<JDK> supportedJdks) {
+        if (supportedJdks == null || supportedJdks.isEmpty()) {
+            throw new IllegalArgumentException("Supported JDKs list cannot be null or empty");
+        }
+
+        List<JDK> sortedJdks = supportedJdks.stream()
+                .sorted((j1, j2) -> Integer.compare(j2.getMajor(), j1.getMajor()))
+                .collect(Collectors.toList());
+
+        int highestJdk = sortedJdks.get(0).getMajor();
+        int nextJdk = sortedJdks.size() > 1 ? sortedJdks.get(1).getMajor() : highestJdk;
+
+        return Arrays.asList(highestJdk, nextJdk);
     }
 }

@@ -1,0 +1,17 @@
+name: Test github actions for Plugin Modernizer
+on:
+  push:
+
+jobs:
+  test-modernizer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Plugin Modernizer Action
+        uses: ./.github/actions/modernizer-action
+        with:
+          command: 'version'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

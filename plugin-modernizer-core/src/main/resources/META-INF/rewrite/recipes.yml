@@ -29,21 +29,7 @@ displayName: Setup the Jenkinsfile
 description: Add a missing Jenkinsfile to the Jenkins plugin.
 tags: ['chore', 'skip-verification']
 recipeList:
-  - org.openrewrite.text.CreateTextFile:
-      relativeFileName: Jenkinsfile
-      overwriteExisting: false
-      fileContents: |
-        /*
-         See the documentation for more options:
-         https://github.com/jenkins-infra/pipeline-library/
-        */
-        buildPlugin(
-          forkCount: '1C', // Run a JVM per core in tests
-          useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
-          configurations: [
-            [platform: 'linux', jdk: 21],
-            [platform: 'windows', jdk: 17],
-        ])
+  - io.jenkins.tools.pluginmodernizer.core.recipes.CreateJenkinsFile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupGitIgnore
