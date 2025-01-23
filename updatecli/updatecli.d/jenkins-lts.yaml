@@ -1,0 +1,45 @@
+---
+name: Bump last three Jenkins' LTS versions in the documentation
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  JenkinsPreviousLTS:
+    name: Get the previous Jenkins LTS version
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/jenkins-lts.sh 1 # source input value passed as argument
+conditions:
+  # Test that the previous LTS Jenkins version exists
+  jenkinsPreviousLTSVersion:
+    kind: jenkins
+    sourceid: JenkinsPreviousLTS
+
+targets:
+  update-jenkins-lts-version:
+    name: "Update Jenkins LTS version in recipes.yml"
+    kind: yaml
+    spec:
+      file: "plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml"
+      key: "$.recipeList[?(@.name == 'io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion')].recipeList[?(@.minimumVersion)].minimumVersion"
+
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: default
+    title: Update Jenkins oldest LTS supported version to {{ source "JenkinsPreviousLTS" }} in the recipes
+    spec:
+      labels:
+        - dependencies
+        - chore
