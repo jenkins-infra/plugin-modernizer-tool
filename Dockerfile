@@ -15,7 +15,7 @@ RUN apt-get update && \
 ENV JDK8_PACKAGE=8.0.442-tem
 ENV JDK11_PACKAGE=11.0.25-tem
 ENV JDK17_PACKAGE=17.0.13-tem
-ENV JDK21_PACKAGE=21.0.5-tem
+ENV JDK21_PACKAGE=21.0.6-tem
 ENV MVN_INSTALL_PLUGIN_VERSION=3.1.3
 
 # Replace the default shell with bash
