@@ -1,6 +1,8 @@
 name: Test github actions for Plugin Modernizer
 on:
   push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   test-modernizer:
@@ -12,6 +14,7 @@ jobs:
       - name: Run Plugin Modernizer Action
         uses: ./.github/actions/modernizer-action
         with:
-          command: 'version'
+          command: 'validate'
+          arguments: '--debug'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
