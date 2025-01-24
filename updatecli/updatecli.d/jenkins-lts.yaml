@@ -39,6 +39,24 @@ targets:
       replacePattern: '$1 {{ source "JenkinsPreviousLTS" }}' # Replacement pattern to update the version
     sourceid: JenkinsPreviousLTS
     scmid: default
+  updateCoreMinimumVersionInRecipes:
+    name: "Update Jenkins core minimumversion in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(?m)^(minimumVersion:) (.*)"
+      replacePattern: '$1 {{ source "JenkinsPreviousLTS" }}'
+    sourceid: JenkinsPreviousLTS
+    scmid: default
+  updateCoreVersionInRecipes:
+    name: "Update Jenkins core version in the recipes.yml"
+    kind: file 
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(?m)^(version:) (.*)"
+      replacePattern: '$1 {{ source "JenkinsPreviousLTS" }}'
+    sourceid: JenkinsPreviousLTS
+    scmid: default
 
 # Action to create a GitHub pull request with the changes
 actions:
