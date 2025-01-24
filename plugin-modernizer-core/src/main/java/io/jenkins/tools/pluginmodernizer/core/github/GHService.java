@@ -797,7 +797,23 @@ public class GHService {
                 // Get the GitHub Actions user
                 else {
                     LOG.debug("Getting current user using GitHub Actions...");
-                    return github.getUser("github-actions[bot]");
+                    // Comply with https://api.github.com/users/github-actions%5Bbot%5D
+                    return new GHUser() {
+                        @Override
+                        public String getLogin() {
+                            return "github-actions[bot]";
+                        }
+
+                        @Override
+                        public String getType() throws IOException {
+                            return "Bot";
+                        }
+
+                        @Override
+                        public String getEmail() {
+                            return "41898282+github-actions[bot]@users.noreply.github.com";
+                        }
+                    };
                 }
             }
             // Get for app
@@ -826,6 +842,10 @@ public class GHService {
             // Bot
             else if (app != null && user.getType().equalsIgnoreCase("bot")) {
                 return "%s+%s@users.noreply.github.com".formatted(user.getId(), user.getLogin());
+            }
+            // GitHub action
+            else if (System.getenv("GITHUB_ACTIONS") != null) {
+                return user.getEmail();
             }
             throw new ModernizerException("Unknown user type %s".formatted(user.getType()));
         } catch (IOException e) {
