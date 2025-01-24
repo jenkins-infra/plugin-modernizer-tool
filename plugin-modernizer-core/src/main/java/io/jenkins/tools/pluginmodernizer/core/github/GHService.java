@@ -788,12 +788,19 @@ public class GHService {
             return null;
         }
         try {
-            // Get myself
+            // Get for token
             if (config.getGithubAppId() == null) {
-                LOG.debug("Getting current user using token...");
-                return github.getMyself();
+                if (System.getenv("GITHUB_ACTIONS") == null) {
+                    LOG.debug("Getting current user using token...");
+                    return github.getMyself();
+                }
+                // Get the GitHub Actions user
+                else {
+                    LOG.debug("Getting current user using GitHub Actions...");
+                    return github.getUser("github-actions[bot]");
+                }
             }
-            // Get the bot user
+            // Get for app
             else {
                 LOG.debug("Getting current user using GitHub App...");
                 LOG.debug("GitHub App name: {}", app.getName());
