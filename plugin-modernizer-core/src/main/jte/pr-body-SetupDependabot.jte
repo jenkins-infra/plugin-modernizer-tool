@@ -13,20 +13,30 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
 
 ### Why Automate with Dependabot?
 
-Managing dependencies can be a time-consuming and challenging task, especially when maintaining a Jenkins plugin. By automating this process with Dependabot, you open the door to a host of advantages:
+Managing dependencies can be a time-consuming and challenging task, especially when maintaining a Jenkins plugin.
+By automating this process with Dependabot, you gain numerous advantages:
 
-- **Keep Pace with Innovation:** Dependabot ensures your plugin stays at the cutting edge by promptly updating it with the latest features and improvements from upstream libraries.
+- **Keep Pace with Innovation:** Dependabot ensures
+your plugin remains cutting-edge by promptly incorporating the latest features and enhancements from upstream libraries.
 
-- **Strengthen Security:** Staying current with dependency updates is critical for security. Dependabot automatically flags and updates any vulnerable dependencies, helping to shield your plugin from potential exploits.
+- **Strengthen Security:** Staying up-to-date with dependency updates is crucial for security.
+Dependabot automatically flags and updates any vulnerable dependencies,
+helping to protect your plugin from potential exploits.
 
-- **Save Time and Effort:** Spend less time managing dependencies and more time innovating. Dependabot automatically submits pull requests for new releases, allowing you to effortlessly review and integrate updates.
+- **Save Time and Effort:** Spend less time managing dependencies and more time innovating.
+Dependabot automatically submits pull requests for new releases,
+allowing you to effortlessly review and integrate updates.
 
-- **Enhance Compatibility and Stability:** Regular updates enhance both performance and compatibility with other plugins and the Jenkins core, ensuring a smooth experience for your users.
+- **Enhance Compatibility and Stability:** Regular updates improve both performance and compatibility with other plugins and the Jenkins core,
+ensuring a seamless experience for your users.
 
-- **Focus on What Matters:** With Dependabot, you can concentrate on developing new features and fixing bugs, while it takes care of keeping everything up-to-date under the hood.
+- **Improve GitHub Integration:** Dependabot streamlines and enhances the integration process with GitHub,
+making it easier to manage updates.
 
-Setting up Dependabot exemplifies a proactive approach to modern software maintenance, aligning your plugin with the best practices in the industry. We invite you to test these updates and embrace a maintenance workflow that is efficient and secure.
+- **Enhance the [plugin health score](https://plugins.jenkins.io/${plugin.getName()}/healthscore/):** Regular updates contribute to a better health score by ensuring your plugin is reliable and up-to-date.
 
-Your insights and feedback are invaluable to us, and we'll be here to support you through this transition as needed.
+- **Focus on What Matters:** With Dependabot, you can concentrate on developing new features and fixing bugs, knowing that it handles dependency updates efficiently.
 
+Setting up Dependabot exemplifies a proactive approach to modern software maintenance, aligning your plugin with best practices in the industry. We invite you to test these updates and adopt a maintenance workflow that is both efficient and secure.
 
+Your insights and feedback are invaluable to us, and we are here to support you through this transition as needed.
