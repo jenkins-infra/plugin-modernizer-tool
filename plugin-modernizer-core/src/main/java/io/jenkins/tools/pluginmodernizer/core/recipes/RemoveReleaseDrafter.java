@@ -44,7 +44,7 @@ public class RemoveReleaseDrafter extends ScanningRecipe<AtomicBoolean> {
             @Override
             public Tree visit(Tree tree, ExecutionContext ctx) {
                 SourceFile sourceFile = (SourceFile) tree;
-                if (sourceFile.getSourcePath().equals(ArchetypeCommonFile.WORKFLOW_CD.getPath())) {
+                if (ArchetypeCommonFile.WORKFLOW_CD.same(sourceFile.getSourcePath())) {
                     LOG.info("Project is using CD. Need to remove release drafter.");
                     shouldRemove.set(true);
                 }

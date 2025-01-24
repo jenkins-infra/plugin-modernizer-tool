@@ -19,6 +19,22 @@ import picocli.CommandLine;
         commandListHeading = "%nCommands:%n")
 public class GlobalOptions implements IOption {
 
+    private static GlobalOptions instance;
+
+    private GlobalOptions() {}
+
+    // Static method to get the singleton instance
+    public static synchronized GlobalOptions getInstance() {
+        if (instance == null) {
+            instance = new GlobalOptions();
+        }
+        return instance;
+    }
+    // reset to default
+    public static void reset() {
+        instance = null;
+    }
+
     @CommandLine.Option(
             names = {"--debug"},
             description = "Enable debug logging.")
@@ -44,7 +60,7 @@ public class GlobalOptions implements IOption {
      */
     @Override
     public void config(Config.Builder builder) {
-        Config.DEBUG = debug;
+        Config.setDebug(debug);
         builder.withVersion(getVersion())
                 .withCachePath(
                         !cachePath.endsWith(Settings.CACHE_SUBDIR)

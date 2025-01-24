@@ -40,7 +40,7 @@ public class ConsoleLogFilterTest {
     @Test
     public void testDecideMarkerListEmptyDebugEnabled() {
         when(mockEvent.getMarkerList()).thenReturn(null);
-        Config.DEBUG = true;
+        Config.setDebug(true);
         FilterReply reply = consoleLogFilter.decide(mockEvent);
         assertEquals(FilterReply.NEUTRAL, reply);
     }
@@ -48,7 +48,7 @@ public class ConsoleLogFilterTest {
     @Test
     public void testDecideMarkerListEmptyDebugDisabled() {
         when(mockEvent.getMarkerList()).thenReturn(null);
-        Config.DEBUG = false;
+        Config.setDebug(false);
         FilterReply reply = consoleLogFilter.decide(mockEvent);
         assertEquals(FilterReply.NEUTRAL, reply);
     }

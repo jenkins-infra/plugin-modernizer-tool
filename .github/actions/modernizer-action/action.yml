@@ -1,0 +1,56 @@
+name: "Plugin Modernizer Action"
+description: "Run the Plugin Modernizer tool on the Jenkins plugin"
+inputs:
+  command:
+    description: "Command to execute for Plugin Modernizer"
+    required: true
+    default: "validate"
+
+  arguments:
+    description: "The command-line arguments to be passed"
+    required: false
+    default: ""
+
+  working-directory:
+    description: "The directory to change into"
+    required: false
+    default: ${{ github.workspace }}
+
+  version:
+    description: 'The version of Plugin Modernizer to download and execute'
+    default: "latest"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Maven Action
+      uses: s4u/setup-maven-action@v1.18.0
+      with:
+        java-distribution: 'temurin'
+        java-version: 17
+        maven-version: 3.9.9
+        cache-enabled: true
+
+    - name: Download Plugin Modernizer JAR
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ ${{ inputs.version }} == "latest" ]; then
+          API_URL="https://api.github.com/repos/jenkins-infra/plugin-modernizer-tool/releases/latest"
+        else
+          API_URL="https://api.github.com/repos/jenkins-infra/plugin-modernizer-tool/releases/tags/${{ inputs.version }}"
+        fi
+        JAR_URL=$(curl -s $API_URL | grep "browser_download_url" | grep ".jar" | head -n 1 | cut -d '"' -f 4)
+        curl -L -o plugin-modernizer.jar $JAR_URL
+
+    - name: Setting Maven Repository
+      shell: bash
+      run: |
+        mkdir -p ~/.m2/repository
+
+    - name: Run Plugin Modernizer
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        java -jar plugin-modernizer.jar ${{ inputs.command }} ${{ inputs.arguments }} --maven-home=$(echo $(which mvn) | sed 's:/bin/mvn::')

@@ -1,0 +1,35 @@
+name: Test github actions for Plugin Modernizer
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test-modernizer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate
+        uses: ./.github/actions/modernizer-action
+        with:
+          command: 'validate'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Fetch metadata on empty plugin
+        uses: ./.github/actions/modernizer-action
+        with:
+          command: 'fetch-metadata'
+          arguments: '--plugin-path plugin-modernizer-cli/src/test/resources/empty'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Dry-run UpgradeToRecommendCoreVersion on empty plugin
+        uses: ./.github/actions/modernizer-action
+        with:
+          command: 'dry-run'
+          arguments: '--plugin-path plugin-modernizer-cli/src/test/resources/empty --recipe UpgradeToRecommendCoreVersion'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -275,4 +275,32 @@ public enum JDK {
                 })
                 .toList();
     }
+
+    /**
+     * Returns the top two JDK versions sorted in descending order.
+     *
+     * @param jdks List of JDK versions
+     * @return Pair of highest and next highest JDK major versions
+     */
+    public static List<Integer> getTopTwoJdkVersions(List<JDK> jdks) {
+        return jdks.stream()
+                .sorted(Comparator.comparingInt(JDK::getMajor).reversed())
+                .limit(2)
+                .map(JDK::getMajor)
+                .toList();
+    }
+
+    /**
+     * Filter the JDKs to keep only the top N JDKs ordered by major version
+     * @param jdks The JDKs
+     * @param total The total number of JDKs to keep
+     * @return The list of JDKs
+     */
+    public static List<Integer> filter(Set<JDK> jdks, int total) {
+        return jdks.stream()
+                .sorted(Comparator.comparingInt(JDK::getMajor))
+                .limit(total)
+                .map(JDK::getMajor)
+                .toList();
+    }
 }

@@ -11,7 +11,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MergeGitIgnoreRecipe
 displayName: Merge .gitignore Entries
 description: Merges the .gitignore entries from the archetype with the existing .gitignore file.
-tags: ['chore']
+tags: ['chore', 'skip-verification', 'wip']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.MergeGitIgnoreRecipe
 ---
@@ -19,7 +19,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpdateScmUrl
 displayName: Update scm urls from git:// to https://
 description: Updates scm urls in POM files from git:// to https:// protocol as git:// protocol is deprecated by GitHub
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
 ---
@@ -29,27 +29,13 @@ displayName: Setup the Jenkinsfile
 description: Add a missing Jenkinsfile to the Jenkins plugin.
 tags: ['chore', 'skip-verification']
 recipeList:
-  - org.openrewrite.text.CreateTextFile:
-      relativeFileName: Jenkinsfile
-      overwriteExisting: false
-      fileContents: |
-        /*
-         See the documentation for more options:
-         https://github.com/jenkins-infra/pipeline-library/
-        */
-        buildPlugin(
-          forkCount: '1C', // Run a JVM per core in tests
-          useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
-          configurations: [
-            [platform: 'linux', jdk: 21],
-            [platform: 'windows', jdk: 17],
-        ])
+  - io.jenkins.tools.pluginmodernizer.core.recipes.CreateJenkinsFile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupGitIgnore
 displayName: Setup the .gitignore
 description: Add a missing .gitignore to the Jenkins plugin.
-tags: ['chore', 'skip-verification', 'wip']
+tags: ['chore', 'skip-verification']
 recipeList:
     # Keep in sync with https://github.com/jenkinsci/archetypes/blob/master/common-files/gitignore
   - org.openrewrite.text.CreateTextFile:
@@ -122,7 +108,7 @@ type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
 displayName: Migrate pom to using jenkins.baseline property if bom is present
 description: Migrate pom to using jenkins.baseline property if bom is present.
-tags: ['chore']
+tags: ['chore', 'skip-verification']
 preconditions:
   - io.jenkins.tools.pluginmodernizer.core.recipes.IsUsingBom
 recipeList:
@@ -248,7 +234,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: json-api
-      pluginVersion: 20241224-119.va_dca_a_b_ea_7da_5
+      pluginVersion: 20250107-125.v28b_a_ffa_eb_f01
       replaces:
         - groupId: org.json
           artifactId: json
@@ -371,7 +357,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: byte-buddy-api
-      pluginVersion: 1.15.11-99.v078c614a_5258
+      pluginVersion: 1.16.1-111.vc76cd8b_2dce5
       replaces:
         - groupId: net.bytebuddy
           artifactId: byte-buddy
@@ -387,7 +373,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-text-api
-      pluginVersion: 1.12.0-129.v99a_50df237f7
+      pluginVersion: 1.13.0-153.v91dcd89e2a_22
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-text
@@ -412,7 +398,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
   - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.452.4
+      minimumVersion: 2.462.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
@@ -501,7 +487,7 @@ description: Check if the plugin is using the recommended core version
 tags: ['condition']
 recipeList:
   - org.openrewrite.jenkins.IsJenkinsPlugin:
-      version: "[2.452.4,)"
+      version: "[2.462.3,)"
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.conditions.IsUsingCoreVersionWithASMRemoved

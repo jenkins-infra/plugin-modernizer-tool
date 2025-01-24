@@ -42,4 +42,29 @@ public class RemoveReleaseDrafterTest implements RewriteTest {
                     sourceSpecs.path(ArchetypeCommonFile.RELEASE_DRAFTER_WORKFLOW.getPath());
                 }));
     }
+
+    @Test
+    void shouldRemoveReleaseDrafterIfContinuousDeliveryEnabledAlternativePath() {
+        rewriteRun(
+                spec -> spec.recipe(new RemoveReleaseDrafter()),
+                // language=yaml
+                yaml("{}", sourceSpecs -> {
+                    sourceSpecs.path(ArchetypeCommonFile.WORKFLOW_CD.getPaths().stream()
+                            .sorted()
+                            .toList()
+                            .get(0));
+                }),
+                yaml("{}", null, sourceSpecs -> {
+                    sourceSpecs.path(ArchetypeCommonFile.RELEASE_DRAFTER.getPaths().stream()
+                            .sorted()
+                            .toList()
+                            .get(0));
+                }),
+                yaml("{}", null, sourceSpecs -> {
+                    sourceSpecs.path(ArchetypeCommonFile.RELEASE_DRAFTER_WORKFLOW.getPaths().stream()
+                            .sorted()
+                            .toList()
+                            .get(0));
+                }));
+    }
 }

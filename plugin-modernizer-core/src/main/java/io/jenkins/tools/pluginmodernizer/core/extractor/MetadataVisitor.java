@@ -1,7 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.core.extractor;
 
 import io.jenkins.tools.pluginmodernizer.core.utils.JsonUtils;
-import org.openrewrite.ExecutionContext;
 import org.openrewrite.PathUtils;
 import org.openrewrite.SourceFile;
 import org.openrewrite.Tree;
@@ -12,14 +11,17 @@ import org.slf4j.LoggerFactory;
 /**
  * Visitor to extract metadata from source files.
  */
-public class MetadataVisitor extends TreeVisitor<Tree, ExecutionContext> {
+public class MetadataVisitor extends TreeVisitor<Tree, MetadataExecutionContext> {
 
     /**
      * LOGGER.
      */
     private static final Logger LOG = LoggerFactory.getLogger(MetadataVisitor.class);
 
-    final PluginMetadata pluginMetadata;
+    /**
+     * Plugin metadata.
+     */
+    private final PluginMetadata pluginMetadata;
 
     /**
      * Constructor.
@@ -30,7 +32,7 @@ public class MetadataVisitor extends TreeVisitor<Tree, ExecutionContext> {
     }
 
     @Override
-    public Tree visit(Tree tree, ExecutionContext executionContext) {
+    public Tree visit(Tree tree, MetadataExecutionContext metadataContext) {
 
         SourceFile sourceFile = (SourceFile) tree;
 
@@ -42,8 +44,7 @@ public class MetadataVisitor extends TreeVisitor<Tree, ExecutionContext> {
             LOG.debug("Visiting Jenkinsfile {}", sourceFile.getSourcePath());
             PluginMetadata jenkinsFileMetadata = new JenkinsfileVisitor().reduce(tree, commonMetadata);
             LOG.debug("Jenkinsfile metadata: {}", JsonUtils.toJson(jenkinsFileMetadata));
-            executionContext.putMessage(
-                    "jenkinsFileMetadata", jenkinsFileMetadata); // Is there better than context messaging ?
+            metadataContext.setJenkinsFileMetadata(jenkinsFileMetadata);
             return tree;
         }
 
@@ -52,7 +53,7 @@ public class MetadataVisitor extends TreeVisitor<Tree, ExecutionContext> {
             LOG.debug("Visiting POM {}", sourceFile.getSourcePath());
             PluginMetadata pomMetadata = new PomResolutionVisitor().reduce(tree, commonMetadata);
             LOG.debug("POM metadata: {}", JsonUtils.toJson(pomMetadata));
-            executionContext.putMessage("pomMetadata", pomMetadata); // Is there better than context messaging ?
+            metadataContext.setPomMetadata(pomMetadata);
             return tree;
         }
         // Extract metadata from java file
@@ -60,13 +61,13 @@ public class MetadataVisitor extends TreeVisitor<Tree, ExecutionContext> {
             LOG.debug("Visiting Java file {}", sourceFile.getSourcePath());
             PluginMetadata javaMetadata = new JavaFileVisitor().reduce(tree, commonMetadata);
             LOG.debug("Java metadata: {}", JsonUtils.toJson(javaMetadata));
-            executionContext.putMessage("javaMetadata", javaMetadata); // Is there better than context messaging ?
+            metadataContext.setJavaMetadata(javaMetadata);
             return tree;
         }
 
         // Just add the common
         else {
-            executionContext.putMessage("commonMetadata", commonMetadata); // Is there better than context messaging ?
+            metadataContext.setCommonMetadata(commonMetadata);
         }
 
         return tree;

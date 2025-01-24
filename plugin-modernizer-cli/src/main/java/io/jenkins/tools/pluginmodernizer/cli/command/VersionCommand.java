@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.cli.command;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.cli.VersionProvider;
+import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -25,6 +26,9 @@ public class VersionCommand implements ICommand {
             names = {"--short"},
             description = "Display the short version")
     private boolean shortVersion;
+
+    @CommandLine.Mixin
+    private GlobalOptions options = GlobalOptions.getInstance();
 
     @Override
     public Integer call() throws Exception {

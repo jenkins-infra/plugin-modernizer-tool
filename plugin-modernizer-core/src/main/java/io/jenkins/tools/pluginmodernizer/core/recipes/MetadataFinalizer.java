@@ -1,8 +1,10 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import io.jenkins.tools.pluginmodernizer.core.extractor.MetadataExecutionContext;
 import io.jenkins.tools.pluginmodernizer.core.extractor.MetadataFinalizerVisitor;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
+import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
 
 /**
@@ -20,8 +22,22 @@ public class MetadataFinalizer extends Recipe {
         return "Metadata finalizer";
     }
 
+    /**
+     * Metadata context.
+     */
+    private final MetadataExecutionContext metadataContext;
+
+    public MetadataFinalizer(MetadataExecutionContext metadataContext) {
+        this.metadataContext = metadataContext;
+    }
+
     @Override
     public TreeVisitor<?, ExecutionContext> getVisitor() {
-        return new MetadataFinalizerVisitor();
+        return new TreeVisitor<Tree, ExecutionContext>() {
+            @Override
+            public Tree visit(Tree tree, ExecutionContext ctx) {
+                return new MetadataFinalizerVisitor().visit(tree, metadataContext);
+            }
+        };
     }
 }

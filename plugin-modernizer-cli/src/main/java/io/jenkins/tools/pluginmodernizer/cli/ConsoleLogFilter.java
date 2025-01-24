@@ -13,7 +13,7 @@ public class ConsoleLogFilter extends ThresholdFilter {
         if (event.getMarkerList() != null && !event.getMarkerList().isEmpty()) {
             return FilterReply.DENY;
         }
-        if (Config.DEBUG) {
+        if (Config.isDebug()) {
             setLevel(Level.DEBUG.levelStr);
         }
         return super.decide(event);

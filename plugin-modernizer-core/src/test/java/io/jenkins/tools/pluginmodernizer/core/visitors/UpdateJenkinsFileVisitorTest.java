@@ -240,6 +240,47 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
     }
 
     @Test
+    void replaceMultilineComment() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor());
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                #!/usr/bin/env groovy
+                /* `buildPlugin` step provided by: https://github.com/jenkins-infra/pipeline-library */
+                buildPlugin(
+                  configurations: [
+                    [platform: 'linux', jdk: 11],
+                    [platform: 'windows', jdk: 17],
+                ])
+                """,
+                        """
+                #!/usr/bin/env groovy
+                /*
+                 See the documentation for more options:
+                 https://github.com/jenkins-infra/pipeline-library/
+                */
+                buildPlugin(
+                  forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                  useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
+                  configurations: [
+                    [platform: 'linux', jdk: 21],
+                    [platform: 'windows', jdk: 17],
+                ])
+                """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
+
+    @Test
     void addContainerAgentTrue() {
         rewriteRun(
                 spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
@@ -333,6 +374,171 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                   useContainerAgent: false, // Set to `false` if you need to use Docker for containerized tests
                   configurations: []
                 )
+                """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
+
+    @Test
+    void noChangesOnCustomPipeline() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor(false, null, List.of()));
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                        pipeline {
+                            agent any
+                            stages {
+                                stage('Build') {
+                                    steps {
+                                        echo 'Building..'
+                                    }
+                                }
+                            }
+                        }
+                        """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
+
+    @Test
+    void removeVariables() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor(
+                                false, null, List.of(PlatformConfig.build(Platform.LINUX, JDK.JAVA_17))));
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                        def versions = [21, 17]
+                        def platforms = ['linux', 'windows']
+                        def jenkinsVersions = ['2.249.1', '2.222.1']
+                        buildPlugin(
+                            jdkVersions: versions,
+                            jenkinsVersions: jenkinsVersions,
+                            platforms: platforms
+                        )
+                        """,
+                        """
+                        /*
+                         See the documentation for more options:
+                         https://github.com/jenkins-infra/pipeline-library/
+                        */
+                        buildPlugin(
+                          forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                          useContainerAgent: false, // Set to `false` if you need to use Docker for containerized tests
+                          configurations: [
+                            [platform: 'linux', jdk: 17],
+                        ])
+                        """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
+
+    @Test
+    void performUpdate() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor(
+                                true, "2C", List.of(new PlatformConfig(Platform.LINUX, JDK.JAVA_21, null, true))));
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                /*
+                 See the documentation for more options:
+                 https://github.com/jenkins-infra/pipeline-library/
+                */
+                buildPlugin(
+                  forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                  useContainerAgent: false, // Set to `false` if you need to use Docker for containerized tests
+                  configurations: [
+                    [platform: 'linux', jdk: 11],
+                    [platform: 'windows', jdk: 17],
+                    [platform: 'linux', jdk: 21],
+                ])
+                """,
+                        """
+                /*
+                 See the documentation for more options:
+                 https://github.com/jenkins-infra/pipeline-library/
+                */
+                buildPlugin(
+                  forkCount: '2C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                  useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
+                  configurations: [
+                    [platform: 'linux', jdk: 21],
+                ])
+                """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());
+                        }));
+    }
+
+    @Test
+    void performUpdateWithVars() {
+        rewriteRun(
+                spec -> spec.recipe(toRecipe(() -> new GroovyIsoVisitor<>() {
+                    @Override
+                    public G.CompilationUnit visitCompilationUnit(
+                            G.CompilationUnit cu, ExecutionContext executionContext) {
+                        doAfterVisit(new UpdateJenkinsFileVisitor(
+                                true, "2C", List.of(new PlatformConfig(Platform.LINUX, JDK.JAVA_21, null, true))));
+                        return super.visitCompilationUnit(cu, executionContext);
+                    }
+                })),
+                // language=groovy
+                groovy(
+                        """
+                /*
+                 See the documentation for more options:
+                 https://github.com/jenkins-infra/pipeline-library/
+                */
+                def forkCount = '1C'
+                def useContainer = false
+                def configurations = [
+                    [platform: 'linux', jdk: 11],
+                    [platform: 'windows', jdk: 17],
+                    [platform: 'linux', jdk: 21],
+                ]
+                buildPlugin(
+                  forkCount: forkCount, // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                  useContainerAgent: useContainer, // Set to `false` if you need to use Docker for containerized tests
+                  configurations: configurations
+                )
+                """,
+                        """
+                /*
+                 See the documentation for more options:
+                 https://github.com/jenkins-infra/pipeline-library/
+                */
+                buildPlugin(
+                  forkCount: '2C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
+                  useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
+                  configurations: [
+                    [platform: 'linux', jdk: 21],
+                ])
                 """,
                         sourceSpecs -> {
                             sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath());

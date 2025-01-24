@@ -96,7 +96,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         }
 
         // Remove legacy arguments
-        method = removeLegacyArguments(method);
+        method = removeArguments(method);
 
         List<Expression> arguments = new LinkedList<>(method.getArguments());
 
@@ -107,25 +107,106 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         // Fork count
         G.MapEntry forkCountEntry = buildForkCountEntry();
         if (!hasArgument(method, "forkCount")) {
-            // Add argument at the end
             arguments.add(forkCountEntry);
             method = method.withArguments(arguments);
+        }
+        // Perform the update if the value is different
+        else {
+            removeOrphanedVariable(method, "forkCount");
+            if (shouldReplaceForkCount(arguments)) {
+                arguments = arguments.stream()
+                        .filter(arg -> !(arg instanceof G.MapEntry mapEntry
+                                && mapEntry.getKey() instanceof J.Literal key
+                                && "forkCount".equals(key.getValue())))
+                        .collect(Collectors.toList());
+                arguments.add(forkCountEntry);
+                method = method.withArguments(arguments);
+            }
         }
 
         // Container agent
         G.MapEntry useContainerAgentEntry = buildContainerAgentEntry();
+        removeOrphanedVariable(method, "useContainerAgent");
         if (!hasArgument(method, "useContainerAgent")) {
             arguments.add(useContainerAgentEntry);
             method = method.withArguments(arguments);
         }
+        // Perform the update if the value is different
+        else {
+            if (shouldReplaceUseContainerAgent(arguments)) {
+                arguments = arguments.stream()
+                        .filter(arg -> !(arg instanceof G.MapEntry mapEntry
+                                && mapEntry.getKey() instanceof J.Literal key
+                                && "useContainerAgent".equals(key.getValue())))
+                        .collect(Collectors.toList());
+                arguments.add(useContainerAgentEntry);
+                method = method.withArguments(arguments);
+            }
+        }
 
+        // Add or update configurations
+        G.MapEntry configurationsEntry = buildConfigurations();
+        removeOrphanedVariable(method, "configurations");
         if (!hasArgument(method, "configurations")) {
-            G.MapEntry configurationsEntry = buildConfigurations();
             arguments.add(configurationsEntry);
             method = method.withArguments(arguments);
+        } else {
+            if (shouldReplaceConfigurations(arguments)) {
+                arguments = arguments.stream()
+                        .filter(arg -> !(arg instanceof G.MapEntry mapEntry
+                                && mapEntry.getKey() instanceof J.Literal key
+                                && "configurations".equals(key.getValue())))
+                        .collect(Collectors.toList());
+                arguments.add(configurationsEntry);
+                method = method.withArguments(arguments);
+            }
         }
 
         return method;
+    }
+
+    /**
+     * Return if configurtions must be replaced
+     * @param arguments the arguments of the method
+     * @return true if configurations must be replaced
+     */
+    private boolean shouldReplaceConfigurations(List<Expression> arguments) {
+        return arguments.stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry mapEntry
+                        && mapEntry.getKey() instanceof J.Literal key
+                        && "configurations".equals(key.getValue())
+                        && (mapEntry.getValue() instanceof G.ListLiteral
+                                || mapEntry.getValue() instanceof J.Identifier));
+    }
+
+    /**
+     * Return if useContainerAgent must be replaced
+     * @param arguments the arguments of the method
+     * @return true if useContainerAgent must be replaced
+     */
+    private boolean shouldReplaceUseContainerAgent(List<Expression> arguments) {
+        return arguments.stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry mapEntry
+                        && mapEntry.getKey() instanceof J.Literal key
+                        && "useContainerAgent".equals(key.getValue())
+                        && ((mapEntry.getValue() instanceof J.Literal value
+                                        && !value.getValue().equals(useContainerAgent))
+                                || mapEntry.getValue() instanceof J.Identifier));
+    }
+
+    /**
+     * Return if forkCount must be replaced
+     * @param arguments the arguments of the method
+     * @return true if forkCount must be replaced
+     */
+    private boolean shouldReplaceForkCount(List<Expression> arguments) {
+        return arguments.stream()
+                .anyMatch(arg -> arg instanceof G.MapEntry mapEntry
+                        && mapEntry.getKey() instanceof J.Literal key
+                        && "forkCount".equals(key.getValue())
+                        && ((mapEntry.getValue() instanceof J.Literal value
+                                        && !value.getValue().equals(forkCount))
+                                || mapEntry.getValue() instanceof J.Identifier));
     }
 
     /**
@@ -142,13 +223,53 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
     }
 
     /**
-     * Remove the legacy arguments from the method invocation
+     * Remove variable reference on a removed arg of the method
+     */
+    private void removeOrphanedVariable(J.MethodInvocation method, String name) {
+        Expression expression = method.getArguments().stream()
+                .filter(arg -> arg instanceof G.MapEntry
+                        && ((G.MapEntry) arg).getKey() instanceof J.Literal
+                        && ((J.Literal) ((G.MapEntry) arg).getKey()).getValue().equals(name))
+                .map(arg -> ((G.MapEntry) arg).getValue())
+                .findFirst()
+                .orElse(null);
+
+        if (expression instanceof J.Identifier identifier) {
+            doAfterVisit(new GroovyIsoVisitor<>() {
+                @Override
+                public J.VariableDeclarations visitVariableDeclarations(
+                        J.VariableDeclarations multiVariable, ExecutionContext ctx) {
+                    if (multiVariable.getVariables().stream()
+                            .anyMatch(v -> v.getSimpleName().equals(identifier.getSimpleName()))) {
+                        // Cleanup empty newline after removing any variable declaration on top of Jenkins
+                        doAfterVisit(new GroovyIsoVisitor<>() {
+                            @Override
+                            public J.MethodInvocation visitMethodInvocation(
+                                    J.MethodInvocation method, ExecutionContext executionContext) {
+                                if (method.getPrefix().getWhitespace().equals("\n")) {
+                                    method =
+                                            method.withPrefix(method.getPrefix().withWhitespace(""));
+                                }
+                                return method;
+                            }
+                        });
+                        return null;
+                    }
+                    return super.visitVariableDeclarations(multiVariable, ctx);
+                }
+            });
+        }
+    }
+
+    /**
+     * Remove the arguments from the method invocation
      * They are replaced by configurations that are more flexible
      * @param method the method invocation
      */
-    private J.MethodInvocation removeLegacyArguments(J.MethodInvocation method) {
+    private J.MethodInvocation removeArguments(J.MethodInvocation method) {
 
         // Remove jdkVersions argument if present
+        removeOrphanedVariable(method, "jdkVersions");
         List<Expression> arguments = method.getArguments().stream()
                 .filter(arg -> !(arg instanceof G.MapEntry
                         && ((G.MapEntry) arg).getKey() instanceof J.Literal
@@ -157,6 +278,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         method = method.withArguments(arguments);
 
         // Remove platforms argument if present
+        removeOrphanedVariable(method, "platforms");
         arguments = method.getArguments().stream()
                 .filter(arg -> !(arg instanceof G.MapEntry
                         && ((G.MapEntry) arg).getKey() instanceof J.Literal
@@ -165,6 +287,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         method = method.withArguments(arguments);
 
         // Remove jenkinsVersions argument if present
+        removeOrphanedVariable(method, "jenkinsVersions");
         arguments = method.getArguments().stream()
                 .filter(arg -> !(arg instanceof G.MapEntry
                         && ((G.MapEntry) arg).getKey() instanceof J.Literal

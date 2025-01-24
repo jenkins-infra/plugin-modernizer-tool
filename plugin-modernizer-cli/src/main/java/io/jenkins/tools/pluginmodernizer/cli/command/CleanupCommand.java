@@ -22,7 +22,7 @@ public class CleanupCommand implements ICommand {
      * Global options for all commands
      */
     @CommandLine.Mixin
-    private GlobalOptions options;
+    private GlobalOptions options = GlobalOptions.getInstance();
 
     @CommandLine.Option(
             names = {"--dry-run"},

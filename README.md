@@ -34,6 +34,7 @@ Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/proj
     - [Build](#build)
     - [Using the tool](#using-the-tool)
     - [Setup](#setup)
+    - [Configuring SSH Key](#Configuring-SSH-Key-for-Commit-Signing)
 - [Subcommands](#subcommands)
 - [Global option](#global-option)
 - [GitHub option](#github-options)
@@ -67,6 +68,12 @@ mvn clean install
 
 The CLI is distributed by Homebrew and can be installed using the following command
 
+Install Homebrew if you don't have it already:
+
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
 Ensure to have Jenkins infra tap
 
 ```
@@ -84,10 +91,25 @@ This tool requires forking repositories from GitHub, so you need to set the GitH
 Use either `GH_TOKEN` or `GITHUB_TOKEN` for the GitHub token, and either `GH_OWNER` or `GITHUB_OWNER` for the GitHub owner.
 Alternatively, you can pass the GitHub owner through the CLI option `-g` or `--github-owner`.
 
-Your classic token should have the following scopes
+Generate a GitHub Token:
+
+Go to GitHub Settings > Developer settings > Personal access tokens.
+Click on "Generate new token".
+Give your token a descriptive name.
+
+Your classic token should have the following scopes:
 
 - `repo` (Full control of private repositories)
 - `delete_repo` (Delete repositories) (Only if using the `--clean-forks` option)
+
+Set Environment Variables:
+
+Open your terminal and set the GH_TOKEN and GH_OWNER environment variables:
+    
+```shell
+export GH_TOKEN=your_generated_token
+export GH_OWNER=your_github_username
+```
 
 > [!Note]
 > The GitHub owner can be either a personal account or an organization.
@@ -101,12 +123,42 @@ From there you need to save both ID of installation (found on URL)
 
 `https://github.com/organizations/<org>/settings/installations/<installation ID>`
 
+### Configuring SSH Key for Commit Signing
+To ensure the commits are signed with your SSH key and marked as `Verified` on GitHub, run the commands inside your repository directory.
+
+Generate a SSH key pair if you don't already have one.
+```shell
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+Add the public SSH key to your GitHub account.
+- Go to GitHub Settings > SSH and GPG keys > New SSH key.
+- Give your key a title and paste the contents of your public key file (usually `~/.ssh/id_ed25519.pub`).
+
+Configure Git to use SSH for signing.
+```shell
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+```
+Replace `id_ed25519.pub` with your actual public key filename.
+
+Set up commit signing globally.
+```shell
+git config --global commit.gpgsign true
+```
+If you prefer to configure signing for individual repositories.
+```shell
+git config user.signingkey ~/.ssh/id_ed25519.pub
+git config gpg.format ssh
+git config commit.gpgsign true
+```
+
 # Subcommands
 
 - `validate`: Validate the configuration and environment variables (work in progress)
 - `run`: Run the modernization process
 - `dry-run`: Run the modernization process in dry-run mode without forking or pushing changes
-- `build-metadata`: Collect metadata for the given plugin and have them on the local cache
+- `build-metadata / fetch-metadata`: Collect metadata for the given plugin and have them on the local cache
 - `recipes`: List available recipes
 
 # Auto completion
