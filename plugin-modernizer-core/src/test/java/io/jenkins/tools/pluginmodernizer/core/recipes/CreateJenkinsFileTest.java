@@ -147,7 +147,7 @@ class CreateJenkinsFileTest implements RewriteTest {
                 <version>1.0.0</version>
                 <packaging>hpi</packaging>
                 <properties>
-                    <jenkins.version>2.361.4</jenkins.version>
+                    <jenkins.version>2.164.3</jenkins.version>
                 </properties>
             </project>
             """),
@@ -162,8 +162,8 @@ class CreateJenkinsFileTest implements RewriteTest {
                 forkCount: '1C', // Run a JVM per core in tests
                 useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                 configurations: [
-                    [platform: 'linux', jdk: 17],
-                    [platform: 'windows', jdk: 11]
+                    [platform: 'linux', jdk: 11],
+                    [platform: 'windows', jdk: 8]
                 ]
             )""",
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));

@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
@@ -280,21 +279,28 @@ public enum JDK {
     /**
      * Returns the top two JDK versions sorted in descending order.
      *
-     * @param supportedJdks List of supported JDK versions
+     * @param jdks List of JDK versions
      * @return Pair of highest and next highest JDK major versions
      */
-    public static List<Integer> getTopTwoJdkVersions(List<JDK> supportedJdks) {
-        if (supportedJdks == null || supportedJdks.isEmpty()) {
-            throw new IllegalArgumentException("Supported JDKs list cannot be null or empty");
-        }
+    public static List<Integer> getTopTwoJdkVersions(List<JDK> jdks) {
+        return jdks.stream()
+                .sorted(Comparator.comparingInt(JDK::getMajor).reversed())
+                .limit(2)
+                .map(JDK::getMajor)
+                .toList();
+    }
 
-        List<JDK> sortedJdks = supportedJdks.stream()
-                .sorted((j1, j2) -> Integer.compare(j2.getMajor(), j1.getMajor()))
-                .collect(Collectors.toList());
-
-        int highestJdk = sortedJdks.get(0).getMajor();
-        int nextJdk = sortedJdks.size() > 1 ? sortedJdks.get(1).getMajor() : highestJdk;
-
-        return Arrays.asList(highestJdk, nextJdk);
+    /**
+     * Filter the JDKs to keep only the top N JDKs ordered by major version
+     * @param jdks The JDKs
+     * @param total The total number of JDKs to keep
+     * @return The list of JDKs
+     */
+    public static List<Integer> filter(Set<JDK> jdks, int total) {
+        return jdks.stream()
+                .sorted(Comparator.comparingInt(JDK::getMajor))
+                .limit(total)
+                .map(JDK::getMajor)
+                .toList();
     }
 }

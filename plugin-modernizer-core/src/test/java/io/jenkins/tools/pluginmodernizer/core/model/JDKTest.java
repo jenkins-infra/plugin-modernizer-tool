@@ -3,6 +3,7 @@ package io.jenkins.tools.pluginmodernizer.core.model;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -60,6 +61,47 @@ public class JDKTest {
         assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.361.1"));
         assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.462.3"));
         assertEquals(JDK.JAVA_17, JDK.min(Set.of(JDK.values()), "2.479.1"));
+    }
+
+    @Test
+    public void getTopTwoJdkVersions() {
+        assertEquals(1, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_11)).size());
+        assertEquals(11, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_11)).get(0));
+
+        assertEquals(
+                2, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_17, JDK.JAVA_21)).size());
+        assertEquals(
+                21, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_17, JDK.JAVA_21)).get(0));
+        assertEquals(
+                17, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_17, JDK.JAVA_21)).get(1));
+
+        assertEquals(
+                2,
+                JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_8, JDK.JAVA_17, JDK.JAVA_11))
+                        .size());
+        assertEquals(
+                17,
+                JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_8, JDK.JAVA_17, JDK.JAVA_11))
+                        .get(0));
+        assertEquals(
+                11,
+                JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_8, JDK.JAVA_17, JDK.JAVA_11))
+                        .get(1));
+    }
+
+    @Test
+    public void filter() {
+        assertEquals(1, JDK.filter(Set.of(JDK.JAVA_11), 2).size());
+        assertEquals(1, JDK.filter(Set.of(JDK.JAVA_11), 1).size());
+        assertEquals(1, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_8), 1).size());
+        assertEquals(8, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_8), 1).get(0));
+        assertEquals(8, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_8), 2).get(0));
+        assertEquals(
+                2, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_21, JDK.JAVA_8), 2).size());
+        assertEquals(
+                11, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_21, JDK.JAVA_8), 2).get(1));
+        assertEquals(
+                11, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_21, JDK.JAVA_8), 2).get(1));
     }
 
     @Test

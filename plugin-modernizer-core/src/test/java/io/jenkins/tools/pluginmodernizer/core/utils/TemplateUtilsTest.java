@@ -6,8 +6,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
+import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -364,6 +366,77 @@ public class TemplateUtilsTest {
 
         // Assert
         assertEquals("chore(dependencies): Automate dependency updates with Dependabot", result);
+    }
+
+    @Test
+    public void testFriendlyPrTitleSetupJenkinsfile() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.SetupJenkinsfile")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("feat(ci): Builds on the Jenkins Infrastructure", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodySetupJenkinsfileWithRecentJdk() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn(Set.of(JDK.JAVA_17, JDK.JAVA_21)).when(metadata).getJdks();
+        doReturn("io.jenkins.tools.pluginmodernizer.SetupJenkinsfile")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+        System.out.println(result);
+        assertTrue(result.contains("using Java 17 and 21"), "JDK message is missing");
+
+        // Assert contains the JDK 21 specific message
+        assertTrue(
+                result.contains(
+                        "Your plugin is already building with Java 17 and 21. We will continue to support these versions."),
+                "Message about JDK 21 support is missing");
+    }
+
+    @Test
+    public void testFriendlyPrBodySetupJenkinsfileWithOldJdk() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn(Set.of(JDK.JAVA_8)).when(metadata).getJdks();
+        doReturn("io.jenkins.tools.pluginmodernizer.SetupJenkinsfile")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        assertTrue(result.contains("using Java 8"), "JDK message is missing");
+
+        // Assert contains the JDK 8/11 specific message
+        assertTrue(
+                result.contains("There will come a time when we no longer support plugins built with JDK 8 or 11."),
+                "Message about JDK 8/11 support is missing");
     }
 
     @Test
