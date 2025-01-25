@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLParser;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
@@ -17,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -59,6 +60,9 @@ public class Settings {
     public static final String RECIPE_FQDN_PREFIX = "io.jenkins.tools.pluginmodernizer";
 
     public static final Double PLUGIN_LOW_SCORE_THRESHOLD = 80.0;
+
+    public static final Predicate<String> JENKINS_VERSION_LTS_PATTERN =
+            Pattern.compile("^\\d\\.(\\d+)\\.\\d$").asPredicate();
 
     public static final String ADOPTIUM_GITHUB_API_URL = "https://api.github.com/repos/adoptium";
 
@@ -177,19 +181,49 @@ public class Settings {
         return Path.of(mavenLocalRepo);
     }
 
-    private static @Nullable String getRewritePluginVersion() {
+    private static String getRewritePluginVersion() {
         return readProperty("openrewrite.maven.plugin.version", "versions.properties");
     }
 
-    public static @Nullable String getJenkinsParentVersion() {
+    public static String getJenkinsParentVersion() {
         return readProperty("jenkins.parent.version", "versions.properties");
     }
 
-    public static @Nullable String getBomVersion() {
+    public static String getBomVersion() {
         return readProperty("bom.version", "versions.properties");
     }
 
-    private static @Nullable URL getUpdateCenterUrl() throws MalformedURLException {
+    public static String getJenkinsMinimumVersion() {
+        return readProperty("jenkins.core.minimum.version", "versions.properties");
+    }
+
+    public static String getJenkinsMinimumBaseline() {
+        String jenkinsVersion = getJenkinsMinimumVersion();
+        if (JENKINS_VERSION_LTS_PATTERN.test(jenkinsVersion)) {
+            int lastIndex = jenkinsVersion.lastIndexOf(".");
+            return jenkinsVersion.substring(0, lastIndex);
+        }
+        return jenkinsVersion;
+    }
+
+    public static String getJenkinsMinimumPatchVersion() {
+        String jenkinsVersion = getJenkinsMinimumVersion();
+        // Get last digit
+        int lastIndex = jenkinsVersion.lastIndexOf(".");
+        return jenkinsVersion.substring(lastIndex + 1);
+    }
+
+    public static String getBomArtifactId() {
+        String jenkinsVersion = getJenkinsMinimumVersion();
+        if (JENKINS_VERSION_LTS_PATTERN.test(jenkinsVersion) || JENKINS_VERSION_LTS_PATTERN.test(jenkinsVersion)) {
+            int lastIndex = jenkinsVersion.lastIndexOf(".");
+            String prefix = jenkinsVersion.substring(0, lastIndex);
+            return "bom-" + prefix + ".x";
+        }
+        return "bom-weekly";
+    }
+
+    private static URL getUpdateCenterUrl() throws MalformedURLException {
         String url = System.getenv("JENKINS_UC");
         if (url != null) {
             return new URL(url);
@@ -197,7 +231,7 @@ public class Settings {
         return new URL(readProperty("update.center.url", "urls.properties"));
     }
 
-    private static @Nullable URL getPluginVersions() throws MalformedURLException {
+    private static URL getPluginVersions() throws MalformedURLException {
         String url = System.getenv("JENKINS_PLUGIN_INFO");
         if (url != null) {
             return new URL(url);
@@ -220,7 +254,7 @@ public class Settings {
         return readProperty("remediation.jenkins.plugin.parent.version", "versions.properties");
     }
 
-    private static @Nullable URL getHealthScoreUrl() throws MalformedURLException {
+    private static URL getHealthScoreUrl() throws MalformedURLException {
         String url = System.getenv("JENKINS_PHS");
         if (url != null) {
             return new URL(url);
@@ -228,7 +262,7 @@ public class Settings {
         return new URL(readProperty("plugin.health.score.url", "urls.properties"));
     }
 
-    private static @Nullable URL getPluginsStatsInstallationsUrl() throws MalformedURLException {
+    private static URL getPluginsStatsInstallationsUrl() throws MalformedURLException {
         String url = System.getenv("JENKINS_PLUGINS_STATS_INSTALLATIONS_URL");
         if (url != null) {
             return new URL(url);
