@@ -18,4 +18,5 @@ public final class RecipesConsts {
     public static final String ANALYSIS_POM_ARTIFACT_ID = "analysis-pom";
     public static final String VERSION_METADATA_PATTERN = "\\.v[a-f0-9_]+";
     public static final String INCREMENTAL_REPO_ID = "incrementals";
+    public static final String JENKINS_CORE_VERSION = "${jenkins.core.minimum.version}";
 }
