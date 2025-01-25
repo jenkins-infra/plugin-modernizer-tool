@@ -106,7 +106,7 @@ public class GHService {
         }
     }
 
-    public void updatePullRequestTitleAndBody(GHPullRequest pr, String newTitle, String newBody) throws IOException {
+    private void updatePullRequestTitleAndBody(GHPullRequest pr, String newTitle, String newBody) throws IOException {
         String currentTitle = pr.getTitle();
         String currentBody = pr.getBody();
 
@@ -956,13 +956,10 @@ public class GHService {
             Optional<GHPullRequest> existingPR = checkIfPullRequestExists(plugin);
             if (existingPR.isPresent()) {
                 GHPullRequest pr = existingPR.get();
-                if (pr != null) {
-                    LOG.info("Pull request already exists: {}", pr.getHtmlUrl());
-                    updatePullRequestTitleAndBody(pr, prTitle, prBody);
-                } else {
-                    LOG.warn("Existing pull request is null. Skipping update.");
-                }
-                return;
+                LOG.info("Pull request already exists: {}", pr.getHtmlUrl());
+                updatePullRequestTitleAndBody(pr, prTitle, prBody);
+            } else {
+                LOG.info("Existing pull request is null. Skipping update.");
             }
 
             // Create a new pull request
