@@ -24,7 +24,7 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
     @Test
     void testPerformUpgradeWithoutBom() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion("2.452.4")),
+                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml(
                         """
@@ -75,7 +75,7 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.452.4</jenkins.version>
+                    <jenkins.version>%s</jenkins.version>
                   </properties>
                   <repositories>
                     <repository>
@@ -90,13 +90,14 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                     </pluginRepository>
                   </pluginRepositories>
                 </project>
-                 """));
+                 """
+                                .formatted(Settings.getJenkinsMinimumVersion())));
     }
 
     @Test
     void testPerformUpgradeWithBaselineWithoutBom() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion("2.452.4")),
+                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml(
                         """
@@ -148,8 +149,8 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                    <packaging>hpi</packaging>
                    <name>Empty Plugin</name>
                    <properties>
-                     <jenkins.baseline>2.452</jenkins.baseline>
-                     <jenkins.version>${jenkins.baseline}.4</jenkins.version>
+                     <jenkins.baseline>%s</jenkins.baseline>
+                     <jenkins.version>${jenkins.baseline}.%s</jenkins.version>
                    </properties>
                    <repositories>
                      <repository>
@@ -164,13 +165,16 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                      </pluginRepository>
                    </pluginRepositories>
                  </project>
-                 """));
+                 """
+                                .formatted(
+                                        Settings.getJenkinsMinimumBaseline(),
+                                        Settings.getJenkinsMinimumPatchVersion())));
     }
 
     @Test
     void testPerformUpgradeWithoutBaselineWithBomAndUpgradeBomIfDoesntExistsForNewJenkinsVersion() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion("2.452.4")),
+                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml(
                         """
@@ -232,13 +236,13 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                    <packaging>hpi</packaging>
                    <name>Empty Plugin</name>
                    <properties>
-                     <jenkins.version>2.452.4</jenkins.version>
+                     <jenkins.version>%s</jenkins.version>
                    </properties>
                    <dependencyManagement>
                      <dependencies>
                        <dependency>
                          <groupId>io.jenkins.tools.bom</groupId>
-                         <artifactId>bom-2.452.x</artifactId>
+                         <artifactId>%s</artifactId>
                          <version>%s</version>
                          <type>pom</type>
                          <scope>import</scope>
@@ -259,13 +263,16 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                    </pluginRepositories>
                  </project>
                  """
-                                .formatted(Settings.getBomVersion())));
+                                .formatted(
+                                        Settings.getJenkinsMinimumVersion(),
+                                        Settings.getBomArtifactId(),
+                                        Settings.getBomVersion())));
     }
 
     @Test
     void testPerformUpgradeWithBaselineWithBomAndUpgradeBomIfDoesntExistsForNewJenkinsVersion() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion("2.452.4")),
+                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml(
                         """
@@ -328,8 +335,8 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                    <packaging>hpi</packaging>
                    <name>Empty Plugin</name>
                    <properties>
-                     <jenkins.baseline>2.452</jenkins.baseline>
-                     <jenkins.version>${jenkins.baseline}.4</jenkins.version>
+                     <jenkins.baseline>%s</jenkins.baseline>
+                     <jenkins.version>${jenkins.baseline}.%s</jenkins.version>
                    </properties>
                    <dependencyManagement>
                      <dependencies>
@@ -356,6 +363,9 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                    </pluginRepositories>
                  </project>
                  """
-                                .formatted(Settings.getBomVersion())));
+                                .formatted(
+                                        Settings.getJenkinsMinimumBaseline(),
+                                        Settings.getJenkinsMinimumPatchVersion(),
+                                        Settings.getBomVersion())));
     }
 }
