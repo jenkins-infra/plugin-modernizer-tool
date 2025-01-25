@@ -106,6 +106,19 @@ public class GHService {
         }
     }
 
+    public void updatePullRequestTitleAndBody(GHPullRequest pr, String newTitle, String newBody) throws IOException {
+        String currentTitle = pr.getTitle();
+        String currentBody = pr.getBody();
+
+        if (!currentTitle.equals(newTitle) || !currentBody.equals(newBody)) {
+            pr.setTitle(newTitle); // Sets the new title
+            pr.setBody(newBody); // Sets the new body
+            LOG.info("Updated PR title and body for PR: {}", pr.getHtmlUrl());
+        } else {
+            LOG.info("No changes detected in PR title or body for PR: {}", pr.getHtmlUrl());
+        }
+    }
+
     public boolean isConnected() {
         return github != null;
     }
@@ -909,11 +922,10 @@ public class GHService {
      * @param plugin The plugin to open a pull request for
      */
     public void openPullRequest(Plugin plugin) {
-
         // Ensure to refresh client to target installation
         refreshToken(config.getGithubAppTargetInstallationId());
 
-        // Renders parts and log then even if dry-run
+        // Renders parts and log them even if dry-run
         String prTitle = TemplateUtils.renderPullRequestTitle(plugin, config.getRecipe());
         String prBody = TemplateUtils.renderPullRequestBody(plugin, config.getRecipe());
         LOG.debug("Pull request title: {}", prTitle);
@@ -937,15 +949,23 @@ public class GHService {
             return;
         }
 
-        // Check if existing PR exists
-        GHRepository repository = plugin.getRemoteRepository(this);
-        Optional<GHPullRequest> existingPR = checkIfPullRequestExists(plugin);
-        if (existingPR.isPresent()) {
-            LOG.info("Pull request already exists: {}", existingPR.get().getHtmlUrl());
-            return;
-        }
-
         try {
+            GHRepository repository = plugin.getRemoteRepository(this);
+
+            // Check if an existing PR exists
+            Optional<GHPullRequest> existingPR = checkIfPullRequestExists(plugin);
+            if (existingPR.isPresent()) {
+                GHPullRequest pr = existingPR.get();
+                if (pr != null) {
+                    LOG.info("Pull request already exists: {}", pr.getHtmlUrl());
+                    updatePullRequestTitleAndBody(pr, prTitle, prBody);
+                } else {
+                    LOG.warn("Existing pull request is null. Skipping update.");
+                }
+                return;
+            }
+
+            // Create a new pull request
             String branchName = TemplateUtils.renderBranchName(plugin, config.getRecipe());
             GHPullRequest pr = repository.createPullRequest(
                     prTitle,
@@ -954,23 +974,30 @@ public class GHService {
                     prBody,
                     false,
                     config.isDraft());
-            LOG.info("Pull request created: {}", pr.getHtmlUrl());
-            plugin.withPullRequest();
-            try {
-                String[] tags = plugin.getTags().stream()
-                        .filter(ALLOWED_TAGS::contains)
-                        .sorted()
-                        .toArray(String[]::new);
-                if (tags.length > 0) {
-                    pr.addLabels(tags);
+
+            if (pr != null) {
+                LOG.info("Pull request created: {}", pr.getHtmlUrl());
+                plugin.withPullRequest();
+
+                // Add labels to the PR if applicable
+                try {
+                    String[] tags = plugin.getTags().stream()
+                            .filter(ALLOWED_TAGS::contains)
+                            .sorted()
+                            .toArray(String[]::new);
+                    if (tags.length > 0) {
+                        pr.addLabels(tags);
+                    }
+                } catch (Exception e) {
+                    LOG.debug("Failed to add labels to pull request: {}. Probably missing permission.", e.getMessage());
+                } finally {
+                    plugin.withoutTags();
                 }
-            } catch (Exception e) {
-                LOG.debug("Failed to add labels to pull request: {}. Probably missing permission.", e.getMessage());
-            } finally {
-                plugin.withoutTags();
+            } else {
+                LOG.error("Failed to create pull request for plugin {}", plugin.getName());
             }
         } catch (IOException e) {
-            plugin.addError("Failed to create pull request", e);
+            plugin.addError("Failed to handle pull request", e);
             plugin.raiseLastError();
         }
     }
