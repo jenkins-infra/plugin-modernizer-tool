@@ -41,6 +41,12 @@ public class UpdateBomVersionVisitor extends MavenIsoVisitor<ExecutionContext> {
             new LatestRelease(RecipesConsts.VERSION_METADATA_PATTERN);
 
     /**
+     * Old bom version comparator that where not using JEP-229
+     */
+    private final transient LatestRelease oldBomReleaseComparator =
+            new LatestRelease(RecipesConsts.OLD_BOM_VERSION_PATTERN);
+
+    /**
      * Contructor
      */
     public UpdateBomVersionVisitor(MavenMetadataFailures metadataFailures) {
@@ -154,16 +160,27 @@ public class UpdateBomVersionVisitor extends MavenIsoVisitor<ExecutionContext> {
 
         // Keep track of version found
         List<String> versions = new ArrayList<>();
+        List<String> oldVersions = new ArrayList<>();
         for (String v : mavenMetadata.getVersioning().getVersions()) {
             if (latestBomReleaseComparator.isValid(currentVersion, v)) {
                 versions.add(v);
+            }
+            if (oldBomReleaseComparator.isValid(currentVersion, v)) {
+                oldVersions.add(v);
             }
         }
 
         // Take latest version available. Allow to downgrade from incrementals to release
         if (!Semver.isVersion(currentVersion) && !versions.isEmpty() || (!versions.contains(currentVersion))) {
             versions.sort(latestBomReleaseComparator);
-            return versions.get(versions.size() - 1);
+            oldVersions.sort(oldBomReleaseComparator);
+            if (!versions.isEmpty()) {
+                return versions.get(versions.size() - 1);
+            }
+            if (!oldVersions.isEmpty()) {
+                return oldVersions.get(oldVersions.size() - 1);
+            }
+            return currentVersion;
         } else {
             return latestBomReleaseComparator.upgrade(currentVersion, versions).orElse(null);
         }
