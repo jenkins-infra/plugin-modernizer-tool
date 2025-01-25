@@ -111,8 +111,8 @@ public class GHService {
         String currentBody = pr.getBody();
 
         if (!currentTitle.equals(newTitle) || !currentBody.equals(newBody)) {
-            pr.setTitle(newTitle); // Sets the new title
-            pr.setBody(newBody); // Sets the new body
+            pr.setTitle(newTitle);
+            pr.setBody(newBody);
             LOG.info("Updated PR title and body for PR: {}", pr.getHtmlUrl());
         } else {
             LOG.info("No changes detected in PR title or body for PR: {}", pr.getHtmlUrl());
@@ -959,7 +959,7 @@ public class GHService {
                 LOG.info("Pull request already exists: {}", pr.getHtmlUrl());
                 updatePullRequestTitleAndBody(pr, prTitle, prBody);
             } else {
-                LOG.info("Existing pull request is null. Skipping update.");
+                LOG.debug("Existing pull request not found. Skipping update.");
             }
 
             // Create a new pull request
