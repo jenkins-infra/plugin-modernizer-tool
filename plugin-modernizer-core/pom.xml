@@ -224,13 +224,6 @@
           <include>recipes.yml</include>
         </includes>
       </resource>
-      <resource>
-        <filtering>true</filtering>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/RecipesConsts.java</include>
-        </includes>
-      </resource>
     </resources>
     <plugins>
 

@@ -148,7 +148,7 @@ recipeList:
       artifactId: plugin
       newVersion: 5.X
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: "${jenkins.core.minimum.version}"
+      minimumVersion: 2.479.1
   - org.openrewrite.java.ChangeType:
       oldFullyQualifiedTypeName: org.kohsuke.stapler.StaplerRequest
       newFullyQualifiedTypeName: org.kohsuke.stapler.StaplerRequest2
@@ -398,7 +398,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
   - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: "${jenkins.core.minimum.version}"
+      minimumVersion: 2.462.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
@@ -442,7 +442,7 @@ recipeList:
       artifactId: plugin
       newVersion: 4.51 # See https://www.jenkins.io/blog/2022/12/14/require-java-11/
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: "${jenkins.core.minimum.version}"
+      minimumVersion: 2.346.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructor
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
@@ -487,7 +487,7 @@ description: Check if the plugin is using the recommended core version
 tags: ['condition']
 recipeList:
   - org.openrewrite.jenkins.IsJenkinsPlugin:
-      version: "[2.462.3,)"
+      version: "[${jenkins.core.minimum.version},)"
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.conditions.IsUsingCoreVersionWithASMRemoved
