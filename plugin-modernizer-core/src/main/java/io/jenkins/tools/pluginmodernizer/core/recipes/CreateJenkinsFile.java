@@ -56,13 +56,12 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
             @Override
             public Tree visit(Tree tree, ExecutionContext ctx) {
                 if (tree instanceof SourceFile sourceFile) {
-                    if (PathUtils.matchesGlob(sourceFile.getSourcePath(), "**/Jenkinsfile")) {
-                        LOG.debug("Jenkinsfile already exists");
+                    if (ArchetypeCommonFile.JENKINSFILE.same(sourceFile.getSourcePath())) {
+                        LOG.debug("Jenkinsfile already exists. No need to generate.");
                         state.setJenkinsfileExists(true);
                         return tree;
                     }
-
-                    if (PathUtils.matchesGlob(sourceFile.getSourcePath(), "**/pom.xml")) {
+                    if (ArchetypeCommonFile.POM.same(sourceFile.getSourcePath())) {
                         LOG.debug("Visiting POM {}", sourceFile.getSourcePath());
 
                         // First pass with ArchetypeCommonFileVisitor
@@ -73,14 +72,11 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
                         PluginMetadata pomMetadata = new PomResolutionVisitor().reduce(tree, commonMetadata);
                         LOG.debug("POM metadata: {}", JsonUtils.toJson(pomMetadata));
 
-                        // Check if Jenkins version exists in properties
-                        if (pomMetadata.getProperties() != null
-                                && pomMetadata.getProperties().containsKey("jenkins.version")) {
-                            String jenkinsVersion = pomMetadata.getProperties().get("jenkins.version");
-                            LOG.debug("Found Jenkins version: {}", jenkinsVersion);
-                            state.setJenkinsVersion(jenkinsVersion);
-                            return tree;
-                        }
+                        // Add Jenkins version to the state
+                        String jenkinsVersion = pomMetadata.getJenkinsVersion();
+                        LOG.debug("Found Jenkins version: {}", jenkinsVersion);
+                        state.setJenkinsVersion(jenkinsVersion);
+                        return tree;
                     }
                 }
                 return tree;
@@ -103,6 +99,7 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
 
         LOG.debug("Generating Jenkinsfile for Jenkins version: {}", jenkinsVersion);
         List<JDK> supportedJdks = JDK.get(jenkinsVersion);
+        LOG.debug("Supported JDKs: {}", supportedJdks);
 
         if (supportedJdks.isEmpty()) {
             LOG.warn("No supported JDKs found for Jenkins version: {}", jenkinsVersion);
@@ -110,6 +107,7 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
         }
 
         List<Integer> topJdkVersions = JDK.getTopTwoJdkVersions(supportedJdks);
+        LOG.debug("Top two JDK versions: {}", topJdkVersions);
         String jenkinsfileContent = String.format(JENKINSFILE_TEMPLATE, topJdkVersions.get(0), topJdkVersions.get(1));
         LOG.debug(
                 "Generated Jenkinsfile content with JDK versions: {} and {}",

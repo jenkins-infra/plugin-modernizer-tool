@@ -693,7 +693,10 @@ public class GHService {
                         .setMode(ResetCommand.ResetType.HARD)
                         .setRef(defaultBranch)
                         .call();
-                LOG.debug("Reseted the branch to Checking out the branch to default branch {}", defaultBranch);
+                LOG.debug(
+                        "Reseted the branch to {} Checking out the branch to default branch {}",
+                        branchName,
+                        defaultBranch);
             }
         } catch (IOException | GitAPIException e) {
             plugin.addError("Failed to checkout branch", e);
