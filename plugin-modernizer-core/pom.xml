@@ -218,10 +218,17 @@
       </resource>
       <resource>
         <targetPath>META-INF/rewrite</targetPath>
-        <filtering>false</filtering>
+        <filtering>true</filtering>
         <directory>src/main/resources/META-INF/rewrite</directory>
         <includes>
           <include>recipes.yml</include>
+        </includes>
+      </resource>
+      <resource>
+        <filtering>true</filtering>
+        <directory>src/main/java</directory>
+        <includes>
+          <include>**/RecipesConsts.java</include>
         </includes>
       </resource>
     </resources>
