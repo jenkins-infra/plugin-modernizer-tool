@@ -204,9 +204,16 @@ public class PluginModernizer {
             if (config.isRemoveForks()) {
                 plugin.deleteFork(ghService);
             }
-            plugin.fork(ghService);
-            plugin.sync(ghService);
             plugin.fetch(ghService);
+            plugin.commit(ghService);
+            plugin.getRemoteRepository(ghService);
+            plugin.push(ghService);
+            if (plugin.hasChangesPushed()) {
+                plugin.fork(ghService);
+                plugin.getRemoteRepository(ghService);
+                plugin.sync(ghService);
+                plugin.openPullRequest(ghService);
+            }
 
             if (plugin.hasErrors()) {
                 LOG.info("Plugin {} has errors. Will not process this plugin.", plugin.getName());
