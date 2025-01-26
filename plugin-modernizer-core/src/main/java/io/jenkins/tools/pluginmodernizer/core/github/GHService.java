@@ -707,6 +707,26 @@ public class GHService {
      * @param plugin The plugin to commit changes for
      */
     public void commitChanges(Plugin plugin) {
+
+        // Collect local changes
+        if (plugin.isLocal() || config.isDryRun()) {
+            try (Git git = Git.open(plugin.getLocalRepository().toFile())) {
+                Status status = git.status().call();
+                LOG.debug("Adding untracked files: {}", status.getUntracked());
+                plugin.addModifiedFiles(status.getUntracked());
+                LOG.debug("Adding changed files: {}", status.getChanged());
+                plugin.addModifiedFiles(status.getChanged());
+                LOG.debug("Adding changed files: {}", status.getModified());
+                plugin.addModifiedFiles(status.getModified());
+                LOG.debug("Adding missing files: {}", status.getMissing());
+                plugin.addModifiedFiles(status.getMissing());
+                LOG.debug("Adding removed files: {}", status.getRemoved());
+                plugin.addModifiedFiles(status.getRemoved());
+            } catch (IOException | IllegalArgumentException | GitAPIException e) {
+                plugin.addError("Failed to commit changes", e);
+                plugin.raiseLastError();
+            }
+        }
         if (plugin.isLocal()) {
             LOG.info("Plugin {} is local. Not committing changes", plugin);
             return;
@@ -738,8 +758,11 @@ public class GHService {
                 git.add().addFilepattern(".").call();
                 status = git.status().call();
                 LOG.debug("Added files after staging: {}", status.getAdded());
+                plugin.addModifiedFiles(status.getAdded());
                 LOG.debug("Changed files to after staging: {}", status.getChanged());
+                plugin.addModifiedFiles(status.getChanged());
                 LOG.debug("Removed files to after staging: {}", status.getRemoved());
+                plugin.addModifiedFiles(status.getRemoved());
                 GHUser user = getCurrentUser();
                 String email = getPrimaryEmail(user);
                 CommitCommand commit = git.commit()
