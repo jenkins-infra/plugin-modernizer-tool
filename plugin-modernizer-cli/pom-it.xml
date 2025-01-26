@@ -13,6 +13,15 @@
     <exec.args>-jar target/jenkins-plugin-modernizer-${project.version}.jar ${test.cliArgs}</exec.args>
     <test.cliArgs>--version</test.cliArgs>
   </properties>
+  <!-- Avoid warning and failure with Maven 4.0.0 due to unknown profiles -->
+  <profiles>
+    <profile>
+      <id>consume-incrementals</id>
+    </profile>
+    <profile>
+      <id>might-produce-incrementals</id>
+    </profile>
+  </profiles>
   <build>
     <plugins>
       <plugin>

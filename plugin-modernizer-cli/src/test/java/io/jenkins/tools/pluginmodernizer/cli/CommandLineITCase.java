@@ -433,6 +433,35 @@ public class CommandLineITCase {
                             .resolve(".github")
                             .resolve("dependabot.yml")),
                     "Dependabot file was not created");
+
+            // Ensure we reapply the changes when running again
+            InvocationRequest request2 = buildRequest(
+                    "run --recipe %s %s".formatted(recipe, getRunArgs(wmRuntimeInfo, Plugin.build(plugin))), logFile);
+            InvocationResult result2 = invoker.execute(request);
+
+            // Assert output
+            assertAll(
+                    () -> assertEquals(0, result.getExitCode()),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches("(.*)Branch already exists. Checking out the branch(.*)"))),
+                    () -> assertTrue(
+                            Files.readAllLines(logFile).stream()
+                                    .anyMatch(
+                                            line -> line.matches(
+                                                    "(.*)Reseted the branch to plugin-modernizer/setupdependabot Checking out the branch to default branch main(.*)"))),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches(
+                                    "(.*)Metadata already computed for plugin empty. Using cached metadata(.*)"))));
+
+            // Check that new file was created
+            assertTrue(
+                    Files.exists(cachePath
+                            .resolve("jenkins-plugin-modernizer-cli")
+                            .resolve(plugin)
+                            .resolve("sources")
+                            .resolve(".github")
+                            .resolve("dependabot.yml")),
+                    "Dependabot file was not created");
         }
     }
 
