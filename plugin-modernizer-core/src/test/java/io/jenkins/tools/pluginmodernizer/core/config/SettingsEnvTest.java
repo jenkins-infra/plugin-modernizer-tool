@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ public class SettingsEnvTest {
     @BeforeEach
     public void beforeEach() {
         assumeTrue(
-                System.getenv("RUN_IN_MAVEN") != null,
+                System.getenv("RUN_IN_MAVEN") != null && !Utils.runningInIde(),
                 "Skipping test from IDE: not running via Maven due to static mocking of env vars");
     }
 
