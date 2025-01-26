@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.intellij.lang.annotations.Language;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.Issue;
@@ -29,9 +29,7 @@ import org.openrewrite.test.RewriteTest;
 /**
  * Tests for {@link FetchMetadata}.
  */
-// CacheManager is not thread safe. Test also manipulate shared metadata file.
-// To fix at some point (maybe when adding concurrency in plugin modernizer)
-@Execution(ExecutionMode.SAME_THREAD)
+@Execution(ExecutionMode.CONCURRENT)
 public class FetchMetadataTest implements RewriteTest {
 
     private static final PluginMetadata EXPECTED_METADATA;
@@ -185,16 +183,11 @@ public class FetchMetadataTest implements RewriteTest {
                         </project>
                         """;
 
-    @BeforeEach
-    void cleanupTarget() {
-        new PluginMetadata().delete();
-    }
-
     @Test
-    void testWithPomOnly() throws Exception {
-        rewriteRun(recipeSpec -> recipeSpec.recipe(new FetchMetadata()), pomXml(POM_XML));
+    void testWithPomOnly(TestInfo testInfo) throws Exception {
+        rewriteRun(recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())), pomXml(POM_XML));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.POM), "POM file is missing");
         Set<JDK> jdkVersion = pluginMetadata.getJdks();
@@ -211,9 +204,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testWithDifferentParent() throws Exception {
+    void testWithDifferentParent(TestInfo testInfo) throws Exception {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=xml
                 pomXml(
                         """
@@ -240,7 +233,7 @@ public class FetchMetadataTest implements RewriteTest {
                  </project>
                  """));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.POM), "POM file is missing");
 
@@ -255,9 +248,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testWithOneCommonFile() throws Exception {
+    void testWithOneCommonFile(TestInfo testInfo) throws Exception {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=yaml
                 yaml("""
                 ---
@@ -266,16 +259,16 @@ public class FetchMetadataTest implements RewriteTest {
                     sourceSpecs.path(".github/dependabot.yml");
                 }));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         // Only dependabot.yml here
         assertEquals(List.of(ArchetypeCommonFile.DEPENDABOT), pluginMetadata.getCommonFiles());
     }
 
     @Test
-    void testWithOneCommonFileAlternate() throws Exception {
+    void testWithOneCommonFileAlternate(TestInfo testInfo) throws Exception {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=yaml
                 yaml("""
                 ---
@@ -284,16 +277,16 @@ public class FetchMetadataTest implements RewriteTest {
                     sourceSpecs.path(".github/dependabot.yaml");
                 }));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         // Only dependabot.yml here
         assertEquals(List.of(ArchetypeCommonFile.DEPENDABOT), pluginMetadata.getCommonFiles());
     }
 
     @Test
-    void testWithPomAndJavaFile() throws Exception {
+    void testWithPomAndJavaFile(TestInfo testInfo) throws Exception {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 pomXml(POM_XML),
                 java(
                         """
@@ -301,7 +294,7 @@ public class FetchMetadataTest implements RewriteTest {
                             class FooBar {}
                         """));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.POM), "POM file is missing");
         Set<JDK> jdkVersion = pluginMetadata.getJdks();
@@ -318,14 +311,14 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testWithManyCommonFilesAndTestContainers() throws Exception {
+    void testWithManyCommonFilesAndTestContainers(TestInfo testInfo) throws Exception {
         rewriteRun(
                 spec -> {
                     var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
                     DeclarativeRecipesTest.collectRewriteTestDependencies().stream()
                             .filter(entry -> entry.getFileName().toString().contains("testcontainers"))
                             .forEach(parser::addClasspathEntry);
-                    spec.recipe(new FetchMetadata()).parser(parser);
+                    spec.recipe(new FetchMetadata(testInfo.getDisplayName())).parser(parser);
                 },
                 pomXml(POM_XML),
                 // language=groovy
@@ -370,7 +363,7 @@ public class FetchMetadataTest implements RewriteTest {
                     sourceSpecs.path("src/main/resources/index.jelly");
                 }));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
 
         // Check common files
@@ -397,14 +390,14 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testWithDockerFixtures() throws Exception {
+    void testWithDockerFixtures(TestInfo testInfo) throws Exception {
         rewriteRun(
                 spec -> {
                     var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
                     DeclarativeRecipesTest.collectRewriteTestDependencies().stream()
                             .filter(entry -> entry.getFileName().toString().contains("docker-fixtures"))
                             .forEach(parser::addClasspathEntry);
-                    spec.recipe(new FetchMetadata()).parser(parser);
+                    spec.recipe(new FetchMetadata(testInfo.getDisplayName())).parser(parser);
                 },
                 // language=java
                 java(
@@ -414,7 +407,7 @@ public class FetchMetadataTest implements RewriteTest {
                             class FooBar {}
                         """));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
 
         // Check use container test
@@ -422,9 +415,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testWithJenkinsfileOnly() throws Exception {
+    void testWithJenkinsfileOnly(TestInfo testInfo) throws Exception {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -438,7 +431,7 @@ public class FetchMetadataTest implements RewriteTest {
                          """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         // Only Jenkinsfile here
         assertEquals(List.of(ArchetypeCommonFile.JENKINSFILE), pluginMetadata.getCommonFiles());
@@ -460,9 +453,9 @@ public class FetchMetadataTest implements RewriteTest {
 
     @Test
     @Issue("https://github.com/jenkins-infra/plugin-modernizer-tool/issues/580")
-    void testWithJenkinsfileOnlyShebangAndComment() {
+    void testWithJenkinsfileOnlyShebangAndComment(TestInfo testInfo) {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -477,7 +470,7 @@ public class FetchMetadataTest implements RewriteTest {
                         """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertNotNull(pluginMetadata, "Plugin metadata was not written by the recipe");
         // Only Jenkinsfile here
         assertEquals(List.of(ArchetypeCommonFile.JENKINSFILE), pluginMetadata.getCommonFiles());
@@ -497,9 +490,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testPluginWithJenkinsfileWithJdkInfoConfiguration() {
+    void testPluginWithJenkinsfileWithJdkInfoConfiguration(TestInfo testInfo) {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -513,7 +506,7 @@ public class FetchMetadataTest implements RewriteTest {
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())),
                 pomXml(POM_XML));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         // Files are present
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.POM), "POM is missing");
@@ -533,9 +526,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testPluginWithJenkinsfileWithJdkInfoVersion() {
+    void testPluginWithJenkinsfileWithJdkInfoVersion(TestInfo testInfo) {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -545,7 +538,7 @@ public class FetchMetadataTest implements RewriteTest {
                          """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         // Files are present
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
@@ -563,9 +556,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testPluginWithJenkinsfileWithPlatformsOnly() {
+    void testPluginWithJenkinsfileWithPlatformsOnly(TestInfo testInfo) {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -575,7 +568,7 @@ public class FetchMetadataTest implements RewriteTest {
                          """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         // Files are present
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
@@ -592,9 +585,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testPluginWithJenkinsfileWithJdkInfoVersionAndPlatform() {
+    void testPluginWithJenkinsfileWithJdkInfoVersionAndPlatform(TestInfo testInfo) {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -605,7 +598,7 @@ public class FetchMetadataTest implements RewriteTest {
                          """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         // Files are present
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
@@ -622,9 +615,9 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testPluginWithJenkinsfileWithJdkInfoVersionVar() {
+    void testPluginWithJenkinsfileWithJdkInfoVersionVar(TestInfo testInfo) {
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -635,7 +628,7 @@ public class FetchMetadataTest implements RewriteTest {
                          """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         // Files are present
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
@@ -647,14 +640,14 @@ public class FetchMetadataTest implements RewriteTest {
 
     @Test
     // Keep in sync with https://github.com/jenkins-infra/pipeline-library with default JDK
-    void testPluginWithJenkinsfileDefault() {
+    void testPluginWithJenkinsfileDefault(TestInfo testInfo) {
 
         // Keep in sync with https://github.com/jenkins-infra/pipeline-library with default JDK and 2 platforms
         EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.getImplicit(), null);
         EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.getImplicit(), null);
 
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -662,7 +655,7 @@ public class FetchMetadataTest implements RewriteTest {
                          """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
 
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         // Files are present
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
@@ -680,14 +673,14 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testJenkinsfileWithConfigurationsAsParameter() {
+    void testJenkinsfileWithConfigurationsAsParameter(TestInfo testInfo) {
         Set<JDK> jdks = new LinkedHashSet<>();
         jdks.add(JDK.JAVA_11);
         jdks.add(JDK.JAVA_17);
         EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.JAVA_11, null);
         EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.JAVA_17, null);
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -708,7 +701,7 @@ public class FetchMetadataTest implements RewriteTest {
                             """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())),
                 pomXml(POM_XML));
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
         // Assert JDK
@@ -723,14 +716,14 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testJenkinsfileWithPlatfomsAndJdkVersionsAsParameter() {
+    void testJenkinsfileWithPlatfomsAndJdkVersionsAsParameter(TestInfo testInfo) {
         Set<JDK> jdks = new LinkedHashSet<>();
         jdks.add(JDK.JAVA_17);
         jdks.add(JDK.JAVA_21);
         EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.JAVA_17, null);
         EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.JAVA_21, null);
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -746,7 +739,7 @@ public class FetchMetadataTest implements RewriteTest {
                             """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())),
                 pomXml(POM_XML));
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
         // Assert other param
@@ -766,14 +759,14 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testJenkinsfileWithConditional() {
+    void testJenkinsfileWithConditional(TestInfo testInfo) {
         Set<JDK> jdks = new LinkedHashSet<>();
         jdks.add(JDK.JAVA_17);
         jdks.add(JDK.JAVA_21);
         EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.JAVA_17, null);
         EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.JAVA_21, null);
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -794,7 +787,7 @@ public class FetchMetadataTest implements RewriteTest {
                     """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())),
                 pomXml(POM_XML));
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
         // Assert other param
@@ -812,14 +805,14 @@ public class FetchMetadataTest implements RewriteTest {
     }
 
     @Test
-    void testJenkinsfileWithInlineConfigurations() {
+    void testJenkinsfileWithInlineConfigurations(TestInfo testInfo) {
         Set<JDK> jdks = new LinkedHashSet<>();
         jdks.add(JDK.JAVA_11);
         jdks.add(JDK.JAVA_17);
         EXPECTED_METADATA.addPlatform(Platform.LINUX, JDK.JAVA_11, null);
         EXPECTED_METADATA.addPlatform(Platform.WINDOWS, JDK.JAVA_17, null);
         rewriteRun(
-                recipeSpec -> recipeSpec.recipe(new FetchMetadata()),
+                recipeSpec -> recipeSpec.recipe(new FetchMetadata(testInfo.getDisplayName())),
                 // language=groovy
                 groovy(
                         """
@@ -841,7 +834,7 @@ public class FetchMetadataTest implements RewriteTest {
                             """,
                         spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())),
                 pomXml(POM_XML));
-        PluginMetadata pluginMetadata = new PluginMetadata().refresh();
+        PluginMetadata pluginMetadata = new PluginMetadata(testInfo.getDisplayName()).refresh();
         assertTrue(pluginMetadata.hasFile(ArchetypeCommonFile.JENKINSFILE), "Jenkinsfile is missing");
 
         // Assert JDK

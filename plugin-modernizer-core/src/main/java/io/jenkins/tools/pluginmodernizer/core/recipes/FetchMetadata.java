@@ -3,7 +3,9 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 import io.jenkins.tools.pluginmodernizer.core.extractor.MetadataExecutionContext;
 import io.jenkins.tools.pluginmodernizer.core.extractor.MetadataVisitor;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
+import io.jenkins.tools.pluginmodernizer.core.impl.CacheManager;
 import org.openrewrite.ExecutionContext;
+import org.openrewrite.Option;
 import org.openrewrite.Recipe;
 import org.openrewrite.RecipeList;
 import org.openrewrite.Tree;
@@ -28,9 +30,32 @@ public class FetchMetadata extends Recipe {
     }
 
     /**
+     * Metadata file name. Default is plugin-metadata.
+     */
+    @Option(displayName = "File name", description = "The plugin metadata file name", example = "plugin-metadata")
+    private final String fileName;
+
+    /**
+     * Default constructor with the default metadata file name.
+     */
+    public FetchMetadata() {
+        this.fileName = CacheManager.PLUGIN_METADATA_CACHE_KEY;
+        metadataContext = new MetadataExecutionContext();
+    }
+
+    /**
+     * Constructor with the metadata file name.
+     * @param fileName metadata file name
+     */
+    public FetchMetadata(String fileName) {
+        this.fileName = fileName;
+        metadataContext = new MetadataExecutionContext(fileName);
+    }
+
+    /**
      * Metadata context to store the metadata extracted from different sources.
      */
-    private final MetadataExecutionContext metadataContext = new MetadataExecutionContext();
+    private final MetadataExecutionContext metadataContext;
 
     @Override
     public void buildRecipeList(RecipeList list) {

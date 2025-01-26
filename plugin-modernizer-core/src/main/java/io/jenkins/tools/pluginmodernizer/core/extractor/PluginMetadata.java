@@ -102,6 +102,14 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
     }
 
     /**
+     * Create a new plugin metadata with the given key
+     * @param key The key
+     */
+    public PluginMetadata(String key) {
+        super(new CacheManager(Path.of("target")), PluginMetadata.class, key, Path.of("."));
+    }
+
+    /**
      * Create a new plugin metadata. Store the metadata at the root of the given cache manager
      * @param cacheManager The cache manager
      */
