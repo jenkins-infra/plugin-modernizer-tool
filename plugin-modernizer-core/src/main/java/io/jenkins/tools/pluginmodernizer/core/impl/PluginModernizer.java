@@ -478,6 +478,7 @@ public class PluginModernizer {
                     LOG.error("Error: {}", error.getMessage());
                     if (config.isDebug()) {
                         LOG.error("Stacktrace: ", error);
+                        break;
                     }
                 }
 
@@ -490,20 +491,29 @@ public class PluginModernizer {
                             plugin.getName(),
                             plugin.getMetadata().getLocation().toAbsolutePath());
                 } else if (config.isDryRun()) {
-                    LOG.info("Dry run mode. Changes were commited on on " + plugin.getLocalRepository()
-                            + " but not pushed");
-                } else {
+                    LOG.info("Dry run mode. Changes were made on " + plugin.getLocalRepository() + " but not commited");
+                    printModifiedFiles(plugin);
+                } else if (plugin.isLocal()) {
+                    LOG.info("Changes were made on " + plugin.getLocalRepository());
+                    printModifiedFiles(plugin);
+                } else if (!plugin.hasErrors()) {
                     // Change were made
                     LOG.info("Pull request was open on "
                             + plugin.getRemoteRepository(this.ghService).getHtmlUrl());
-
-                    // Display changes depending on the recipe
-                    if (config.getRecipe().getName().equals("io.jenkins.tools.pluginmodernizer.UpgradeBomVersion")) {
-                        LOG.info("New BOM version: {}", plugin.getMetadata().getBomVersion());
-                    }
+                    printModifiedFiles(plugin);
                 }
             }
             LOG.info("*************");
+        }
+    }
+
+    private void printModifiedFiles(Plugin plugin) {
+        if (plugin.getModifiedFiles().isEmpty()) {
+            LOG.info("Recipe didn't made any changes");
+            return;
+        }
+        for (String modification : plugin.getModifiedFiles()) {
+            LOG.info("Modified file: {}", modification);
         }
     }
 }

@@ -30,7 +30,7 @@ import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
-import org.junit.jupiter.api.BeforeEach;
+import org.eclipse.jgit.api.Git;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -121,15 +121,20 @@ public class CommandLineITCase {
     @TempDir
     private Path keysPath;
 
-    @BeforeEach
-    public void beforeEach() throws Exception {
+    public CommandLineITCase() {
+        // Ensure logs folder is created
         if (!Files.isDirectory(logFolder)) {
-            Files.createDirectory(logFolder);
+            try {
+                Files.createDirectory(logFolder);
+            } catch (Exception e) {
+                LOG.error("Error creating logs folder", e);
+            }
         }
     }
 
     @Test
     @Tag("Always")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testVersion() throws Exception {
         Path logFile = setupLogs("testVersion");
         Invoker invoker = buildInvoker();
@@ -153,6 +158,7 @@ public class CommandLineITCase {
 
     @Test
     @Tag("Always")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testHelp() throws Exception {
         Path logFile = setupLogs("testHelp");
         Invoker invoker = buildInvoker();
@@ -167,6 +173,7 @@ public class CommandLineITCase {
 
     @Test
     @Tag("Slow")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testCleanupWithDryRun() throws Exception {
         Path logFile = setupLogs("testCleanupWithDryRun");
         Invoker invoker = buildInvoker();
@@ -193,6 +200,7 @@ public class CommandLineITCase {
 
     @Test
     @Tag("Slow")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testValidateWithSshKey(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testValidateWithSshKey");
@@ -222,6 +230,7 @@ public class CommandLineITCase {
 
     @Test
     @Tag("Slow")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testValidate(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testValidate");
@@ -246,6 +255,7 @@ public class CommandLineITCase {
 
     @Test
     @Tag("Slow")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testListRecipes() throws Exception {
         Path logFile = setupLogs("testListRecipes");
         Invoker invoker = buildInvoker();
@@ -347,8 +357,12 @@ public class CommandLineITCase {
             // Assert output
             assertAll(
                     () -> assertEquals(0, result.getExitCode()),
+                    () -> assertTrue(
+                            Files.readAllLines(logFile1).stream()
+                                    .anyMatch(line -> line.matches("(.*)Modified file: pom.xml(.*)")),
+                            "pom.xml not modified"),
                     () -> assertTrue(Files.readAllLines(logFile1).stream()
-                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were commited on (.*)"))));
+                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were made on (.*)"))));
 
             // Delete target folder to use data from cache
             File targetDirectory = cachePath
@@ -373,7 +387,7 @@ public class CommandLineITCase {
             assertAll(
                     () -> assertEquals(0, result2.getExitCode()),
                     () -> assertTrue(Files.readAllLines(logFile2).stream()
-                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were commited on (.*)"))));
+                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were made on (.*)"))));
         }
     }
 
@@ -405,6 +419,8 @@ public class CommandLineITCase {
                     () -> assertEquals(0, result.getExitCode()),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
                             .anyMatch(line -> line.matches("(.*)Skipping verification (.*)"))),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches("(.*)Modified file: .github/dependabot.yml (.*)"))),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
                             .anyMatch(line -> line.matches("(.*)Pull request was open on (.*)"))));
 
@@ -448,7 +464,9 @@ public class CommandLineITCase {
             assertAll(
                     () -> assertEquals(0, result.getExitCode()),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
-                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were commited on (.*)"))));
+                            .anyMatch(line -> line.matches("(.*)Modified file: .github/dependabot.yml(.*)"))),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were made on (.*)"))));
 
             // Check that new file was created
             assertTrue(
@@ -476,6 +494,7 @@ public class CommandLineITCase {
                 .resolve(plugin)
                 .resolve("sources");
         FileUtils.copyDirectory(pluginPath.toFile(), targetPath.toFile());
+        Git.init().setDirectory(targetPath.toFile()).call().close();
 
         final String recipe = "SetupSecurityScan";
 
@@ -499,7 +518,10 @@ public class CommandLineITCase {
             assertAll(
                     () -> assertEquals(0, result.getExitCode()),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
-                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were commited on (.*)"))));
+                            .anyMatch(line -> line.matches(
+                                    "(.*)Modified file: .github/workflows/jenkins-security-scan.yml (.*)"))),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were made on (.*)"))));
 
             // Check that new file was created
             assertTrue(
@@ -522,6 +544,7 @@ public class CommandLineITCase {
                 .resolve(plugin)
                 .resolve("sources");
         FileUtils.copyDirectory(pluginPath.toFile(), targetPath.toFile());
+        Git.init().setDirectory(targetPath.toFile()).call().close();
 
         final String recipe = "AddCodeOwner";
 
@@ -543,8 +566,12 @@ public class CommandLineITCase {
             // Assert output
             assertAll(
                     () -> assertEquals(0, result.getExitCode()),
+                    () -> assertTrue(
+                            Files.readAllLines(logFile).stream()
+                                    .anyMatch(line -> line.matches("(.*)Modified file: .github/CODEOWNERS(.*)")),
+                            "Code owner file not modified on logs"),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
-                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were commited on (.*)"))));
+                            .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were made on (.*)"))));
 
             // Check that new file was created
             assertTrue(

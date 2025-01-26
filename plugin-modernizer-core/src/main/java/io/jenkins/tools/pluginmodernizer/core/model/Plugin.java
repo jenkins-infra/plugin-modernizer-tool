@@ -13,6 +13,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -92,6 +93,11 @@ public class Plugin {
      * Return if the plugin has any error
      */
     private final List<PluginProcessingException> errors = new LinkedList<>();
+
+    /**
+     * List of modified files(added, modified, deleted) in the plugin
+     */
+    private final List<String> modifiedFiles = new LinkedList<>();
 
     /**
      * Tags to apply on pull request for the applied changes
@@ -830,6 +836,22 @@ public class Plugin {
                 "Copied plugin {} metadata to cache: {}",
                 getName(),
                 getMetadata().getLocation().toAbsolutePath());
+    }
+
+    /**
+     * Add a modified file to the plugin
+     * @param files The files to add
+     */
+    public void addModifiedFiles(Collection<String> files) {
+        modifiedFiles.addAll(files);
+    }
+
+    /**
+     * Return a set of modified files in the plugin
+     * @return Set of modified files
+     */
+    public Set<String> getModifiedFiles() {
+        return Set.of(modifiedFiles.toArray(new String[0]));
     }
 
     /**
