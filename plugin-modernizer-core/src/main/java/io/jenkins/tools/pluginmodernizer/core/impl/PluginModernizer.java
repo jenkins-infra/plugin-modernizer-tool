@@ -205,15 +205,12 @@ public class PluginModernizer {
                 plugin.deleteFork(ghService);
             }
             plugin.fetch(ghService);
-            plugin.getRemoteRepository(ghService);
-            plugin.sync(ghService);
-            Set<String> modifiedFiles = plugin.getModifiedFiles();
-            plugin.addModifiedFiles(modifiedFiles);
             plugin.commit(ghService);
+            plugin.getRemoteRepository(ghService);
             plugin.push(ghService);
             if (plugin.hasChangesPushed()) {
                 plugin.fork(ghService);
-                plugin.getRemoteForkRepository(ghService);
+                plugin.getRemoteRepository(ghService);
                 plugin.sync(ghService);
                 plugin.openPullRequest(ghService);
             }
