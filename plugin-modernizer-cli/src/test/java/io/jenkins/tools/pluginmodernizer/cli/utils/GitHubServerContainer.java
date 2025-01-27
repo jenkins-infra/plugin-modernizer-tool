@@ -103,17 +103,17 @@ public class GitHubServerContainer extends GitServerContainer {
         wireMock.register(WireMock.get(WireMock.urlEqualTo("/api/user"))
                 .willReturn(WireMock.jsonResponse(new UserApiResponse("fake-owner", "User"), 200)));
 
+        RepoApiResponse repoApiResponse = new RepoApiResponse(
+                plugin,
+                "jenkinsci/%s".formatted(plugin),
+                "main",
+                "%s/%s/%s".formatted(wmRuntimeInfo.getHttpBaseUrl(), "fake-owner", plugin),
+                this.getGitRepoURIAsSSH().toString(),
+                new OwnerObject("jenkinsci"));
+
         // GET /api/repos/jenkinsci/<plugin>
         wireMock.register(WireMock.get(WireMock.urlEqualTo("/api/repos/jenkinsci/%s".formatted(plugin)))
-                .willReturn(WireMock.jsonResponse(
-                        new RepoApiResponse(
-                                plugin,
-                                "jenkinsci/%s".formatted(plugin),
-                                "main",
-                                "%s/%s/%s".formatted(wmRuntimeInfo.getHttpBaseUrl(), "fake-owner", plugin),
-                                this.getGitRepoURIAsSSH().toString(),
-                                new OwnerObject("jenkinsci")),
-                        200)));
+                .willReturn(WireMock.jsonResponse(repoApiResponse, 200)));
         var parentForkObject =
                 new ParentForkObject(plugin, "jenkinsci/%s".formatted(plugin), new OwnerObject("jenkinsci"));
         // GET /api/repos/fake-owner/<plugin>
@@ -140,6 +140,10 @@ public class GitHubServerContainer extends GitServerContainer {
                                         this.getGitRepoURIAsSSH().toString(),
                                         parentForkObject),
                                 200)));
+
+        // POST /api/repos/jenkinsci/empty/issues/0/labels
+        wireMock.register(WireMock.post(WireMock.urlEqualTo("/api/repos/jenkinsci/empty/issues/0/labels"))
+                .willReturn(WireMock.jsonResponse("[]", 200)));
 
         // GET /api/repos/jenkinsci/<plugin>/pulls?state=open
         wireMock.register(

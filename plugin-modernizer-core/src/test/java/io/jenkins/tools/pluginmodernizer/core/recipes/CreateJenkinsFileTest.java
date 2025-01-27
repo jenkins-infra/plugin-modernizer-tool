@@ -13,13 +13,19 @@ class CreateJenkinsFileTest implements RewriteTest {
     void shouldAddJenkinsfileFromPomVersion() {
         rewriteRun(
                 spec -> spec.recipe(new CreateJenkinsFile()),
+                // language=xml
                 pomXml(
                         """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <parent>
+                      <groupId>org.jenkins-ci.plugins</groupId>
+                      <artifactId>plugin</artifactId>
+                      <version>4.87</version>
+                      <relativePath />
+                    </parent>
                     <artifactId>plugin</artifactId>
                     <version>4.75</version>
                     <packaging>hpi</packaging>
@@ -57,19 +63,31 @@ class CreateJenkinsFileTest implements RewriteTest {
     void shouldNotAddJenkinsfileIfAlreadyPresent() {
         rewriteRun(
                 spec -> spec.recipe(new CreateJenkinsFile()),
+                // language=xml
                 pomXml(
                         """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                     <modelVersion>4.0.0</modelVersion>
-                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <parent>
+                      <groupId>org.jenkins-ci.plugins</groupId>
+                      <artifactId>plugin</artifactId>
+                      <version>4.87</version>
+                      <relativePath />
+                    </parent>
                     <artifactId>plugin</artifactId>
                     <version>4.75</version>
                     <packaging>hpi</packaging>
                     <properties>
                         <jenkins.version>2.452.4</jenkins.version>
                     </properties>
+                    <repositories>
+                      <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                      </repository>
+                    </repositories>
                 </project>
                 """),
                 groovy("buildPlugin()", sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
@@ -79,6 +97,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     void shouldNotAddJenkinsfileIfNoJenkinsVersion() {
         rewriteRun(
                 spec -> spec.recipe(new CreateJenkinsFile()),
+                // language=xml
                 pomXml(
                         """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -97,6 +116,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     void shouldHandleDifferentJenkinsVersions() {
         rewriteRun(
                 spec -> spec.recipe(new CreateJenkinsFile()),
+                // language=xml
                 pomXml(
                         """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -104,13 +124,24 @@ class CreateJenkinsFileTest implements RewriteTest {
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                 <modelVersion>4.0.0</modelVersion>
-                <groupId>org.jenkins-ci.plugins</groupId>
+                <parent>
+                  <groupId>org.jenkins-ci.plugins</groupId>
+                  <artifactId>plugin</artifactId>
+                  <version>4.87</version>
+                  <relativePath />
+                </parent>
                 <artifactId>test-plugin</artifactId>
                 <version>1.0.0</version>
                 <packaging>hpi</packaging>
                 <properties>
                     <jenkins.version>2.401.3</jenkins.version>
                 </properties>
+                <repositories>
+                  <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                  </repository>
+                </repositories>
             </project>
             """),
                 groovy(
@@ -135,6 +166,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     void shouldHandleOlderJenkinsVersions() {
         rewriteRun(
                 spec -> spec.recipe(new CreateJenkinsFile()),
+                // language=xml
                 pomXml(
                         """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -142,13 +174,24 @@ class CreateJenkinsFileTest implements RewriteTest {
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
                 <modelVersion>4.0.0</modelVersion>
-                <groupId>org.jenkins-ci.plugins</groupId>
+                <parent>
+                  <groupId>org.jenkins-ci.plugins</groupId>
+                  <artifactId>plugin</artifactId>
+                  <version>4.87</version>
+                  <relativePath />
+                </parent>
                 <artifactId>test-plugin</artifactId>
                 <version>1.0.0</version>
                 <packaging>hpi</packaging>
                 <properties>
                     <jenkins.version>2.164.3</jenkins.version>
                 </properties>
+                <repositories>
+                  <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                  </repository>
+              </repositories>
             </project>
             """),
                 groovy(

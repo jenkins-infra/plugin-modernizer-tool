@@ -28,6 +28,7 @@ name: io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 displayName: Setup the Jenkinsfile
 description: Add a missing Jenkinsfile to the Jenkins plugin.
 tags: ['chore', 'skip-verification']
+# TODO: Miss transformation. See https://github.com/jenkins-infra/plugin-modernizer-tool/issues/531
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.CreateJenkinsFile
 ---
@@ -165,6 +166,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
+  - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
@@ -403,6 +405,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
+  - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava11CoreVersion
@@ -426,6 +429,7 @@ recipeList:
       artifactId: docker-fixtures
       newVersion: 190.vd6a_e600cb_775
       versionPattern: "\\.v[a-f0-9_]+"
+  - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava8CoreVersion
@@ -454,6 +458,7 @@ recipeList:
       artifactId: docker-fixtures
       newVersion: 170.v2339def98d76
       versionPattern: "\\.v[a-f0-9_]+"
+  - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.SetupDependabot
