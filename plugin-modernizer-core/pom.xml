@@ -227,6 +227,26 @@
     </resources>
     <plugins>
 
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.1.0</version>
+        <executions>
+          <execution>
+            <id>read-versions-properties</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <configuration>
+              <files>
+                <file>src/main/resources/versions.properties</file>
+              </files>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Used to copy openrewrite test dependencies to a separate directory for running java recipes -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
