@@ -12,8 +12,10 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
+import org.kohsuke.github.GHRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,17 +206,32 @@ public class PluginModernizer {
             if (config.isRemoveForks()) {
                 plugin.deleteFork(ghService);
             }
-            plugin.fetch(ghService);
-            plugin.commit(ghService);
-            plugin.getRemoteRepository(ghService);
-            plugin.push(ghService);
-            if (plugin.hasChangesPushed()) {
-                plugin.fork(ghService);
-                plugin.getRemoteRepository(ghService);
-                plugin.sync(ghService);
-                plugin.openPullRequest(ghService);
-            }
 
+            try {
+                plugin.fetch(ghService);
+                GHRepository upstreamRepo = plugin.getRemoteRepository(ghService);
+                LOG.info("Remote repository URL: {}", upstreamRepo.getHtmlUrl());
+                plugin.sync(ghService);
+                Set<String> modifiedFiles = plugin.getModifiedFiles();
+                plugin.addModifiedFiles(modifiedFiles);
+                plugin.commit(ghService);
+                plugin.push(ghService);
+                if (plugin.hasChangesPushed()) {
+                    if (!plugin.isForked(ghService)) {
+                        plugin.fork(ghService);
+                    }
+                    GHRepository forkedRepo = plugin.getRemoteForkRepository(ghService);
+                    forkedRepo.sync("plugin-branch");
+                    plugin.checkoutBranch(ghService);
+                    plugin.sync(ghService);
+                    plugin.commit(ghService);
+                    plugin.push(ghService);
+                    plugin.openPullRequest(ghService);
+                }
+            } catch (IOException e) {
+                LOG.error("An error occurred during the plugin processing", e);
+                throw new RuntimeException("Plugin processing failed", e);
+            }
             if (plugin.hasErrors()) {
                 LOG.info("Plugin {} has errors. Will not process this plugin.", plugin.getName());
             }
