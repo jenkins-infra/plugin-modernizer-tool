@@ -252,7 +252,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: json-path-api
-      pluginVersion: 2.9.0-118.v7f23ed82a_8b_8
+      pluginVersion: 2.9.0-138.vc943da_d833b_6
       replaces:
         - groupId: com.jayway.jsonpath
           artifactId: json-path
