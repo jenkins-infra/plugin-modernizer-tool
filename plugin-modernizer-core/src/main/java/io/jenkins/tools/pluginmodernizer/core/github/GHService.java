@@ -46,6 +46,7 @@ import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GHRepositoryForkBuilder;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
@@ -359,11 +360,30 @@ public class GHService {
             LOG.info(
                     "Forking the repository to personal account {}...",
                     getCurrentUser().getLogin());
-            return originalRepo.fork();
+            return fork(originalRepo, null);
         } else {
             LOG.info("Forking the repository to organisation {}...", organization.getLogin());
-            return originalRepo.forkTo(organization);
+            return fork(originalRepo, organization);
         }
+    }
+
+    /**
+     * Fork the default branch only
+     *
+     * @param originalRepo The original repository to fork
+     * @param organization The organization to fork the repository to. Can be null for personal account
+     * @return The forked repository
+     * @throws IOException          If the fork operation failed
+     * @throws InterruptedException If the fork operation was interrupted
+     */
+    private GHRepository fork(GHRepository originalRepo, GHOrganization organization)
+            throws IOException, InterruptedException {
+        GHRepositoryForkBuilder builder = originalRepo.createFork();
+        if (organization != null) {
+            builder.organization(organization);
+        }
+        builder.defaultBranchOnly(true);
+        return builder.create();
     }
 
     /**
