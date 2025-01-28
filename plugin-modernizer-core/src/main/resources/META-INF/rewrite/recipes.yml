@@ -308,7 +308,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: gson-api
-      pluginVersion: 2.11.0-85.v1f4e87273c33
+      pluginVersion: 2.11.0-109.v1ef91dd0829a_
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson
