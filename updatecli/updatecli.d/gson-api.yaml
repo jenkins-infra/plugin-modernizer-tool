@@ -34,6 +34,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestGsonApiVersion" }}'
     sourceid: latestGsonApiVersion
     scmid: default
+  updateVersions:
+    name: "Update gson-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(gson-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestGsonApiVersion" }}'
+    sourceid: latestGsonApiVersion
+    scmid: default
 
 actions:
   createPullRequest:

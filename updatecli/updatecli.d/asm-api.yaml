@@ -34,6 +34,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestAsmApiVersion" }}'
     sourceid: latestAsmApiVersion
     scmid: default
+  updateVersions:
+    name: "Update asm-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(asm-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestAsmApiVersion" }}'
+    sourceid: latestAsmApiVersion
+    scmid: default
 
 actions:
   createPullRequest:

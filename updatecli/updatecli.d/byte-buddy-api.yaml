@@ -34,6 +34,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestByteBuddyApiVersion" }}'
     sourceid: latestByteBuddyApiVersion
     scmid: default
+  updateVersions:
+    name: "Update byte-buddy-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(byte-buddy-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestByteBuddyApiVersion" }}'
+    sourceid: latestByteBuddyApiVersion
+    scmid: default
 
 actions:
   createPullRequest:
