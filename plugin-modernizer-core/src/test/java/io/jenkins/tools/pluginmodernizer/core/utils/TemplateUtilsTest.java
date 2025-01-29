@@ -238,7 +238,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("chore(pom): Require 2.452.4", result);
+        assertEquals("chore(pom): Use recommended core version 2.452.4, and Java 11.", result);
     }
 
     @Test
