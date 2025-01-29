@@ -284,8 +284,7 @@ public class CommandLineITCase {
         String plugin = expectedMetadata.getPluginName();
 
         // Junit attachment with logs file for the plugin build
-        System.out.printf(
-                "[[ATTACHMENT|%s]]%n", Plugin.build(plugin).getLogFile().toAbsolutePath());
+        System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
         System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
 
         try (GitHubServerContainer gitRemote = new GitHubServerContainer(wmRuntimeInfo, keysPath, plugin, "main")) {
@@ -339,8 +338,7 @@ public class CommandLineITCase {
         final String recipe = "ReplaceLibrariesWithApiPlugin";
 
         // Junit attachment with logs file for the plugin build
-        System.out.printf(
-                "[[ATTACHMENT|%s]]%n", Plugin.build(plugin).getLogFile().toAbsolutePath());
+        System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
         System.out.printf("[[ATTACHMENT|%s]]%n", logFile1.toAbsolutePath());
         System.out.printf("[[ATTACHMENT|%s]]%n", logFile2.toAbsolutePath());
 
@@ -401,8 +399,7 @@ public class CommandLineITCase {
         final String recipe = "SetupDependabot";
 
         // Junit attachment with logs file for the plugin build
-        System.out.printf(
-                "[[ATTACHMENT|%s]]%n", Plugin.build(plugin).getLogFile().toAbsolutePath());
+        System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
         System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
 
         try (GitHubServerContainer gitRemote = new GitHubServerContainer(wmRuntimeInfo, keysPath, plugin, "main")) {
@@ -475,8 +472,7 @@ public class CommandLineITCase {
         final String recipe = "SetupDependabot";
 
         // Junit attachment with logs file for the plugin build
-        System.out.printf(
-                "[[ATTACHMENT|%s]]%n", Plugin.build(plugin).getLogFile().toAbsolutePath());
+        System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
         System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
 
         try (GitHubServerContainer gitRemote = new GitHubServerContainer(wmRuntimeInfo, keysPath, plugin, "main")) {
@@ -532,8 +528,7 @@ public class CommandLineITCase {
             gitRemote.start();
 
             // Junit attachment with logs file for the plugin build
-            System.out.printf(
-                    "[[ATTACHMENT|%s]]%n", Plugin.build(plugin).getLogFile().toAbsolutePath());
+            System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
             System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
 
             Invoker invoker = buildInvoker();
@@ -582,8 +577,7 @@ public class CommandLineITCase {
             gitRemote.start();
 
             // Junit attachment with logs file for the plugin build
-            System.out.printf(
-                    "[[ATTACHMENT|%s]]%n", Plugin.build(plugin).getLogFile().toAbsolutePath());
+            System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
             System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
 
             Invoker invoker = buildInvoker();
@@ -709,6 +703,17 @@ public class CommandLineITCase {
         LOG.debug("Created log file: {}", logFile.toAbsolutePath());
         System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
         return logFile;
+    }
+
+    /**
+     * Get the location of the maven invoker log for the given plugin
+     * @param plugin The plugin
+     * @return the path
+     */
+    private Path getMavenInvokerLog(String plugin) {
+        return cachePath
+                .resolve("jenkins-plugin-modernizer-cli")
+                .resolve(Plugin.build(plugin).getLogFile());
     }
 
     /**

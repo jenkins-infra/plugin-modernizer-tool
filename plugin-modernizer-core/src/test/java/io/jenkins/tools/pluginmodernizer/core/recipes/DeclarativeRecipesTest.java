@@ -1420,10 +1420,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import javax.servlet.ServletException;
                                 import org.kohsuke.stapler.Stapler;
                                 import org.kohsuke.stapler.StaplerRequest;
+                                import org.kohsuke.stapler.StaplerResponse;
 
                                 public class Foo {
                                     public void foo() {
                                         StaplerRequest req = Stapler.getCurrentRequest();
+                                        StaplerResponse response = Stapler.getCurrentResponse();
                                     }
                                 }
                                 """,
@@ -1431,10 +1433,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import jakarta.servlet.ServletException;
                                 import org.kohsuke.stapler.Stapler;
                                 import org.kohsuke.stapler.StaplerRequest2;
+                                import org.kohsuke.stapler.StaplerResponse2;
 
                                 public class Foo {
                                     public void foo() {
                                         StaplerRequest2 req = Stapler.getCurrentRequest2();
+                                        StaplerResponse2 response = Stapler.getCurrentResponse2();
                                     }
                                 }
                                 """)));
@@ -2223,7 +2227,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>commons-compress-api</artifactId>
-                      <version>1.27.1-1</version>
+                      <version>%s</version>
                     </dependency>
                   </dependencies>
                   <repositories>
@@ -2239,7 +2243,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     </pluginRepository>
                   </pluginRepositories>
                 </project>
-                """));
+                """
+                                .formatted(Settings.getPluginVersion("commons-compress-api"))));
     }
 
     @Test

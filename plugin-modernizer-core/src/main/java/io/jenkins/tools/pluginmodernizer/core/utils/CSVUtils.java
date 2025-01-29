@@ -37,7 +37,7 @@ public class CSVUtils {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 throw new ModernizerException(
-                        "Failed to get CSV data. Received response code: " + response.statusCode());
+                        "Failed to get CSV data. Received response code: " + response.statusCode() + " from " + url);
             }
             LOG.debug("Fetched data from: {}", url);
             return response.body();
