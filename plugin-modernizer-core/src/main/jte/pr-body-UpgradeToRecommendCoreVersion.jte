@@ -24,4 +24,18 @@ If the plugin is already using the plugin bill of materials, then the bill of ma
 
 This means your plugin POM was already using the `${plugin.getMetadata().getJenkinsVersion()}` version but still required a few adjustments.
 
-Thanks for taking the time to review this PR. :pray:
+## The checks fail, why?
+
+For security reasons, the Jenkins infrastructure does not execute Jenkinsfiles proposed in pull requests.
+Instead, it builds the code using the Jenkinsfile from the default branch.
+
+In this case, the existing Jenkinsfile specifies Java 8, not Java 11, which is causing the check to fail.
+To resolve this,
+a maintainer can replay the failed build
+by substituting the current Jenkinsfile content with our proposed changes using the "replay the build"
+feature in Jenkins.
+
+Please let us know if you need any assistance with this process.
+
+Thanks for taking the time to review this PR.
+:pray:
