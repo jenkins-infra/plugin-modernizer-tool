@@ -36,6 +36,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestCompressApiVersion" }}'
     sourceid: latestCompressApiVersion
     scmid: default
+  updateVersions:
+    name: "Update compress-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(commons-compress-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestCompressApiVersion" }}'
+    sourceid: latestCompressApiVersion
+    scmid: default
 
 actions:
   createPullRequest:

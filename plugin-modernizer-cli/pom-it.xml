@@ -5,10 +5,9 @@
   <groupId>io.jenkins.plugin-modernizer</groupId>
   <artifactId>plugin-modernizer-it</artifactId>
   <version>${changelist}</version>
+  <packaging>pom</packaging>
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
-    <maven.test.skip>true</maven.test.skip>
-    <skipTests>true</skipTests> <!-- No test for this pom, only exec plugin -->
     <exec.executable>java</exec.executable>
     <exec.args>-jar target/jenkins-plugin-modernizer-${project.version}.jar ${test.cliArgs}</exec.args>
     <test.cliArgs>--version</test.cliArgs>

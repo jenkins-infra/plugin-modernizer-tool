@@ -193,6 +193,15 @@ public class Settings {
         return readProperty("bom.version", "versions.properties");
     }
 
+    /**
+     * Return a plugin version from versions.properties
+     * @param plugin The plugin name (for example commons-compress-api)
+     * @return The version of the plugin
+     */
+    public static String getPluginVersion(String plugin) {
+        return readProperty("%s.version".formatted(plugin), "versions.properties");
+    }
+
     public static String getJenkinsMinimumVersion() {
         return readProperty("jenkins.core.minimum.version", "versions.properties");
     }
