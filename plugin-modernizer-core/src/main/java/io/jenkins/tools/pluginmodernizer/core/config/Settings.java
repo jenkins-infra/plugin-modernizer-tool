@@ -202,8 +202,20 @@ public class Settings {
         return readProperty("%s.version".formatted(plugin), "versions.properties");
     }
 
+    /**
+     * Return the minimum Jenkins version
+     * @return The minimum Jenkins version
+     */
     public static String getJenkinsMinimumVersion() {
         return readProperty("jenkins.core.minimum.version", "versions.properties");
+    }
+
+    /**
+     * Return the Jenkins Test Harness version
+     * @return The Jenkins Test Harness version
+     */
+    public static String getJenkinsTestHarnessVersion() {
+        return readProperty("jenkins-test-harness.version", "versions.properties");
     }
 
     public static String getJenkinsMinimumBaseline() {

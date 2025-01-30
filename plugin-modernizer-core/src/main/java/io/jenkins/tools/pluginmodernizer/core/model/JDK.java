@@ -24,10 +24,10 @@ public enum JDK {
      * Available JDKs
      * See <a href="https://www.jenkins.io/doc/book/platform-information/support-policy-java/">Java Support Policy</a> for details
      */
-    JAVA_8(8, true, null, "2.346.1"),
-    JAVA_11(11, true, "2.164.1", "2.462.3"),
-    JAVA_17(17, true, "2.346.1", null),
-    JAVA_21(21, true, "2.426.1", null);
+    JAVA_8(8, true, null, "2.346.1", "1900.v9e128c991ef4"),
+    JAVA_11(11, true, "2.164.1", "2.462.3", "2225.v04fa_3929c9b_5"),
+    JAVA_17(17, true, "2.346.1", null, null),
+    JAVA_21(21, true, "2.426.1", null, null);
 
     /**
      * The major version
@@ -50,15 +50,24 @@ public enum JDK {
     private final String maximumCoreVersion;
 
     /**
+     * The latest compatible version of jenkins-test-harness version
+     */
+    private final String latestTestHarnessVersion;
+
+    /**
      * Constructor
      * @param major The Java major version
      * @param lts If the version is LTS
+     * @param compatibleSince The compatibility since for this JDK
+     * @param maximumCoreVersion The maximum required core version
+     * @param latestTestHarnessVersion The latest compatible version of jenkins-test-harness
      */
-    JDK(int major, boolean lts, String compatibleSince, String maximumCoreVersion) {
+    JDK(int major, boolean lts, String compatibleSince, String maximumCoreVersion, String latestTestHarnessVersion) {
         this.major = major;
         this.lts = lts;
         this.compatibleSince = compatibleSince;
         this.maximumCoreVersion = maximumCoreVersion;
+        this.latestTestHarnessVersion = latestTestHarnessVersion;
     }
 
     /**
@@ -75,6 +84,26 @@ public enum JDK {
      */
     public String getCompatibleSince() {
         return compatibleSince;
+    }
+
+    public String getLatestTestHarnessVersion() {
+        return latestTestHarnessVersion;
+    }
+
+    /**
+     * Get the latest compatible jenkins-test-harness version based on the Jenkins version.
+     * @param jenkinsVersion The Jenkins version.
+     * @return The latest compatible jenkins-test-harness version, or null.
+     */
+    public static String getLatestTestHarnessVersion(String jenkinsVersion) {
+        if (jenkinsVersion == null || jenkinsVersion.isEmpty()) {
+            throw new IllegalArgumentException("Jenkins version cannot be null or empty");
+        }
+
+        JDK oldestCompatibleJdk = min(Set.of(JDK.values()), jenkinsVersion);
+
+        // Return the latest test-harness version for the oldest compatible JDK
+        return oldestCompatibleJdk != null ? oldestCompatibleJdk.getLatestTestHarnessVersion() : null;
     }
 
     /**

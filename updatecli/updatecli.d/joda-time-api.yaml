@@ -34,6 +34,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestJodaTimeApiVersion" }}'
     sourceid: latestJodaTimeApiVersion
     scmid: default
+  updateVersions:
+    name: "Update joda-time-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(joda-time-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJodaTimeApiVersion" }}'
+    sourceid: latestJodaTimeApiVersion
+    scmid: default
 
 actions:
   createPullRequest:

@@ -149,4 +149,14 @@ public class JDKTest {
         assertEquals(JDK.JAVA_17, JDK.get("2.479.1").get(0));
         assertEquals(JDK.JAVA_21, JDK.get("2.479.1").get(1));
     }
+
+    @Test
+    public void getLatestTestHarnessVersion() {
+        assertEquals("2225.v04fa_3929c9b_5", JDK.getLatestTestHarnessVersion("2.426.1"));
+        assertEquals("1900.v9e128c991ef4", JDK.getLatestTestHarnessVersion("2.346.1"));
+        assertNull(JDK.getLatestTestHarnessVersion("2.463"));
+        assertNull(JDK.getLatestTestHarnessVersion("2.479.1"));
+        assertEquals("2225.v04fa_3929c9b_5", JDK.getLatestTestHarnessVersion("2.361.1"));
+        assertEquals("1900.v9e128c991ef4", JDK.getLatestTestHarnessVersion("2.164.1"));
+    }
 }

@@ -34,6 +34,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestCommonsLang3ApiPlugin" }}'
     sourceid: latestCommonsLang3ApiPlugin
     scmid: default
+  updateVersions:
+    name: "Update commons-lang3-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(commons-lang3-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestCommonsLang3ApiPlugin" }}'
+    sourceid: latestCommonsLang3ApiPlugin
+    scmid: default
 
 actions:
   createPullRequest:
