@@ -204,10 +204,8 @@ public class PluginModernizer {
             if (config.isRemoveForks()) {
                 plugin.deleteFork(ghService);
             }
-            plugin.fork(ghService);
-            plugin.sync(ghService);
-            plugin.fetch(ghService);
 
+            plugin.fetch(ghService);
             if (plugin.hasErrors()) {
                 LOG.info("Plugin {} has errors. Will not process this plugin.", plugin.getName());
             }
@@ -350,10 +348,18 @@ public class PluginModernizer {
                 if (!config.isDryRun()) {
                     plugin.clean(mavenInvoker);
                 }
-
                 plugin.commit(ghService);
-                plugin.push(ghService);
-                plugin.openPullRequest(ghService);
+
+                // Only fork/push/PR if we have any changes
+                if (!plugin.getModifiedFiles().isEmpty()) {
+                    plugin.fork(ghService);
+                    plugin.sync(ghService);
+                    plugin.push(ghService);
+                    plugin.openPullRequest(ghService);
+                } else {
+                    LOG.info("No changes were made for plugin {}", plugin.getName());
+                }
+
                 if (config.isRemoveForks()) {
                     plugin.deleteFork(ghService);
                 }

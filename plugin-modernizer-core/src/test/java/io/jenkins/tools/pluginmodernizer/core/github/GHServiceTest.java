@@ -276,6 +276,9 @@ public class GHServiceTest {
         // Not yet forked
         doReturn(null).when(myself).getRepository(eq("fake-repo"));
 
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
+
         // Test
         service.fork(plugin);
 
@@ -302,6 +305,9 @@ public class GHServiceTest {
 
         // Already forked
         doReturn(fork).when(myself).getRepository(eq("fake-repo"));
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
 
         // Test
         service.fork(plugin);
@@ -356,6 +362,9 @@ public class GHServiceTest {
         // Not yet forked
         doReturn(null).when(org).getRepository(eq("fake-repo"));
 
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
+
         // Test
         service.fork(plugin);
 
@@ -380,6 +389,9 @@ public class GHServiceTest {
 
         // Already forked to org
         doReturn(fork).when(org).getRepository(eq("fake-repo"));
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
 
         // Test
         service.fork(plugin);
@@ -616,7 +628,6 @@ public class GHServiceTest {
         field.setAccessible(true);
         field.set(service, true);
 
-        doReturn(true).when(config).isDryRun();
         doReturn("fake-repo").when(plugin).getRepositoryName();
         doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
         doReturn(git).when(cloneCommand).call();
@@ -646,7 +657,6 @@ public class GHServiceTest {
         Git git = Mockito.mock(Git.class);
         CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
 
-        doReturn(true).when(config).isDryRun();
         doReturn("fake-repo").when(plugin).getRepositoryName();
         doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
         doReturn(git).when(cloneCommand).call();
@@ -685,9 +695,6 @@ public class GHServiceTest {
         field.setAccessible(true);
         field.set(service, true);
 
-        doReturn(false).when(config).isDryRun();
-
-        doReturn(true).when(config).isFetchMetadataOnly();
         doReturn("fake-repo").when(plugin).getRepositoryName();
         doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
         doReturn(git).when(cloneCommand).call();
@@ -717,9 +724,6 @@ public class GHServiceTest {
         Git git = Mockito.mock(Git.class);
         CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
 
-        doReturn(false).when(config).isDryRun();
-
-        doReturn(true).when(config).isFetchMetadataOnly();
         doReturn("fake-repo").when(plugin).getRepositoryName();
         doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
         doReturn(git).when(cloneCommand).call();

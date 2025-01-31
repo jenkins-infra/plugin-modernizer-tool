@@ -2,4 +2,4 @@
 @import io.jenkins.tools.pluginmodernizer.core.model.Recipe
 @param Plugin plugin
 @param Recipe recipe
-chore(pom): Require ${plugin.getMetadata().getJenkinsVersion()}
+chore(pom): Use recommended core version ${plugin.getMetadata().getJenkinsVersion()}, and Java 11.

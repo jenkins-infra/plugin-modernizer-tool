@@ -34,6 +34,15 @@ targets:
       replacePattern: '$1$2$3 {{ source "latestJsonPathApiVersion" }}'
     sourceid: latestJsonPathApiVersion
     scmid: default
+  updateVersions:
+    name: "Update json-path-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(json-path-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJsonPathApiVersion" }}'
+    sourceid: latestJsonPathApiVersion
+    scmid: default
 
 actions:
   createPullRequest:

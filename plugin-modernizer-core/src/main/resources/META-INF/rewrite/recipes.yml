@@ -150,9 +150,14 @@ recipeList:
       newVersion: 5.X
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.479.1
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
+      jenkinsVersion: 2.479.1
   - org.openrewrite.java.ChangeType:
       oldFullyQualifiedTypeName: org.kohsuke.stapler.StaplerRequest
       newFullyQualifiedTypeName: org.kohsuke.stapler.StaplerRequest2
+  - org.openrewrite.java.ChangeType:
+      oldFullyQualifiedTypeName: org.kohsuke.stapler.StaplerResponse
+      newFullyQualifiedTypeName: org.kohsuke.stapler.StaplerResponse2
   - org.openrewrite.java.ChangeMethodName:
       methodPattern: org.kohsuke.stapler.Stapler getCurrentRequest()
       newMethodName: getCurrentRequest2
@@ -196,8 +201,6 @@ description: Remove extra maven properties from the pom.
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
       propertyName: configuration-as-code.version
-  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
-      propertyName: jenkins-test-harness.version
   - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
       propertyName: java.version
   - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty:
@@ -324,7 +327,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-compress-api
-      pluginVersion: 1.27.1-1
+      pluginVersion: 1.27.1-2
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-compress
@@ -359,7 +362,7 @@ recipeList:
   - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: byte-buddy-api
-      pluginVersion: 1.16.1-111.vc76cd8b_2dce5
+      pluginVersion: 1.17.0-117.v025ccb_c559d7
       replaces:
         - groupId: net.bytebuddy
           artifactId: byte-buddy
@@ -401,6 +404,8 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.462.3
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
+      jenkinsVersion: 2.462.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
@@ -420,6 +425,8 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.462.3
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
+        jenkinsVersion: 2.462.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
@@ -447,6 +454,8 @@ recipeList:
       newVersion: 4.51 # See https://www.jenkins.io/blog/2022/12/14/require-java-11/
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.346.3
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
+      jenkinsVersion: 2.346.1
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructor
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties

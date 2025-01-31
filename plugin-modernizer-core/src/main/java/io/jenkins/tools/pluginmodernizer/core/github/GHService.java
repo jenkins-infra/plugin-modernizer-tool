@@ -319,6 +319,17 @@ public class GHService {
             plugin.addError("Failed to fork the repository", e);
             plugin.raiseLastError();
         }
+
+        // Ensure to change the remote URL to the forked repository
+        try (Git git = Git.open(plugin.getLocalRepository().toFile())) {
+            GHRepository fork = getRepositoryFork(plugin);
+            URIish remoteUri = getRemoteUri(fork);
+            git.remoteSetUrl().setRemoteName("origin").setRemoteUri(remoteUri).call();
+            LOG.debug("Changed remote URL to forked repository {}", fork.getHtmlUrl());
+        } catch (IOException | URISyntaxException | GitAPIException e) {
+            plugin.addError("Failed to change remote URL to forked repository", e);
+            plugin.raiseLastError();
+        }
     }
 
     /**
@@ -577,9 +588,9 @@ public class GHService {
             LOG.info("Plugin {} is local. Not fetching", plugin);
             return;
         }
-        GHRepository repository = config.isDryRun() || config.isFetchMetadataOnly() || plugin.isArchived(this)
-                ? getRepository(plugin)
-                : getRepositoryFork(plugin);
+
+        // We always fetch from original repo to avoid forking when not necessary
+        GHRepository repository = getRepository(plugin);
 
         if (config.isDebug()) {
             LOG.debug(
@@ -614,32 +625,14 @@ public class GHService {
             return;
         }
         LOG.debug("Fetching {}", plugin.getName());
-        GHRepository repository = config.isDryRun() || config.isFetchMetadataOnly() || plugin.isArchived(this)
-                ? getRepository(plugin)
-                : getRepositoryFork(plugin);
+        GHRepository repository = getRepository(plugin);
+        URIish remoteUri = getRemoteUri(repository);
 
-        // Get the correct URI
-        URIish remoteUri =
-                sshKeyAuth ? new URIish(repository.getSshUrl()) : new URIish(repository.getHttpTransportUrl());
-
-        // Ensure to set port 22 if not set on remote URL to work with apache mina sshd
-        if (sshKeyAuth) {
-            if (remoteUri.getScheme() == null) {
-                remoteUri = remoteUri.setScheme("ssh");
-                LOG.debug("Setting scheme ssh for remote URI {}", remoteUri);
-            }
-            if (remoteUri.getPort() == -1) {
-                remoteUri = remoteUri.setPort(22);
-                LOG.debug("Setting port 22 for remote URI {}", remoteUri);
-            }
-        }
         // Fetch latest changes
         if (Files.isDirectory(plugin.getLocalRepository())) {
             // Ensure to set the correct remote, reset changes and pull
             try (Git git = Git.open(plugin.getLocalRepository().toFile())) {
-                String defaultBranch = config.isDryRun() || config.isFetchMetadataOnly() || plugin.isArchived(this)
-                        ? plugin.getRemoteRepository(this).getDefaultBranch()
-                        : plugin.getRemoteForkRepository(this).getDefaultBranch();
+                String defaultBranch = plugin.getRemoteRepository(this).getDefaultBranch();
                 git.remoteSetUrl()
                         .setRemoteName("origin")
                         .setRemoteUri(remoteUri)
@@ -691,6 +684,31 @@ public class GHService {
         }
     }
 
+    /**
+     * Return the remote URI patched with default SSH 22 port required by apache mina sshd transport
+     * @param repository The repository to get the remote URI for
+     * @return The patched remote URI HTTP or SSH depending on config
+     * @throws URISyntaxException If the URI is invalid
+     */
+    private URIish getRemoteUri(GHRepository repository) throws URISyntaxException {
+        // Get the correct URI
+        URIish remoteUri =
+                sshKeyAuth ? new URIish(repository.getSshUrl()) : new URIish(repository.getHttpTransportUrl());
+
+        // Ensure to set port 22 if not set on remote URL to work with apache mina sshd
+        if (sshKeyAuth) {
+            if (remoteUri.getScheme() == null) {
+                remoteUri = remoteUri.setScheme("ssh");
+                LOG.debug("Setting scheme ssh for remote URI {}", remoteUri);
+            }
+            if (remoteUri.getPort() == -1) {
+                remoteUri = remoteUri.setPort(22);
+                LOG.debug("Setting port 22 for remote URI {}", remoteUri);
+            }
+        }
+        return remoteUri;
+    }
+
     private void cloneRepository(Plugin plugin, URIish remoteUri) throws GitAPIException {
         try (Git git = Git.cloneRepository()
                 .setCredentialsProvider(getCredentialProvider())
@@ -717,9 +735,7 @@ public class GHService {
             try {
                 git.checkout().setCreateBranch(true).setName(branchName).call();
             } catch (RefAlreadyExistsException e) {
-                String defaultBranch = config.isDryRun() || config.isFetchMetadataOnly() || plugin.isArchived(this)
-                        ? plugin.getRemoteRepository(this).getDefaultBranch()
-                        : plugin.getRemoteForkRepository(this).getDefaultBranch();
+                String defaultBranch = plugin.getRemoteRepository(this).getDefaultBranch();
                 LOG.debug("Branch already exists. Checking out the branch");
                 git.checkout().setName(branchName).call();
                 git.reset()
