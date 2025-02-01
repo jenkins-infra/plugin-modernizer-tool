@@ -20,4 +20,5 @@ public final class RecipesConsts {
             ""; // Old release line like 2.150.x, no need to filter by pattern
     public static final String INCREMENTAL_REPO_ID = "incrementals";
     public static final String JENKINS_CORE_VERSION = Settings.getJenkinsMinimumVersion();
+    public static final String JENKINS_BASELINE_VERSION = Settings.getJenkinsMinimumBaseline();
 }
