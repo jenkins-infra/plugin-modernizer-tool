@@ -614,6 +614,13 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 spec -> spec.recipeFromResource(
                         "/META-INF/rewrite/recipes.yml",
                         "io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion"),
+                // language=yaml
+                yaml("{}", sourceSpecs -> {
+                    sourceSpecs.path(ArchetypeCommonFile.WORKFLOW_CD.getPath());
+                }),
+                yaml("{}", sourceSpecs -> {
+                    sourceSpecs.path(ArchetypeCommonFile.DEPENDABOT.getPath());
+                }),
                 // language=xml
                 srcMainResources(text(
                         null,
@@ -681,7 +688,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             <groupId>org.jenkins-ci.plugins</groupId>
                             <artifactId>plugin</artifactId>
                             <version>4.88</version>
-                            <relativePath />
+                            <relativePath/>
                           </parent>
                           <groupId>io.jenkins.plugins</groupId>
                           <artifactId>empty</artifactId>

@@ -59,7 +59,7 @@ public class UpgradeJenkinsTestHarnessVersion extends Recipe {
                     LOG.info(
                             "No compatible Jenkins Test Harness version found for Jenkins version {},  Defaulting to latest release.",
                             jenkinsVersion);
-                    latestCompatibleVersion = Settings.getPluginVersion("jenkins-test-harness");
+                    latestCompatibleVersion = Settings.getJenkinsTestHarnessVersion();
                 }
 
                 document = (Xml.Document)
