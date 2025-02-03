@@ -55,7 +55,7 @@
     <common.lang3.version>3.17.0</common.lang3.version>
     <common.text.version>1.13.0</common.text.version>
     <asm.version>9.7.1</asm.version>
-    <gson.version>2.11.0</gson.version>
+    <gson.version>2.12.1</gson.version>
     <jackson.version>2.18.2</jackson.version>
     <maven.version>3.9.9</maven.version>
     <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
@@ -64,7 +64,7 @@
     <commons-compress.version>1.27.1</commons-compress.version>
     <guava.version>33.4.0-jre</guava.version>
     <byte-buddy.version>1.17.0</byte-buddy.version>
-    <wiremock.version>3.10.0</wiremock.version>
+    <wiremock.version>3.11.0</wiremock.version>
     <jte.version>3.1.16</jte.version>
     <snakeyaml.version>2.3</snakeyaml.version>
     <guice.version>7.0.0</guice.version>
