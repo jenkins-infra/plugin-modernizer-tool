@@ -1,6 +1,6 @@
 ---
 # This pipeline is used to bump the recommended Jenkins core version in the properties file.
-name: Bump the recommended Jenkins core version in the versions.properties file
+name: Bump the recommended Jenkins core version in the pom.xml file
 # SCM configuration for GitHub repository
 scms:
   default:
@@ -28,15 +28,15 @@ conditions:
     kind: jenkins
     sourceid: JenkinsPreviousLTS
 
-# Target configuration to update the Jenkins LTS version in the versions.properties file
+# Target configuration to update the Jenkins LTS version in the pom.xml file
 targets:
   update-jenkins-lts-version:
-    name: "Update Jenkins LTS version in versions.properties"
+    name: "Update Jenkins LTS version in pom.xml"
     kind: file
     spec:
-      file: ./plugin-modernizer-core/src/main/resources/versions.properties # Path to the versions.properties file
-      matchPattern: "(?m)^(jenkins.core.minimum.version =) (.*)" # Regex pattern to match the jenkins.core.minimum.version property
-      replacePattern: '$1 {{ source "JenkinsPreviousLTS" }}' # Replacement pattern to update the version
+      file: ./pom.xml # Path to the pom.xml file
+      matchPattern: "<jenkins.core.minimum.version>.*</jenkins.core.minimum.version>" # Regex pattern to match the jenkins.core.minimum.version property
+      replacePattern: '<jenkins.core.minimum.version>{{ source "JenkinsPreviousLTS" }}</jenkins.core.minimum.version>' # Replacement pattern to update the version
     sourceid: JenkinsPreviousLTS
     scmid: default
 
@@ -45,7 +45,7 @@ actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: 'chore(properties): Bump the recommended Jenkins core version to {{ source "JenkinsPreviousLTS" }} in the `versions.properties` file' # Title of the pull request
+    title: 'chore(properties): Bump the recommended Jenkins core version to {{ source "JenkinsPreviousLTS" }} in the `pom.xml` file' # Title of the pull request
     spec:
       labels:
         - dependencies
