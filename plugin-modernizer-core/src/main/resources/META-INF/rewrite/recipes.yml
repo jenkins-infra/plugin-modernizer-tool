@@ -456,6 +456,8 @@ recipeList:
       minimumVersion: 2.346.3
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
       jenkinsVersion: 2.346.1
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddDetachedPluginDependency:
+      jenkinsVersion: 2.346.3
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructor
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
