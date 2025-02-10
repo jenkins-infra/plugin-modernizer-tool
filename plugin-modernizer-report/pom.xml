@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.jenkins.plugin-modernizer</groupId>
+    <artifactId>plugin-modernizer-pom</artifactId>
+    <version>${changelist}</version>
+  </parent>
+
+  <artifactId>plugin-modernizer-report</artifactId>
+  <name>Plugin Modernizer Report</name>
+  <dependencies>
+    <dependency>
+      <groupId>io.jenkins.plugin-modernizer</groupId>
+      <artifactId>plugin-modernizer-cli</artifactId>
+      <version>${changelist}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.plugin-modernizer</groupId>
+      <artifactId>plugin-modernizer-core</artifactId>
+      <version>${changelist}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>report-aggregate</id>
+            <goals>
+              <goal>report-aggregate</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
