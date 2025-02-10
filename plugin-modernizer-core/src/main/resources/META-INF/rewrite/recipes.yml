@@ -214,6 +214,7 @@ displayName: Use API plugin instead of direct dependency
 tags: ['developer']
 description: Use API plugins instead of direct dependency.
 recipeList:
+  - io.jenkins.tools.pluginmodernizer.UseJsoupApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseJsonApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseJsonPathApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseGsonApiPlugin
@@ -311,6 +312,22 @@ recipeList:
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJsoupApiPlugin
+displayName: Use jsoup API plugin instead of direct dependency
+description: Use jsoup API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - org.openrewrite.jenkins.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: org.jenkins-ci.plugins
+      pluginArtifactId: jsoup
+      pluginVersion: 1.18.3-30.v952e9442d416
+      replaces:
+        - groupId: org.jsoup
+          artifactId: jsoup
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UseCompressApiPlugin
