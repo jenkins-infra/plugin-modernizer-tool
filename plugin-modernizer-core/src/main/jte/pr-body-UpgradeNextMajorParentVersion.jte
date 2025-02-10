@@ -23,6 +23,8 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
 
 - **Enjoy a Better Developer Experience:** Make the most of advanced tooling support and simplified dependency management with Java 17's enhancements.
 
+@include("partials/remove-developers-tag.jte")
+
+#### Summary
+
 By upgrading, you'll be positioning your plugin at the forefront of performance, security, and user satisfaction. We encourage you to explore these updates and provide feedback. Let's continue to build a robust Jenkins ecosystem together!
-
-
