@@ -595,7 +595,9 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
 
         // Just ensure it's using some key overall text
-        assertTrue(result.contains("Removing `developers` Tag from `pom.xml`"), "Missing 'Removing `developers` Tag from `pom.xml`' section");
+        assertTrue(
+                result.contains("Removing `developers` Tag from `pom.xml`"),
+                "Missing 'Removing `developers` Tag from `pom.xml`' section");
         assertTrue(
                 result.contains("Removing `developers` Tag from `pom.xml"),
                 "Missing 'Removing `developers` Tag' section");
