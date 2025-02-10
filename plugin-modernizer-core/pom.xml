@@ -294,6 +294,7 @@
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <argLine>${surefireArgLine}</argLine>
           <environmentVariables>
             <RUN_IN_MAVEN>true</RUN_IN_MAVEN>
             <GH_TOKEN>fake-token</GH_TOKEN>

@@ -153,6 +153,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <argLine>${surefireArgLine}</argLine>
           <excludes>
             <exclude>**/*ITCase.java</exclude>
           </excludes>
@@ -166,6 +167,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <configuration>
+          <argLine>${surefireArgLine}</argLine>
           <groups>Always</groups>
         </configuration>
         <executions>
