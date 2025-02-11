@@ -2396,6 +2396,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
         String jsonPathApiVersion = getApiPluginVersion("json-path-api");
         String gsonApiVersion = getApiPluginVersion("gson-api");
         String jodaTimeApiVersion = getApiPluginVersion("joda-time-api");
+        String jsoupVersion = getApiPluginVersion("jsoup");
         String commonsLang3ApiVersion = getApiPluginVersion("commons-lang3-api");
         String byteBuddyApiVersion = getApiPluginVersion("byte-buddy-api");
         String commonTextApiVersion = getApiPluginVersion("commons-text-api");
@@ -2444,6 +2445,11 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <groupId>org.apache.commons</groupId>
                       <artifactId>commons-compress</artifactId>
                       <version>1.26.1</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.jsoup</groupId>
+                      <artifactId>jsoup</artifactId>
+                      <version>1.18.3</version>
                     </dependency>
                     <dependency>
                       <groupId>org.apache.commons</groupId>
@@ -2535,6 +2541,11 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <version>1.26.1</version>
                     </dependency>
                     <dependency>
+                      <groupId>org.jenkins-ci.plugins</groupId>
+                      <artifactId>jsoup</artifactId>
+                      <version>%s</version>
+                    </dependency>
+                    <dependency>
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>json-api</artifactId>
                       <version>%s</version>
@@ -2570,6 +2581,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         commonTextApiVersion,
                                         gsonApiVersion,
                                         jodaTimeApiVersion,
+                                        jsoupVersion,
                                         jsonApiVersion,
                                         jsonPathApiVersion)));
     }

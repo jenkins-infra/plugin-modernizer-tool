@@ -1,0 +1,55 @@
+name: Update jsoup plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestJsoupVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "jsoup-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update jsoup plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: jsoup\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestJsoupVersion" }}'
+    sourceid: latestJsoupVersion
+    scmid: default
+  updateVersions:
+    name: "Update jsoup plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(jsoup.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJsoupVersion" }}'
+    sourceid: latestJsoupVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update jsoup plugin version to {{ source "latestJsoupVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
