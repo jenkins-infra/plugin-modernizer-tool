@@ -54,3 +54,18 @@ packagers:
     skipTemplates:
       - cask.rb.tpl
       - README.md.tpl
+
+  scoop:
+    active: RELEASE
+    repository:
+      active: RELEASE
+      owner: jenkins-infra
+      name: scoop-bucket  
+      tagName: '{{distributionName}}-{{projectVersion}}'
+    commitAuthor:
+      name: jenkins-infra
+      email: jenkins-infra-team@googlegroups.com
+    extraProperties:
+      skipLicenseFile: true
+    skipTemplates:
+      - scoop-bucket/README.md.tpl
