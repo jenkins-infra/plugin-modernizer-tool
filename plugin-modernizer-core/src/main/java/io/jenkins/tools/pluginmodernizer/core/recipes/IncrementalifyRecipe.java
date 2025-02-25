@@ -33,12 +33,17 @@ public class IncrementalifyRecipe extends Recipe {
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext ctx) {
                 try {
                     InvocationRequest request = new DefaultInvocationRequest();
-                    request.setPomFile(new File("pom.xml"));
+                    // Use the actual path of the document being processed
+                    request.setPomFile(document.getSourcePath().toFile());
                     request.setGoals(Collections.singletonList("incrementals:incrementalify"));
 
                     Invoker invoker = new DefaultInvoker();
-                    invoker.setMavenHome(new File(System.getenv("M2_HOME")));
-
+                    String m2Home = System.getenv("M2_HOME");
+                    if (m2Home == null || m2Home.isEmpty()) {
+                        LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
+                        return document;
+                    }
+                    invoker.setMavenHome(new File(m2Home));
                     InvocationResult result = invoker.execute(request);
 
                     if (result.getExitCode() != 0) {

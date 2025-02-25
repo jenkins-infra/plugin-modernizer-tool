@@ -40,10 +40,23 @@ public class IncrementalifyRecipeTest {
         MavenParser parser = MavenParser.builder().build();
         List<Xml.Document> mavenDocuments = parser.parse(List.of(pomPath), tempDir, new InMemoryExecutionContext());
 
-        Recipe recipe = new IncrementalifyRecipe();
+        // Use a testable version of the recipe with a mock invoker
+        IncrementalifyRecipe recipe = new IncrementalifyRecipe();
+        DefaultInvoker mockInvoker = Mockito.mock(DefaultInvoker.class);
+        recipe.setInvokerForTesting(mockInvoker);
+        
+        // Set up mock behavior
+        InvocationResult mockResult = Mockito.mock(InvocationResult.class);
+        Mockito.when(mockResult.getExitCode()).thenReturn(0);
+        Mockito.when(mockInvoker.execute(Mockito.any())).thenReturn(mockResult);
+        
         ExecutionContext ctx = new InMemoryExecutionContext();
         List<Result> results = recipe.run(mavenDocuments, ctx).getResults();
-
+        
+        // Verify the invoker was called with correct parameters
+        ArgumentCaptor<InvocationRequest> requestCaptor = ArgumentCaptor.forClass(InvocationRequest.class);
+        Mockito.verify(mockInvoker).execute(requestCaptor.capture());
+        assertThat(requestCaptor.getValue().getGoals()).contains("incrementals:incrementalify");
         assertThat(results).isNotEmpty();
         assertThat(results.get(0).getAfter().printAll()).contains("incrementals-maven-plugin");
     }
