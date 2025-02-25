@@ -1,5 +1,9 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.openrewrite.ExecutionContext;
@@ -9,11 +13,6 @@ import org.openrewrite.Result;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.xml.tree.Xml;
 
-import java.nio.file.Path;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class IncrementalifyRecipeTest {
 
     @TempDir
@@ -21,7 +20,8 @@ public class IncrementalifyRecipeTest {
 
     @Test
     void testIncrementalifyRecipe() {
-        String pomXml = """
+        String pomXml =
+                """
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
                   <modelVersion>4.0.0</modelVersion>
                   <groupId>com.example</groupId>
