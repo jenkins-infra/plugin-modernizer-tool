@@ -546,3 +546,11 @@ description: Jenkins tooling [requires](https://github.com/jenkinsci/maven-hpi-p
 tags: ['chore']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureIndexJelly
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.IncrementalifyRecipe
+displayName: Incrementalify Recipe
+description: Runs the `mvn incrementals:incrementalify` command to enable incrementals.
+tags: ['chore', 'incrementals']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.IncrementalifyRecipe
