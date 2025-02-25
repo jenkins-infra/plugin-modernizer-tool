@@ -1,5 +1,7 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import java.io.File;
+import java.util.Collections;
 import org.apache.maven.shared.invoker.*;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -8,9 +10,6 @@ import org.openrewrite.maven.MavenIsoVisitor;
 import org.openrewrite.xml.tree.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.Collections;
 
 public class IncrementalifyRecipe extends Recipe {
 
