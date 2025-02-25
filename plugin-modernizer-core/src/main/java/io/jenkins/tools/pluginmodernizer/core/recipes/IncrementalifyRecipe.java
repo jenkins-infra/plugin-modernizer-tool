@@ -14,6 +14,16 @@ import org.slf4j.LoggerFactory;
 public class IncrementalifyRecipe extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(IncrementalifyRecipe.class);
+    private Invoker invoker;
+
+    public IncrementalifyRecipe() {
+        this.invoker = new DefaultInvoker();
+    }
+
+    // For testing purposes only
+    void setInvokerForTesting(Invoker invoker) {
+        this.invoker = invoker;
+    }
 
     @Override
     public String getDisplayName() {
@@ -36,7 +46,14 @@ public class IncrementalifyRecipe extends Recipe {
                     request.setPomFile(document.getSourcePath().toFile());
                     request.setGoals(Collections.singletonList("incrementals:incrementalify"));
 
-                    Invoker invoker = new DefaultInvoker();
+                    if (IncrementalifyRecipe.this.invoker instanceof DefaultInvoker) {
+                        String m2Home = System.getenv("M2_HOME");
+                        if (m2Home == null || m2Home.isEmpty()) {
+                            LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
+                            return document;
+                        }
+                        ((DefaultInvoker) IncrementalifyRecipe.this.invoker).setMavenHome(new File(m2Home));
+                    }
                     String m2Home = System.getenv("M2_HOME");
                     if (m2Home == null || m2Home.isEmpty()) {
                         LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
