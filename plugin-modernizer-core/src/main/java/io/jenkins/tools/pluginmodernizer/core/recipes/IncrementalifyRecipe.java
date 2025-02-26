@@ -2,7 +2,6 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import java.io.File;
 import java.util.Collections;
-
 import org.apache.maven.shared.invoker.*;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -60,8 +59,10 @@ public class IncrementalifyRecipe extends Recipe {
                     InvocationResult result = invoker.execute(request);
 
                     if (result.getExitCode() != 0) {
-                        LOG.error("Maven build failed with exit code {}: {}",
-                                result.getExitCode(), outputHandler.getOutput());
+                        LOG.error(
+                                "Maven build failed with exit code {}: {}",
+                                result.getExitCode(),
+                                outputHandler.getOutput());
                         throw new IllegalStateException("Build failed.");
                     }
                     LOG.debug("Maven output: {}", outputHandler.getOutput());
