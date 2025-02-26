@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
@@ -15,19 +17,14 @@ import org.mockito.Mockito;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.InMemoryExecutionContext;
 import org.openrewrite.Result;
+import org.openrewrite.SourceFile;
 import org.openrewrite.maven.MavenParser;
-import org.openrewrite.xml.tree.Xml;
 
 public class IncrementalifyRecipeTest {
 
     @TempDir
     Path tempDir;
 
-    /**
-     * Tests that the IncrementalifyRecipe correctly calls the Maven Invoker
-     * with "incrementals:incrementalify" goal and produces expected modifications
-     * to add the incrementals-maven-plugin to the POM file.
-     */
     @Test
     void testIncrementalifyRecipe() {
         String pomXml =
@@ -37,31 +34,38 @@ public class IncrementalifyRecipeTest {
                           <groupId>com.example</groupId>
                           <artifactId>example</artifactId>
                           <version>1.0-SNAPSHOT</version>
-                        </project>
-                        """;
-
+                """;
         Path pomPath = tempDir.resolve("pom.xml");
         assertDoesNotThrow(() -> java.nio.file.Files.writeString(pomPath, pomXml));
 
         MavenParser parser = MavenParser.builder().build();
-        List<Xml.Document> mavenDocuments = parser.parse(List.of(pomPath), tempDir, new InMemoryExecutionContext());
+        ExecutionContext ctx = new InMemoryExecutionContext();
 
-        // Use a testable version of the recipe with a mock invoker
+        // Fix 1: Use Parser.Result instead of directly collecting Xml.Document
+        List<? extends SourceFile> mavenDocuments =
+                parser.parse(List.of(pomPath), tempDir, ctx).collect(Collectors.toList());
+
         IncrementalifyRecipe recipe = new IncrementalifyRecipe();
         DefaultInvoker mockInvoker = Mockito.mock(DefaultInvoker.class);
         recipe.setInvokerForTesting(mockInvoker);
 
-        // Set up mock behavior
         InvocationResult mockResult = Mockito.mock(InvocationResult.class);
         Mockito.when(mockResult.getExitCode()).thenReturn(0);
-        Mockito.when(mockInvoker.execute(Mockito.any())).thenReturn(mockResult);
+        try {
+            Mockito.when(mockInvoker.execute(Mockito.any())).thenReturn(mockResult);
+        } catch (MavenInvocationException e) {
+            throw new RuntimeException(e);
+        }
 
-        ExecutionContext ctx = new InMemoryExecutionContext();
-        List<Result> results = recipe.run(mavenDocuments, ctx).getResults();
+        // Fix 2 & 3: Use recipe.run() directly on the list of SourceFiles
+        List<Result> results = recipe.run(mavenDocuments, ctx);
 
-        // Verify the invoker was called with correct parameters
         ArgumentCaptor<InvocationRequest> requestCaptor = ArgumentCaptor.forClass(InvocationRequest.class);
-        Mockito.verify(mockInvoker).execute(requestCaptor.capture());
+        try {
+            Mockito.verify(mockInvoker).execute(requestCaptor.capture());
+        } catch (MavenInvocationException e) {
+            throw new RuntimeException(e);
+        }
         assertThat(requestCaptor.getValue().getGoals()).contains("incrementals:incrementalify");
         assertThat(results).isNotEmpty();
         assertThat(results.get(0).getAfter().printAll()).contains("incrementals-maven-plugin");
