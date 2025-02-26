@@ -63,7 +63,8 @@ public class IncrementalifyRecipe extends Recipe {
                                 "Maven build failed with exit code {}: {}",
                                 result.getExitCode(),
                                 outputHandler.getOutput());
-                        throw new IllegalStateException("Build failed.");
+                        throw new IllegalStateException("Maven build failed with exit code " + result.getExitCode()
+                                + ". See logs for details.");
                     }
                     LOG.debug("Maven output: {}", outputHandler.getOutput());
                 } catch (MavenInvocationException e) {
@@ -77,8 +78,7 @@ public class IncrementalifyRecipe extends Recipe {
     }
 
     /**
-     * +    * Simple output handler implementation to capture Maven output
-     * +
+     * Simple output handler implementation to capture Maven output
      */
     private static class StringBuilderOutputHandler implements InvocationOutputHandler {
         private final StringBuilder output = new StringBuilder();
