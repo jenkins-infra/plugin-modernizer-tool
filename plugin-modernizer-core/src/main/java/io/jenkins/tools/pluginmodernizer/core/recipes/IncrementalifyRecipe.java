@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import java.io.File;
 import java.util.Collections;
+
 import org.apache.maven.shared.invoker.*;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -45,7 +46,9 @@ public class IncrementalifyRecipe extends Recipe {
                     // Use the actual path of the document being processed
                     request.setPomFile(document.getSourcePath().toFile());
                     request.setGoals(Collections.singletonList("incrementals:incrementalify"));
-
+                    // Capture output for logging
+                    StringBuilderOutputHandler outputHandler = new StringBuilderOutputHandler();
+                    request.setOutputHandler(outputHandler);
                     if (IncrementalifyRecipe.this.invoker instanceof DefaultInvoker) {
                         String m2Home = System.getenv("M2_HOME");
                         if (m2Home == null || m2Home.isEmpty()) {
@@ -57,8 +60,11 @@ public class IncrementalifyRecipe extends Recipe {
                     InvocationResult result = invoker.execute(request);
 
                     if (result.getExitCode() != 0) {
+                        LOG.error("Maven build failed with exit code {}: {}",
+                                result.getExitCode(), outputHandler.getOutput());
                         throw new IllegalStateException("Build failed.");
                     }
+                    LOG.debug("Maven output: {}", outputHandler.getOutput());
                 } catch (MavenInvocationException e) {
                     LOG.error("Error executing mvn incrementals:incrementalify", e);
                     return document; // Explicitly return the original document
@@ -67,5 +73,22 @@ public class IncrementalifyRecipe extends Recipe {
                 return super.visitDocument(document, ctx);
             }
         };
+    }
+
+    /**
+     * +    * Simple output handler implementation to capture Maven output
+     * +
+     */
+    private static class StringBuilderOutputHandler implements InvocationOutputHandler {
+        private final StringBuilder output = new StringBuilder();
+
+        @Override
+        public void consumeLine(String line) {
+            output.append(line).append(System.lineSeparator());
+        }
+
+        public String getOutput() {
+            return output.toString();
+        }
     }
 }
