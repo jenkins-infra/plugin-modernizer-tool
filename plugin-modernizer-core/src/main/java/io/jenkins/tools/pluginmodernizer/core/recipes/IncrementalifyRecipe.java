@@ -54,12 +54,6 @@ public class IncrementalifyRecipe extends Recipe {
                         }
                         ((DefaultInvoker) IncrementalifyRecipe.this.invoker).setMavenHome(new File(m2Home));
                     }
-                    String m2Home = System.getenv("M2_HOME");
-                    if (m2Home == null || m2Home.isEmpty()) {
-                        LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
-                        return document;
-                    }
-                    invoker.setMavenHome(new File(m2Home));
                     InvocationResult result = invoker.execute(request);
 
                     if (result.getExitCode() != 0) {
@@ -67,6 +61,7 @@ public class IncrementalifyRecipe extends Recipe {
                     }
                 } catch (MavenInvocationException e) {
                     LOG.error("Error executing mvn incrementals:incrementalify", e);
+                    return document; // Explicitly return the original document
                 }
 
                 return super.visitDocument(document, ctx);
