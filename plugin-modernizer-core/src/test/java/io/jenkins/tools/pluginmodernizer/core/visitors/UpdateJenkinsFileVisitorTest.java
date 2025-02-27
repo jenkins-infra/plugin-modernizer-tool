@@ -144,7 +144,7 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                     public G.CompilationUnit visitCompilationUnit(
                             G.CompilationUnit cu, ExecutionContext executionContext) {
                         doAfterVisit(new UpdateJenkinsFileVisitor(
-                                null, null, List.of(PlatformConfig.build(Platform.LINUX, JDK.JAVA_17, "2.479.1"))));
+                                null, null, List.of(PlatformConfig.build(Platform.LINUX, JDK.JAVA_17, "2.479.3"))));
                         return super.visitCompilationUnit(cu, executionContext);
                     }
                 })),
@@ -162,7 +162,7 @@ public class UpdateJenkinsFileVisitorTest implements RewriteTest {
                   forkCount: '1C', // run this number of tests in parallel for faster feedback.  If the number terminates with a 'C', the value will be multiplied by the number of available CPU cores
                   useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
                   configurations: [
-                    [platform: 'linux', jdk: 17, jenkins: '2.479.1'],
+                    [platform: 'linux', jdk: 17, jenkins: '2.479.3'],
                 ])
                 """,
                         sourceSpecs -> {

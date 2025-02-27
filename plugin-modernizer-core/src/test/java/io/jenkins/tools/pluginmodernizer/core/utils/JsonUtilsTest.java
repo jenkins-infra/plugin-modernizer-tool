@@ -20,10 +20,10 @@ public class JsonUtilsTest {
         PluginMetadata metadata = new PluginMetadata();
         metadata.setKey("plugin-api-key");
         metadata.setFlags(Set.of(MetadataFlag.IS_API_PLUGIN));
-        metadata.setJenkinsVersion("2.479.1");
+        metadata.setJenkinsVersion("2.479.3");
         metadata.setErrors(Set.of(PreconditionError.MAVEN_REPOSITORIES_HTTP));
         assertEquals(
-                "{\"flags\":[\"IS_API_PLUGIN\"],\"errors\":[\"MAVEN_REPOSITORIES_HTTP\"],\"jenkinsVersion\":\"2.479.1\",\"key\":\"plugin-api-key\",\"path\":\".\"}",
+                "{\"flags\":[\"IS_API_PLUGIN\"],\"errors\":[\"MAVEN_REPOSITORIES_HTTP\"],\"jenkinsVersion\":\"2.479.3\",\"key\":\"plugin-api-key\",\"path\":\".\"}",
                 JsonUtils.toJson(metadata));
     }
 

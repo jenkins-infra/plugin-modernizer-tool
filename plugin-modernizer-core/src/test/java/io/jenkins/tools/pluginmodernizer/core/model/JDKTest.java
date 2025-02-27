@@ -60,7 +60,7 @@ public class JDKTest {
         assertEquals(JDK.JAVA_8, JDK.min(Set.of(JDK.values()), "2.346.1"));
         assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.361.1"));
         assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.462.3"));
-        assertEquals(JDK.JAVA_17, JDK.min(Set.of(JDK.values()), "2.479.1"));
+        assertEquals(JDK.JAVA_17, JDK.min(Set.of(JDK.values()), "2.479.3"));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class JDKTest {
         assertEquals("2225.v04fa_3929c9b_5", JDK.getLatestTestHarnessVersion("2.426.1"));
         assertEquals("1900.v9e128c991ef4", JDK.getLatestTestHarnessVersion("2.346.1"));
         assertNull(JDK.getLatestTestHarnessVersion("2.463"));
-        assertNull(JDK.getLatestTestHarnessVersion("2.479.1"));
+        assertNull(JDK.getLatestTestHarnessVersion("2.479.3"));
         assertEquals("2225.v04fa_3929c9b_5", JDK.getLatestTestHarnessVersion("2.361.1"));
         assertEquals("1900.v9e128c991ef4", JDK.getLatestTestHarnessVersion("2.164.1"));
     }

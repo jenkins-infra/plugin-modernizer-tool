@@ -1826,7 +1826,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               </scm>
                               <properties>
                                 <jenkins-test-harness.version>%s</jenkins-test-harness.version>
-                                <jenkins.version>2.479.1</jenkins.version>
+                                <jenkins.version>2.479.3</jenkins.version>
                               </properties>
                               <repositories>
                                 <repository>
@@ -1978,7 +1978,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
                             <jenkins.baseline>2.479</jenkins.baseline>
-                            <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                            <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                           </properties>
                           <dependencyManagement>
                             <dependencies>
@@ -2136,7 +2136,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
                     <jenkins.baseline>2.479</jenkins.baseline>
-                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
                     <dependencies>
