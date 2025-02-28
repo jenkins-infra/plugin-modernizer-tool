@@ -65,7 +65,7 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
 
                 cu = (J.CompilationUnit) new ChangeType(
                                 "org.springframework.security.core.AuthenticationManager",
-                                " org.springframework.security.authentication.AuthenticationManager",
+                                "org.springframework.security.authentication.AuthenticationManager",
                                 null)
                         .getVisitor()
                         .visitNonNull(cu, ctx);
