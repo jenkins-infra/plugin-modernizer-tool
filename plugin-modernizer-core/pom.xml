@@ -282,6 +282,11 @@
                   <artifactId>ssh-slaves</artifactId>
                   <version>3.1021.va_cc11b_de26a_e</version>
                 </dependency>
+                <dependency>
+                  <groupId>org.jenkins-ci.main</groupId>
+                  <artifactId>jenkins-core</artifactId>
+                  <version>2.497</version>
+                </dependency>
               </artifactItems>
             </configuration>
           </execution>

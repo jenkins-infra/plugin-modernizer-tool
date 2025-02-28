@@ -65,7 +65,7 @@ public class MigrateStaplerAndJavaxToJakarta extends ScanningRecipe<Set<String>>
             @Override
             public J.CompilationUnit visitCompilationUnit(J.CompilationUnit cu, ExecutionContext ctx) {
                 if (acc.isEmpty()) {
-                    cu = (J.CompilationUnit) new ChangePackage("javax.servlet", "jakarta.servlet", false)
+                    cu = (J.CompilationUnit) new ChangePackage("javax.servlet", "jakarta.servlet", true)
                             .getVisitor()
                             .visitNonNull(cu, ctx);
                 }
