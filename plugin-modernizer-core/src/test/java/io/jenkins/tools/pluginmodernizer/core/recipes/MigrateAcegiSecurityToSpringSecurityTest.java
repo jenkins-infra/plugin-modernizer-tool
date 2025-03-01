@@ -16,7 +16,7 @@ import org.openrewrite.test.RewriteTest;
 public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
 
     @Test
-    void migrateAcegiToSpringSecurity() {
+    void migrateAcegiToSpringSecurityWhenFooImplementsUserDetails() {
         rewriteRun(
                 spec -> {
                     var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
@@ -25,6 +25,8 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                 },
                 java(
                         """
+                         import java.util.ArrayList;
+                         import java.util.List;
                          import org.acegisecurity.Authentication;
                          import org.acegisecurity.GrantedAuthority;
                          import org.acegisecurity.GrantedAuthorityImpl;
@@ -40,6 +42,7 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                          import jenkins.security.SecurityListener;
 
                          public class Foo implements UserDetails {
+                             List<GrantedAuthority> grantedAuthorties = new ArrayList<GrantedAuthority>();
                              @Override
                              public GrantedAuthority[] getAuthorities() {
                                  return new GrantedAuthority[] {
@@ -76,9 +79,6 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                              public boolean isEnabled() {
                                  return true;
                              }
-                             public UserDetails loadUserByUsername(String username) {
-                                 return new Foo();
-                             }
                              public void foo() {
                                  Authentication auth = Jenkins.getAuthentication();
                                  Foo userDetails = new Foo();
@@ -87,10 +87,11 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                          }
                          """,
                         """
+                        import java.util.ArrayList;
+                        import java.util.List;
                         import org.springframework.security.core.Authentication;
                         import org.springframework.security.core.GrantedAuthority;
                         import org.springframework.security.core.authority.SimpleGrantedAuthority;
-                        import org.springframework.security.authentication.AbstractAuthenticationToken;
                         import org.springframework.security.core.context.SecurityContextHolder;
                         import org.springframework.security.core.AuthenticationException;
                         import org.springframework.security.core.userdetails.UserDetails;
@@ -98,15 +99,16 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                         import org.springframework.security.core.userdetails.UsernameNotFoundException;
                         import jenkins.model.Jenkins;
                         import jenkins.security.SecurityListener;
+                        import org.springframework.security.authentication.AbstractAuthenticationToken;
+                        import java.util.Collection;
                         import org.springframework.security.authentication.AuthenticationManager;
                         import org.springframework.security.authentication.BadCredentialsException;
 
                         public class Foo implements UserDetails {
+                            List<GrantedAuthority> grantedAuthorties = new ArrayList<GrantedAuthority>();
                             @Override
-                            public GrantedAuthority[] getAuthorities() {
-                                return new GrantedAuthority[] {
-                                    new SimpleGrantedAuthority("ROLE_USER")
-                                };
+                            public Collection<GrantedAuthority> getAuthorities() {
+                                return grantedAuthorties;
                             }
 
                             @Override
@@ -138,13 +140,173 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                             public boolean isEnabled() {
                                 return true;
                             }
-                            public UserDetails loadUserByUsername(String username) {
-                                return new Foo();
-                            }
                             public void foo() {
                                 Authentication auth = Jenkins.getAuthentication2();
                                 Foo userDetails = new Foo();
                                 SecurityListener.fireAuthenticated2(userDetails);
+                            }
+                        }
+                        """));
+    }
+
+    @Test
+    void migrateAcegiToSpringSecurityWhenBarExtendsAbstractAuthenticationToken() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipe(new MigrateAcegiSecurityToSpringSecurity()).parser(parser);
+                },
+                java(
+                        """
+                         import org.acegisecurity.Authentication;
+                         import org.acegisecurity.GrantedAuthority;
+                         import org.acegisecurity.GrantedAuthorityImpl;
+                         import org.acegisecurity.providers.AbstractAuthenticationToken;
+                         import org.acegisecurity.context.SecurityContextHolder;
+                         import org.acegisecurity.AuthenticationException;
+                         import org.acegisecurity.AuthenticationManager;
+                         import org.acegisecurity.BadCredentialsException;
+                         import org.acegisecurity.userdetails.UserDetails;
+                         import org.acegisecurity.userdetails.UserDetailsService;
+                         import org.acegisecurity.userdetails.UsernameNotFoundException;
+                         import jenkins.model.Jenkins;
+                         import jenkins.security.SecurityListener;
+
+                         public class Bar extends AbstractAuthenticationToken {
+                             @Override
+                             public GrantedAuthority[] getAuthorities() {
+                                 return getName() != null? null : new GrantedAuthority[0];
+                             }
+
+                             @Override
+                             public Object getCredentials() {
+                                 return null;
+                             }
+
+                             @Override
+                             public Object getPrincipal() {
+                                 return getName();
+                             }
+
+                             @Override
+                             public String getName() {
+                                 return null;
+                             }
+                         }
+                         """,
+                        """
+                        import org.springframework.security.authentication.AbstractAuthenticationToken;
+                        import org.springframework.security.core.Authentication;
+                        import org.springframework.security.core.GrantedAuthority;
+                        import org.springframework.security.core.context.SecurityContextHolder;
+                        import org.springframework.security.core.AuthenticationException;
+                        import org.springframework.security.core.userdetails.UserDetails;
+                        import org.springframework.security.core.userdetails.UserDetailsService;
+                        import org.springframework.security.core.userdetails.UsernameNotFoundException;
+                        import jenkins.model.Jenkins;
+                        import jenkins.security.SecurityListener;
+                        import org.springframework.security.core.authority.SimpleGrantedAuthority;
+                        import java.util.List;
+                        import java.util.Collection;
+                        import org.springframework.security.authentication.AuthenticationManager;
+                        import org.springframework.security.authentication.BadCredentialsException;
+
+                        public class Bar extends AbstractAuthenticationToken {
+                            @Override
+                            public Collection<GrantedAuthority> getAuthorities() {
+                                return getName() != null? null : List.of();
+                            }
+
+                            @Override
+                            public Object getCredentials() {
+                                return null;
+                            }
+
+                            @Override
+                            public Object getPrincipal() {
+                                return getName();
+                            }
+
+                            @Override
+                            public String getName() {
+                                return null;
+                            }
+                        }
+                        """));
+    }
+
+    @Test
+    void migrateLoadUserByUsernameToLoadUserByUsername2ButNotInUserDetailsService() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipe(new MigrateAcegiSecurityToSpringSecurity()).parser(parser);
+                },
+                java(
+                        """
+                         import org.acegisecurity.Authentication;
+                         import org.acegisecurity.GrantedAuthority;
+                         import org.acegisecurity.GrantedAuthorityImpl;
+                         import org.acegisecurity.providers.AbstractAuthenticationToken;
+                         import org.acegisecurity.context.SecurityContextHolder;
+                         import org.acegisecurity.AuthenticationException;
+                         import org.acegisecurity.AuthenticationManager;
+                         import org.acegisecurity.BadCredentialsException;
+                         import org.acegisecurity.userdetails.UserDetails;
+                         import org.acegisecurity.userdetails.UserDetailsService;
+                         import org.acegisecurity.userdetails.UsernameNotFoundException;
+                         import jenkins.model.Jenkins;
+                         import jenkins.security.SecurityListener;
+                         import hudson.security.SecurityRealm;
+
+                         public class Bar extends SecurityRealm {
+                             @Override
+                             public UserDetails loadUserByUsername(String username) {
+                                 return null;
+                             }
+                             @Override
+                             public SecurityComponents createSecurityComponents() {
+                                new UserDetailsService() {
+                                   public UserDetails loadUserByUsername(String username) {
+                                       return null;
+                                   }
+                                };
+                             }
+                         }
+                         """,
+                        """
+
+                        import org.springframework.security.core.Authentication;
+                        import org.springframework.security.core.GrantedAuthority;
+                        import org.springframework.security.core.context.SecurityContextHolder;
+                        import org.springframework.security.core.AuthenticationException;
+                        import org.springframework.security.core.userdetails.UserDetails;
+                        import org.springframework.security.core.userdetails.UserDetailsService;
+                        import org.springframework.security.core.userdetails.UsernameNotFoundException;
+                        import jenkins.model.Jenkins;
+                        import jenkins.security.SecurityListener;
+                        import hudson.security.SecurityRealm;
+                        import org.springframework.security.core.authority.SimpleGrantedAuthority;
+                        import org.springframework.security.authentication.AbstractAuthenticationToken;
+                        import java.util.List;
+                        import java.util.Collection;
+                        import org.springframework.security.authentication.AuthenticationManager;
+                        import org.springframework.security.authentication.BadCredentialsException;
+
+                        public class Bar extends SecurityRealm {
+                            @Override
+                            public UserDetails loadUserByUsername2(String username) {
+                                return null;
+                            }
+                            @Override
+                            public SecurityComponents createSecurityComponents() {
+                               new UserDetailsService() {
+                                  public UserDetails loadUserByUsername(String username) {
+                                      return null;
+                                  }
+                               };
                             }
                         }
                         """));

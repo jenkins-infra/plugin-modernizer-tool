@@ -1865,8 +1865,21 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.acegisecurity.userdetails.UsernameNotFoundException;
                                 import jenkins.model.Jenkins;
                                 import jenkins.security.SecurityListener;
+                                import hudson.security.SecurityRealm;
 
-                                public class Foo {
+                                public class Foo extends SecurityRealm {
+                                    @Override
+                                    public UserDetails loadUserByUsername(String username) {
+                                       return null;
+                                    }
+                                    @Override
+                                    public SecurityComponents createSecurityComponents() {
+                                       new UserDetailsService() {
+                                          public UserDetails loadUserByUsername(String username) {
+                                             return null;
+                                          }
+                                       };
+                                    }
                                     public void foo() {
                                         StaplerRequest req = Stapler.getCurrentRequest();
                                         StaplerResponse response = Stapler.getCurrentResponse();
@@ -1881,7 +1894,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.kohsuke.stapler.StaplerResponse2;
                                 import org.springframework.security.core.Authentication;
                                 import org.springframework.security.core.GrantedAuthority;
-                                import org.springframework.security.authentication.AbstractAuthenticationToken;
                                 import org.springframework.security.core.context.SecurityContextHolder;
                                 import org.springframework.security.core.AuthenticationException;
                                 import org.springframework.security.core.userdetails.UserDetails;
@@ -1889,10 +1901,27 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.springframework.security.core.userdetails.UsernameNotFoundException;
                                 import jenkins.model.Jenkins;
                                 import jenkins.security.SecurityListener;
+                                import hudson.security.SecurityRealm;
+                                import org.springframework.security.core.authority.SimpleGrantedAuthority;
+                                import org.springframework.security.authentication.AbstractAuthenticationToken;
+                                import java.util.List;
+                                import java.util.Collection;
                                 import org.springframework.security.authentication.AuthenticationManager;
                                 import org.springframework.security.authentication.BadCredentialsException;
 
-                                public class Foo {
+                                public class Foo extends SecurityRealm {
+                                    @Override
+                                    public UserDetails loadUserByUsername2(String username) {
+                                       return null;
+                                    }
+                                    @Override
+                                    public SecurityComponents createSecurityComponents() {
+                                       new UserDetailsService() {
+                                          public UserDetails loadUserByUsername(String username) {
+                                             return null;
+                                          }
+                                       };
+                                    }
                                     public void foo() {
                                         StaplerRequest2 req = Stapler.getCurrentRequest2();
                                         StaplerResponse2 response = Stapler.getCurrentResponse2();
