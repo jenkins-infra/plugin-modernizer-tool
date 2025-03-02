@@ -155,7 +155,10 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                 spec -> {
                     var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
                     collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
-                    spec.recipe(new MigrateAcegiSecurityToSpringSecurity()).parser(parser);
+                    spec.recipe(new MigrateAcegiSecurityToSpringSecurity())
+                            .expectedCyclesThatMakeChanges(1)
+                            .cycles(1)
+                            .parser(parser);
                 },
                 java(
                         """
@@ -174,6 +177,9 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                          import jenkins.security.SecurityListener;
 
                          public class Bar extends AbstractAuthenticationToken {
+                             Bar() {
+                                 System.out.println("Bar");
+                             }
                              @Override
                              public GrantedAuthority[] getAuthorities() {
                                  return getName() != null? null : new GrantedAuthority[0];
@@ -213,6 +219,10 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                         import org.springframework.security.authentication.BadCredentialsException;
 
                         public class Bar extends AbstractAuthenticationToken {
+                            Bar() {
+                                super(null);
+                                System.out.println("Bar");
+                            }
                             @Override
                             public Collection<GrantedAuthority> getAuthorities() {
                                 return getName() != null? null : List.of();

@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +13,8 @@ import org.openrewrite.java.ChangeMethodName;
 import org.openrewrite.java.ChangePackage;
 import org.openrewrite.java.ChangeType;
 import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaParser;
+import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.MethodMatcher;
 import org.openrewrite.java.tree.Expression;
 import org.openrewrite.java.tree.J;
@@ -315,8 +318,43 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                     }
                 }
 
+                // add super(null) call to the constructor of the class that extends AbstractAuthenticationToken
+                if (enclosingClass != null
+                        && enclosingClass.getExtends() != null
+                        && enclosingClass.getExtends().getType() != null
+                        && enclosingClass
+                                .getExtends()
+                                .getType()
+                                .toString()
+                                .equals("org.springframework.security.authentication.AbstractAuthenticationToken")) {
+                    if (method.isConstructor()) {
+                        if (method.getBody() != null) {
+                            J.Block body = method.getBody();
+
+                            // Avoid duplicate insertions
+                            if (body.getStatements().isEmpty()
+                                    || !(body.getStatements().get(0) instanceof J.MethodInvocation
+                                            && body.getStatements()
+                                                    .get(0)
+                                                    .printTrimmed()
+                                                    .contains("super(new GrantedAuthority[] {})"))) {
+                                method = addSuperCallTemplate.apply(
+                                        updateCursor(method),
+                                        body.getCoordinates().firstStatement());
+                            }
+                        }
+                    }
+                }
+
                 return super.visitMethodDeclaration(method, ctx);
             }
+
+            private final JavaTemplate addSuperCallTemplate = JavaTemplate.builder("super(null);")
+                    .contextSensitive()
+                    .javaParser(JavaParser.fromJavaVersion()
+                            .addClasspathEntry(
+                                    Path.of("target/openrewrite-jars").resolve("jenkins-core-2.497.jar")))
+                    .build();
 
             private J.CompilationUnit addImportIfNotExists(J.CompilationUnit cu, String className, String packageName) {
                 boolean importExists = cu.getImports().stream().anyMatch(anImport -> (packageName + "." + className)
