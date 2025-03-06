@@ -1,7 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.core.impl;
 
 import edu.umd.cs.findbugs.annotations.Nullable;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.model.JDK;
@@ -26,7 +25,6 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "false positive")
 public class MavenInvoker {
 
     /**
