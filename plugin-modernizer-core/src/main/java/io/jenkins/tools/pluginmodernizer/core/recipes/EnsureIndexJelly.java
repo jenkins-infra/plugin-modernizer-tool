@@ -1,6 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PomResolutionVisitor;
@@ -63,7 +62,6 @@ public class EnsureIndexJelly extends ScanningRecipe<EnsureIndexJelly.ShouldCrea
     }
 
     @Override
-    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
     public TreeVisitor<?, ExecutionContext> getScanner(ShouldCreate shouldCreate) {
         PluginMetadata metadata = new PluginMetadata();
         return new TreeVisitor<>() {

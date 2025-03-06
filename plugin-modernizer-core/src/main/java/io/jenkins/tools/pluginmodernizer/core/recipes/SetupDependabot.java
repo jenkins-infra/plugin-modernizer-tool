@@ -1,6 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Setup Dependabot.
  */
-@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "No user input")
 public class SetupDependabot extends ScanningRecipe<AtomicBoolean> {
 
     /**

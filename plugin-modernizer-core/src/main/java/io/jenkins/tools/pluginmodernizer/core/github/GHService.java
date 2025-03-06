@@ -1,6 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.github;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
@@ -54,7 +53,6 @@ import org.kohsuke.github.GitHubBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "false positive")
 public class GHService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GHService.class);

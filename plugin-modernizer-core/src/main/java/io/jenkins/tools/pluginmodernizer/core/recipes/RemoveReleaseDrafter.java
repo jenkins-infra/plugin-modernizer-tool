@@ -1,6 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.openrewrite.ExecutionContext;
@@ -14,7 +13,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Remove release drafter if CD is in place (overlap of workflow)
  */
-@SuppressFBWarnings(value = "PATH_TRAVERSAL_IN", justification = "No user input")
 public class RemoveReleaseDrafter extends ScanningRecipe<AtomicBoolean> {
 
     /**
