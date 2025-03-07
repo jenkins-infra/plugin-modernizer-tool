@@ -1,6 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.config;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import java.net.URL;
@@ -9,7 +8,6 @@ import java.util.List;
 
 public class Config {
 
-    @SuppressFBWarnings(value = "MS_SHOULD_BE_FINAL", justification = "Because usage on ConsoleLogFilter")
     private static boolean DEBUG = false;
 
     public static void setDebug(boolean debug) {
