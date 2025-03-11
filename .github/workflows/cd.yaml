@@ -107,9 +107,9 @@ jobs:
           JRELEASER_PROJECT_VERSION: ${{ steps.extract-version.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate Homebrew token
+      - name: Generate token
         uses: tibdex/github-app-token@v2
-        id: generate_homebrew_token
+        id: generate_token
         with:
           app_id: ${{ secrets.GORELEASER_APP_ID }}
           private_key: ${{ secrets.GORELEASER_APP_PRIVKEY }}
@@ -122,7 +122,8 @@ jobs:
         env:
           JRELEASER_PROJECT_VERSION: ${{ steps.extract-version.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ steps.generate_homebrew_token.outputs.token }}
+          JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          JRELEASER_SCOOP_GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
 
       - name: Archive output
         if: always()
