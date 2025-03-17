@@ -193,6 +193,10 @@ public class Settings {
         return readProperty("bom.version", "versions.properties");
     }
 
+    public static String getRecommendedBomVersion() {
+        return readProperty("bom.recommended.version", "versions.properties");
+    }
+
     /**
      * Return a plugin version from versions.properties
      * @param plugin The plugin name (for example commons-compress-api)

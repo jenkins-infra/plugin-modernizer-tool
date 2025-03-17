@@ -786,7 +786,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getBomVersion())));
+                                        Settings.getRecommendedBomVersion())));
     }
 
     @Test
@@ -1022,7 +1022,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getBomVersion())));
+                                        Settings.getRecommendedBomVersion())));
     }
 
     @Test
@@ -1191,7 +1191,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getBomVersion())));
+                                        Settings.getRecommendedBomVersion())));
     }
 
     @Test
@@ -1327,7 +1327,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """
-                                .formatted(Settings.getBomVersion())));
+                                .formatted(Settings.getRecommendedBomVersion())));
     }
 
     @Test

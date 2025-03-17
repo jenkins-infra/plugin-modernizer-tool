@@ -266,7 +266,7 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsMinimumVersion(),
                                         Settings.getBomArtifactId(),
-                                        Settings.getBomVersion())));
+                                        Settings.getRecommendedBomVersion())));
     }
 
     @Test
@@ -366,6 +366,6 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getBomVersion())));
+                                        Settings.getRecommendedBomVersion())));
     }
 }
