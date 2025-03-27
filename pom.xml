@@ -64,7 +64,7 @@
     <jgit.version>7.2.0.202503040940-r</jgit.version>
     <github-api.version>2.0-rc.1</github-api.version>
     <commons-compress.version>1.27.1</commons-compress.version>
-    <guava.version>33.4.5-jre</guava.version>
+    <guava.version>33.4.6-jre</guava.version>
     <byte-buddy.version>1.17.4</byte-buddy.version>
     <wiremock.version>3.12.1</wiremock.version>
     <jte.version>3.1.16</jte.version>
