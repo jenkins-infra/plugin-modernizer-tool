@@ -411,7 +411,7 @@ public class Plugin {
                 Files.createFile(failureLogPath);
             }
             Set<String> existingEntries = new HashSet<>(Files.readAllLines(failureLogPath));
-            String entry = name + ":" + this.getMetadata().getParentVersion();
+            String entry = name + ":" + this.getMetadata().getVersion();
             if (!existingEntries.contains(entry)) {
                 Files.writeString(
                         failureLogPath,
