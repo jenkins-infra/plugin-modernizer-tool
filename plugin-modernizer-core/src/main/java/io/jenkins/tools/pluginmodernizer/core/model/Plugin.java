@@ -422,7 +422,7 @@ public class Plugin {
     }
 
     /**
-     * Raise the last error as exception of the plugin
+     * Raise the last error as exception to the plugin
      * Do nothing if no errors
      */
     public void raiseLastError() throws PluginProcessingException {
