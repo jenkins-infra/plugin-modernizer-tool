@@ -33,9 +33,23 @@
             </appender>
         </sift>
     </appender>
+    <appender name="FAILURE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+        <file>${user.home}/.cache/jenkins-plugin-modernizer-cli/modernization-failures-${date:yyyyMMdd-HHmmss}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${user.home}/.cache/jenkins-plugin-modernizer-cli/modernization-failures-%d{yyyyMMdd-HHmmss}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
     <root>
         <appender-ref ref="CONSOLE" />
         <appender-ref ref="SIFT" />
+        <appender-ref ref="FAILURE" />
     </root>
     <logger name="jdk.httpclient" level="INFO" />
     <logger name="jdk.internal.httpclient.debug" level="WARN" />

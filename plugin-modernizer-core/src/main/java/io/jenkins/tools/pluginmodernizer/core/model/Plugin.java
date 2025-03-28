@@ -343,6 +343,7 @@ public class Plugin {
             LOG.error(message);
         }
         errors.add(new PluginProcessingException(message, e, this));
+        logFailure();
     }
 
     /**
@@ -352,6 +353,34 @@ public class Plugin {
     public void addError(String message) {
         LOG.error(message);
         errors.add(new PluginProcessingException(message, this));
+        logFailure();
+    }
+
+    /**
+     * Log the failure in the separate log file
+     */
+    private void logFailure() {
+        Path failureLogPath = Path.of(System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli", "modernization-failures-" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".log");
+        ensureLogDirectoryExists(failureLogPath);
+        try {
+            Files.writeString(failureLogPath, name + "\n", java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            LOG.error("Failed to write to failure log file: " + failureLogPath, e);
+        }
+    }
+
+    /**
+     * Log network-related failures in a separate log file
+     * @param message The message
+     */
+    public void logNetworkFailure(String message) {
+        Path networkFailureLogPath = Path.of(System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli", "network-failures-" + java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")) + ".log");
+        ensureLogDirectoryExists(networkFailureLogPath);
+        try {
+            Files.writeString(networkFailureLogPath, name + ": " + message + "\n", java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            LOG.error("Failed to write to network failure log file: " + networkFailureLogPath, e);
+        }
     }
 
     /**
