@@ -94,7 +94,6 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
     /**
      * The version of the plugin.
      */
-    @lombok.Getter
     private String version;
 
     /**
@@ -358,5 +357,9 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }
