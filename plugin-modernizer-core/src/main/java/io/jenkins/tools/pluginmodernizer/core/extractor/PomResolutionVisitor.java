@@ -80,6 +80,8 @@ public class PomResolutionVisitor extends MavenIsoVisitor<PluginMetadata> {
                     // Set bom
                     setBomVersion(parentPom, pluginMetadata);
 
+                    // Set version
+                    pluginMetadata.setVersion(pom.getVersion());
                 } catch (MavenDownloadingException e) {
                     throw new RuntimeException(e);
                 }
