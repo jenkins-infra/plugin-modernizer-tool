@@ -372,16 +372,24 @@ public class Plugin {
     }
 
     /**
-     * Log the failure in the separate log file
+     * Create a log file path with the given prefix and current date
+     * @param prefix The log file prefix
+     * @return Path to the log file
      */
-    private void logFailure() {
-        String timestamp =
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Path failureLogPath = Path.of(
+    private Path createLogFilePath(String prefix) {
+        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return Path.of(
                 System.getProperty("user.home"),
                 ".cache",
                 "jenkins-plugin-modernizer-cli",
-                MODERNIZATION_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
+                prefix + timestamp + LOG_FILE_EXTENSION);
+    }
+
+    /**
+     * Log the failure in the separate log file
+     */
+    private void logFailure() {
+        Path failureLogPath = createLogFilePath(MODERNIZATION_FAILURES_LOG_PREFIX);
         ensureLogDirectoryExists(failureLogPath);
         try {
             List<String> existingEntries = Files.readAllLines(failureLogPath);
@@ -402,13 +410,8 @@ public class Plugin {
      * @param message The message
      */
     public void logNetworkFailure(String message) {
-        String timestamp =
-                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Path networkFailureLogPath = Path.of(
-                System.getProperty("user.home"),
-                ".cache",
-                "jenkins-plugin-modernizer-cli",
-                NETWORK_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
+
+        Path networkFailureLogPath = createLogFilePath(NETWORK_FAILURES_LOG_PREFIX);
         ensureLogDirectoryExists(networkFailureLogPath);
         try {
             Files.writeString(
