@@ -411,7 +411,7 @@ public class Plugin {
                 Files.createFile(failureLogPath);
             }
             Set<String> existingEntries = new HashSet<>(Files.readAllLines(failureLogPath));
-            String entry = name + ":" + getConfig().getVersion();
+            String entry = name + ":" + this.config.getJenkinsPluginVersions();
             if (!existingEntries.contains(entry)) {
                 Files.writeString(
                         failureLogPath,
