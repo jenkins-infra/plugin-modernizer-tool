@@ -551,3 +551,23 @@ description: Jenkins tooling [requires](https://github.com/jenkinsci/maven-hpi-p
 tags: ['chore']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureIndexJelly
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.MigrateToJUnit5
+displayName: Migrate to JUnit 5
+description: Migrate tests from JUnit 4 to JUnit 5.
+tags: ['testing', 'migration']
+recipeList:
+  - org.openrewrite.java.testing.junit5.UpdateTestAnnotation
+  - org.openrewrite.java.testing.junit5.UpdateBeforeAfterAnnotations
+  - org.openrewrite.java.testing.junit5.IgnoreToDisabled
+  - org.openrewrite.java.testing.junit5.TemporaryFolderToTempDir
+  - org.openrewrite.java.testing.junit5.AssertToAssertions
+  - org.openrewrite.java.testing.junit5.AssertThrowsOnLastStatement
+  - org.openrewrite.java.testing.junit5.ExpectedExceptionToAssertThrows
+  - org.openrewrite.java.testing.junit5.AssertTrueInstanceofToAssertInstanceOf
+  - org.openrewrite.java.testing.junit5.RemoveTryCatchFailBlocks
+  - org.openrewrite.java.testing.junit5.UseHamcrestAssertThat
+  - org.openrewrite.java.testing.junit5.StaticImports
+  - org.openrewrite.java.testing.junit5.AddMissingTestBeforeAfterAnnotations
+  - org.openrewrite.java.testing.cleanup.TestsShouldNotBePublic
