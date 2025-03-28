@@ -388,7 +388,7 @@ public class Plugin {
             if (!existingEntries.contains(name)) {
                 Files.writeString(
                         failureLogPath,
-                        name + "\n",
+                        name + ":" + getConfig().getVersion() + "\n",
                         java.nio.file.StandardOpenOption.CREATE,
                         java.nio.file.StandardOpenOption.APPEND);
             }
