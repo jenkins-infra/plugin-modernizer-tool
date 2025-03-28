@@ -413,87 +413,24 @@ The Plugin Modernizer Tool uses Logback for logging. The logs are categorized in
 ### Log Files
 
 - `modernization-failures.log`: This file records general modernization failures.
-- `modernization-failures-<timestamp>.log`: This file records detailed modernization failures with a timestamp.
+- `modernization-failures-<recipe-name><timestamp>.log`: This file records detailed modernization failures with a timestamp.
 - `network-failures-<timestamp>.log`: This file records network-related failures with a timestamp.
 
-### Log Configuration
+### Purpose of Logging Failures
 
-The logging configuration is defined in the `logback.xml` file located in the `plugin-modernizer-cli/src/main/resources` directory. The configuration includes appenders for console output, file output, and rolling policies to manage log file sizes and history.
+Logging failures for each applied recipe provides the following benefits:
+- **Traceability**: Keeps a record of which recipes were applied and their outcomes.
+- **Debugging**: Helps identify and resolve issues in the modernization process.
+- **Improvement**: Provides insights into common failure points, guiding future enhancements.
 
-### Example Logback Configuration
+### Example
 
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE configuration>
-
-<configuration>
-    <import class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
-    <contextListener class="LevelChangePropagator">
-        <resetJUL>true</resetJUL>
-    </contextListener>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="io.jenkins.tools.pluginmodernizer.cli.ConsoleLogFilter">
-            <level>INFO</level>
-        </filter>
-        <encoder>
-            <pattern>%msg %n</pattern>
-        </encoder>
-    </appender>
-    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
-        <discriminator class="io.jenkins.tools.pluginmodernizer.cli.PluginLoggerDiscriminator"></discriminator>
-        <sift>
-            <appender name="FILE-${filename}" class="ch.qos.logback.core.rolling.RollingFileAppender">
-                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-                    <level>TRACE</level>
-                </filter>
-                <encoder>
-                    <pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z', 'UTC'} [%level] [Thread=%t] - %logger{36} # %msg %n</pattern>
-                </encoder>
-                <file>${filename}</file>
-                <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                    <fileNamePattern>${filename}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-                    <maxHistory>7</maxHistory>
-                    <maxFileSize>5MB</maxFileSize>
-                </rollingPolicy>
-            </appender>
-        </sift>
-    </appender>
-    <appender name="FAILURE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
-        </filter>
-        <encoder>
-            <pattern>%msg%n</pattern>
-        </encoder>
-        <file>${user.home}/.cache/jenkins-plugin-modernizer-cli/modernization-failures.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.home}/.cache/jenkins-plugin-modernizer-cli/modernization-failures-%d{yyyyMMdd-HHmmss}.log</fileNamePattern>
-            <maxHistory>7</maxHistory>
-        </rollingPolicy>
-    </appender>
-    <root>
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="SIFT" />
-        <appender-ref ref="FAILURE" />
-    </root>
-    <logger name="jdk.httpclient" level="INFO" />
-    <logger name="jdk.internal.httpclient.debug" level="WARN" />
-    <logger name="io.jenkins.tools.pluginmodernizer" level="TRACE" />
-    <logger name="jdk.event.security" level="INFO" />
-    <logger name="java.lang.ProcessBuilder" level="WARN" />
-    <logger name="java.lang.Shutdown" level="WARN" />
-    <logger name="java.lang.Runtime" level="WARN" />
-    <logger name="org.apache.mina.core" level="WARN" />
-    <logger name="org.apache.sshd.client" level="WARN" />
-    <logger name="org.apache.sshd.client.keyverifier" level="ERROR" />
-    <logger name="org.apache.sshd.common" level="WARN" />
-    <logger name="org.apache.sshd.git.transport" level="WARN" />
-    <logger name="org.eclipse.jgit.internal" level="WARN" />
-    <logger name="org.eclipse.jgit.transport" level="INFO" />
-    <logger name="org.eclipse.jgit.util" level="INFO" />
-    <logger name="sun.net.www.protocol.http" level="INFO" />
-    <logger name="com.google.inject" level="WARN" />
-</configuration>
+When a recipe fails, the tool logs the failure with details such as the recipe name and the timestamp, making it easier to track and address issues.
+`modernization-failures-_UpgradeNextMajorParentVersion20250328.log` would for example contain:
+```aiexclude
+Matrix-sorter-plugin:1.0
+abap-ci:2.3
+adaptive-disconnector:1.98
 ```
 
 ## References
