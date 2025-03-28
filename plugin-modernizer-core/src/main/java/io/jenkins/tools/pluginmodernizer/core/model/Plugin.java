@@ -104,7 +104,6 @@ public class Plugin {
      */
     private final Set<String> tags = new HashSet<>();
 
-
     /**
      * Prefix for the log file names that record modernization failures.
      */
@@ -119,7 +118,6 @@ public class Plugin {
      * Extension for the log files.
      */
     private static final String LOG_FILE_EXTENSION = ".log";
-
 
     private Plugin() {}
 
@@ -377,11 +375,20 @@ public class Plugin {
      * Log the failure in the separate log file
      */
     private void logFailure() {
-        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Path failureLogPath = Path.of(System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli", MODERNIZATION_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
+        String timestamp =
+                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        Path failureLogPath = Path.of(
+                System.getProperty("user.home"),
+                ".cache",
+                "jenkins-plugin-modernizer-cli",
+                MODERNIZATION_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
         ensureLogDirectoryExists(failureLogPath);
         try {
-            Files.writeString(failureLogPath, name + "\n", java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+            Files.writeString(
+                    failureLogPath,
+                    name + "\n",
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
         } catch (IOException e) {
             LOG.error("Failed to write to failure log file: " + failureLogPath, e);
         }
@@ -392,11 +399,20 @@ public class Plugin {
      * @param message The message
      */
     public void logNetworkFailure(String message) {
-        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
-        Path networkFailureLogPath = Path.of(System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli", NETWORK_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
+        String timestamp =
+                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        Path networkFailureLogPath = Path.of(
+                System.getProperty("user.home"),
+                ".cache",
+                "jenkins-plugin-modernizer-cli",
+                NETWORK_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
         ensureLogDirectoryExists(networkFailureLogPath);
         try {
-            Files.writeString(networkFailureLogPath, name + ": " + message + "\n", java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+            Files.writeString(
+                    networkFailureLogPath,
+                    name + ": " + message + "\n",
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
         } catch (IOException e) {
             LOG.error("Failed to write to network failure log file: " + networkFailureLogPath, e);
         }
@@ -540,10 +556,15 @@ public class Plugin {
      * @param logPath The path to check for the missing directories
      */
     private void ensureLogDirectoryExists(Path logPath) {
-        try {
-            Files.createDirectories(logPath.getParent());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create log directory: " + logPath.getParent(), e);
+        Path parentPath = logPath.getParent();
+        if (parentPath != null) {
+            try {
+                Files.createDirectories(parentPath);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create log directory: " + parentPath, e);
+            }
+        } else {
+            throw new RuntimeException("Parent path is null for log path: " + logPath);
         }
     }
 
