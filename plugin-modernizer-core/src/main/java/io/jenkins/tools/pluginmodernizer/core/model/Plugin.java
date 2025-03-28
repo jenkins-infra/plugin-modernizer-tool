@@ -384,11 +384,14 @@ public class Plugin {
                 MODERNIZATION_FAILURES_LOG_PREFIX + timestamp + LOG_FILE_EXTENSION);
         ensureLogDirectoryExists(failureLogPath);
         try {
-            Files.writeString(
-                    failureLogPath,
-                    name + "\n",
-                    java.nio.file.StandardOpenOption.CREATE,
-                    java.nio.file.StandardOpenOption.APPEND);
+            List<String> existingEntries = Files.readAllLines(failureLogPath);
+            if (!existingEntries.contains(name)) {
+                Files.writeString(
+                        failureLogPath,
+                        name + "\n",
+                        java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            }
         } catch (IOException e) {
             LOG.error("Failed to write to failure log file: " + failureLogPath, e);
         }
