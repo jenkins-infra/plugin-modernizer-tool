@@ -383,7 +383,7 @@ public class Plugin {
                 System.getProperty("user.home"),
                 ".cache",
                 "jenkins-plugin-modernizer-cli",
-                prefix + timestamp + LOG_FILE_EXTENSION);
+                prefix + "-" + timestamp + LOG_FILE_EXTENSION);
     }
 
     /**
@@ -403,18 +403,19 @@ public class Plugin {
      */
     private void logFailure() {
         String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
-        Path failureLogPath = createLogFilePath(MODERNIZATION_FAILURES_LOG_PREFIX + "_" + recipeName);
+        Path failureLogPath = createLogFilePath(MODERNIZATION_FAILURES_LOG_PREFIX + recipeName);
 
         ensureLogDirectoryExists(failureLogPath);
         try {
             if (!Files.exists(failureLogPath)) {
                 Files.createFile(failureLogPath);
             }
-            List<String> existingEntries = Files.readAllLines(failureLogPath);
-            if (!existingEntries.contains(name)) {
+            Set<String> existingEntries = new HashSet<>(Files.readAllLines(failureLogPath));
+            String entry = name + ":" + getConfig().getVersion();
+            if (!existingEntries.contains(entry)) {
                 Files.writeString(
                         failureLogPath,
-                        name + ":" + getConfig().getVersion() + "\n",
+                        entry + "\n",
                         java.nio.file.StandardOpenOption.CREATE,
                         java.nio.file.StandardOpenOption.APPEND);
             }
@@ -431,7 +432,7 @@ public class Plugin {
      */
     public void logNetworkFailure(String message) {
         String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
-        Path networkFailureLogPath = createLogFilePath(NETWORK_FAILURES_LOG_PREFIX + "_" + recipeName);
+        Path networkFailureLogPath = createLogFilePath(NETWORK_FAILURES_LOG_PREFIX + recipeName);
 
         ensureLogDirectoryExists(networkFailureLogPath);
         try {
