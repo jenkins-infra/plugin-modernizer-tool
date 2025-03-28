@@ -386,61 +386,64 @@ public class Plugin {
                 prefix + timestamp + LOG_FILE_EXTENSION);
     }
 
-   /**
-                     * Extracts the last part of the recipe name after the last dot.
-                     *
-                     * @param recipeName The full recipe name
-                     * @return The last part of the recipe name
-                     */
-                    private String getLastPartOfRecipeName(String recipeName) {
-                        int lastDotIndex = recipeName.lastIndexOf('.');
-                        return lastDotIndex != -1 ? recipeName.substring(lastDotIndex + 1) : recipeName;
-                    }
+    /**
+     * Extracts the last part of the recipe name after the last dot.
+     *
+     * @param recipeName The full recipe name
+     * @return The last part of the recipe name
+     */
+    private String getLastPartOfRecipeName(String recipeName) {
+        int lastDotIndex = recipeName.lastIndexOf('.');
+        return lastDotIndex != -1 ? recipeName.substring(lastDotIndex + 1) : recipeName;
+    }
 
-                    /**
-                     * Logs a failure event to the modernization failures log file.
-                     * The log file name includes the last part of the recipe name and a timestamp.
-                     */
-                    private void logFailure() {
-                        String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
-                        Path failureLogPath = createLogFilePath(MODERNIZATION_FAILURES_LOG_PREFIX + "_" + recipeName);
+    /**
+     * Logs a failure event to the modernization failures log file.
+     * The log file name includes the last part of the recipe name and a timestamp.
+     */
+    private void logFailure() {
+        String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
+        Path failureLogPath = createLogFilePath(MODERNIZATION_FAILURES_LOG_PREFIX + "_" + recipeName);
 
-                        ensureLogDirectoryExists(failureLogPath);
-                        try {
-                            List<String> existingEntries = Files.readAllLines(failureLogPath);
-                            if (!existingEntries.contains(name)) {
-                                Files.writeString(
-                                        failureLogPath,
-                                        name + ":" + getConfig().getVersion() + "\n",
-                                        java.nio.file.StandardOpenOption.CREATE,
-                                        java.nio.file.StandardOpenOption.APPEND);
-                            }
-                        } catch (IOException e) {
-                            LOG.error("Failed to write to failure log file: " + failureLogPath, e);
-                        }
-                    }
+        ensureLogDirectoryExists(failureLogPath);
+        try {
+            if (!Files.exists(failureLogPath)) {
+                Files.createFile(failureLogPath);
+            }
+            List<String> existingEntries = Files.readAllLines(failureLogPath);
+            if (!existingEntries.contains(name)) {
+                Files.writeString(
+                        failureLogPath,
+                        name + ":" + getConfig().getVersion() + "\n",
+                        java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to write to failure log file: " + failureLogPath, e);
+        }
+    }
 
-                    /**
-                     * Logs a network failure event to the network failures log file.
-                     * The log file name includes the last part of the recipe name and a timestamp.
-                     *
-                     * @param message The network failure message
-                     */
-                    public void logNetworkFailure(String message) {
-                        String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
-                        Path networkFailureLogPath = createLogFilePath(NETWORK_FAILURES_LOG_PREFIX + "_" + recipeName);
+    /**
+     * Logs a network failure event to the network failures log file.
+     * The log file name includes the last part of the recipe name and a timestamp.
+     *
+     * @param message The network failure message
+     */
+    public void logNetworkFailure(String message) {
+        String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
+        Path networkFailureLogPath = createLogFilePath(NETWORK_FAILURES_LOG_PREFIX + "_" + recipeName);
 
-                        ensureLogDirectoryExists(networkFailureLogPath);
-                        try {
-                            Files.writeString(
-                                    networkFailureLogPath,
-                                    name + ": " + message + "\n",
-                                    java.nio.file.StandardOpenOption.CREATE,
-                                    java.nio.file.StandardOpenOption.APPEND);
-                        } catch (IOException e) {
-                            LOG.error("Failed to write to network failure log file: " + networkFailureLogPath, e);
-                        }
-                    }
+        ensureLogDirectoryExists(networkFailureLogPath);
+        try {
+            Files.writeString(
+                    networkFailureLogPath,
+                    name + ": " + message + "\n",
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            LOG.error("Failed to write to network failure log file: " + networkFailureLogPath, e);
+        }
+    }
 
     /**
      * Raise the last error as exception to the plugin
