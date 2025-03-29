@@ -27,7 +27,7 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
                 spec -> spec.recipe(new ReplaceLibrariesWithApiPlugin(
                         "io.jenkins.plugins",
                         "asm-api",
-                        "9.7.1-97.v4cc844130d97",
+                        "9.7.1-129.vf5618e98eed1",
                         Set.of(
                                 new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm"),
                                 new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-analysis"),

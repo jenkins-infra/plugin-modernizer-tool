@@ -2864,7 +2864,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>asm-api</artifactId>
-                      <version>9.7.1-97.v4cc844130d97</version>
+                      <version>9.7.1-129.vf5618e98eed1</version>
                     </dependency>
                   </dependencies>
                   <repositories>
