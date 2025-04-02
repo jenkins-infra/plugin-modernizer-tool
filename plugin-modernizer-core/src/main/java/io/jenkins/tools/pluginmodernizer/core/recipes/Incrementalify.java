@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 public class Incrementalify extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(Incrementalify.class);
-    private Invoker invoker;
-    private boolean skipM2HomeCheck = false;
+    private final Invoker invoker;
+    private final boolean skipM2HomeCheck = false;
 
     public Incrementalify() {
         this.invoker = new DefaultInvoker();
@@ -24,7 +24,7 @@ public class Incrementalify extends Recipe {
 
     @Override
     public @NotNull String getDisplayName() {
-        return "Incrementalify Recipe";
+        return "Incrementalify recipe";
     }
 
     @Override
