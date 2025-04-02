@@ -15,6 +15,7 @@ public class IncrementalifyRecipe extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(IncrementalifyRecipe.class);
     private Invoker invoker;
+    private boolean skipM2HomeCheck = false;
 
     public IncrementalifyRecipe() {
         this.invoker = new DefaultInvoker();
@@ -23,6 +24,11 @@ public class IncrementalifyRecipe extends Recipe {
     // For testing purposes only
     void setInvokerForTesting(Invoker invoker) {
         this.invoker = invoker;
+    }
+
+    // For testing purposes only
+    void setSkipM2HomeCheckForTesting(boolean skipM2HomeCheck) {
+        this.skipM2HomeCheck = skipM2HomeCheck;
     }
 
     @Override
@@ -48,7 +54,7 @@ public class IncrementalifyRecipe extends Recipe {
                     // Capture output for logging
                     StringBuilderOutputHandler outputHandler = new StringBuilderOutputHandler();
                     request.setOutputHandler(outputHandler);
-                    if (IncrementalifyRecipe.this.invoker instanceof DefaultInvoker) {
+                    if (IncrementalifyRecipe.this.invoker instanceof DefaultInvoker && !skipM2HomeCheck) {
                         String m2Home = System.getenv("M2_HOME");
                         if (m2Home == null || m2Home.isEmpty()) {
                             LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
