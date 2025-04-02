@@ -16,7 +16,7 @@ public class Incrementalify extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(Incrementalify.class);
     private final Invoker invoker;
-    private final boolean skipM2HomeCheck = false;
+    private static final boolean skipM2HomeCheck = false;
 
     public Incrementalify() {
         this.invoker = new DefaultInvoker();
