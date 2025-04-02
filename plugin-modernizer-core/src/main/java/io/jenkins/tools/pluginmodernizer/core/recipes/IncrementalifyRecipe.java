@@ -31,6 +31,36 @@ public class IncrementalifyRecipe extends Recipe {
         this.skipM2HomeCheck = skipM2HomeCheck;
     }
 
+    // For testing purposes only - directly execute Maven command on a file
+    public void executeOnPomFile(File pomFile) throws MavenInvocationException {
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setPomFile(pomFile);
+        request.setGoals(Collections.singletonList("incrementals:incrementalify"));
+        StringBuilderOutputHandler outputHandler = new StringBuilderOutputHandler();
+        request.setOutputHandler(outputHandler);
+
+        if (this.invoker instanceof DefaultInvoker && !skipM2HomeCheck) {
+            String m2Home = System.getenv("M2_HOME");
+            if (m2Home == null || m2Home.isEmpty()) {
+                LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
+                return;
+            }
+            ((DefaultInvoker) this.invoker).setMavenHome(new File(m2Home));
+        }
+
+        InvocationResult result = invoker.execute(request);
+
+        if (result.getExitCode() != 0) {
+            LOG.error(
+                    "Maven build failed with exit code {}: {}",
+                    result.getExitCode(),
+                    outputHandler.getOutput());
+            throw new IllegalStateException("Maven build failed with exit code " + result.getExitCode()
+                    + ". See logs for details.");
+        }
+        LOG.debug("Maven output: {}", outputHandler.getOutput());
+    }
+
     @Override
     public String getDisplayName() {
         return "Incrementalify Recipe";
@@ -46,6 +76,7 @@ public class IncrementalifyRecipe extends Recipe {
         return new MavenIsoVisitor<ExecutionContext>() {
             @Override
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext ctx) {
+                LOG.info("Visiting document with path: {}", document.getSourcePath());
                 try {
                     InvocationRequest request = new DefaultInvocationRequest();
                     // Use the actual path of the document being processed
