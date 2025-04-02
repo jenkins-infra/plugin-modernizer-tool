@@ -2,13 +2,10 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
@@ -17,13 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.openrewrite.ExecutionContext;
-import org.openrewrite.InMemoryExecutionContext;
-import org.openrewrite.RecipeRun;
-import org.openrewrite.SourceFile;
-import org.openrewrite.internal.InMemoryLargeSourceSet;
-import org.openrewrite.maven.MavenParser;
-import org.openrewrite.xml.tree.Xml;
 
 public class IncrementalifyRecipeTest {
 
