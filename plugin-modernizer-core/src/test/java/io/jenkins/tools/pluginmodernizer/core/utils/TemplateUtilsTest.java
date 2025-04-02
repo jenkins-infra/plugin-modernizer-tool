@@ -621,4 +621,42 @@ public class TemplateUtilsTest {
         assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
         assertTrue(result.contains("org.jsoup:jsoup"), "Missing org.jsoup:jsoup dependency section");
     }
+
+    @Test
+    public void testFriendlyPrTitleMigrateToJUnit5() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateToJUnit5")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("refactor(tests): Migrate tests to JUnit 5", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyMigrateToJUnit5() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateToJUnit5")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Just ensure it's using some key overall text
+        assertTrue(
+                result.contains("This PR aims to migrate all tests to JUnit 5. Changes include:"),
+                "Missing This PR aims to migrate all tests to JUnit 5. Changes include: section");
+    }
 }

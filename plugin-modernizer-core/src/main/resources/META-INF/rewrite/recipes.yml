@@ -106,6 +106,34 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.MigrateToJUnit5
+displayName: Migrate to JUnit 5
+description: Migrate tests to JUnit5.
+tags: ['migration', 'testing']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AnnotateWithJenkins  
+  - org.openrewrite.java.testing.junit5.UpdateTestAnnotation
+  - org.openrewrite.java.testing.junit5.UpdateBeforeAfterAnnotations
+  - org.openrewrite.java.ChangeType:  #org.openrewrite.java.testing.junit5.IgnoreToDisabled
+      oldFullyQualifiedTypeName: org.junit.Ignore
+      newFullyQualifiedTypeName: org.junit.jupiter.api.Disabled
+  - org.openrewrite.java.testing.junit5.TemporaryFolderToTempDir
+  - org.openrewrite.java.testing.junit5.AssertToAssertions
+  - org.openrewrite.java.testing.junit5.AssertThrowsOnLastStatement
+  - org.openrewrite.java.testing.junit5.ExpectedExceptionToAssertThrows
+  - org.openrewrite.java.testing.junit5.AssertTrueInstanceofToAssertInstanceOf
+  - org.openrewrite.java.testing.junit5.RemoveTryCatchFailBlocks
+  - org.openrewrite.java.ChangeMethodTargetToStatic: #org.openrewrite.java.testing.junit5.UseHamcrestAssertThat
+      methodPattern: org.junit.Assert assertThat(..)
+      fullyQualifiedTargetTypeName: org.hamcrest.MatcherAssert
+  - org.openrewrite.java.UseStaticImport:
+      methodPattern: org.hamcrest.MatcherAssert assertThat(..)
+  - org.openrewrite.java.UseStaticImport: #org.openrewrite.java.testing.junit5.StaticImports
+      methodPattern: org.junit.jupiter.api.Assertions *(..)
+  - org.openrewrite.java.testing.junit5.AddMissingTestBeforeAfterAnnotations
+  - org.openrewrite.java.testing.cleanup.TestsShouldNotBePublic
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
 displayName: Migrate pom to using jenkins.baseline property if bom is present
 description: Migrate pom to using jenkins.baseline property if bom is present.
@@ -297,7 +325,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: joda-time-api
-      pluginVersion: 2.13.1-115.va_6b_5f8efb_1d8
+      pluginVersion: 2.14.0-127.v7d9da_295a_d51
       replaces:
         - groupId: joda-time
           artifactId: joda-time
@@ -380,7 +408,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: byte-buddy-api
-      pluginVersion: 1.17.4-143.v073fb_7026b_3c
+      pluginVersion: 1.17.5-147.v9ce9318b_4ce8
       replaces:
         - groupId: net.bytebuddy
           artifactId: byte-buddy
