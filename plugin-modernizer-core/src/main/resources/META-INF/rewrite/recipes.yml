@@ -586,4 +586,4 @@ displayName: Enable incrementals
 description: Jenkins evaluation of pull request builds is faster and easier when incremental builds are enabled.
 tags: ['chore', 'incrementals']
 recipeList:
-  - io.jenkins.tools.pluginmodernizer.core.recipes.IncrementalifyRecipe
+  - io.jenkins.tools.pluginmodernizer.core.recipes.Incrementalify
