@@ -3,6 +3,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 import java.io.File;
 import java.util.Collections;
 import org.apache.maven.shared.invoker.*;
+import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
@@ -21,55 +22,18 @@ public class Incrementalify extends Recipe {
         this.invoker = new DefaultInvoker();
     }
 
-    // For testing purposes only
-    void setInvokerForTesting(Invoker invoker) {
-        this.invoker = invoker;
-    }
-
-    // For testing purposes only
-    void setSkipM2HomeCheckForTesting(boolean skipM2HomeCheck) {
-        this.skipM2HomeCheck = skipM2HomeCheck;
-    }
-
-    // For testing purposes only - directly execute Maven command on a file
-    public void executeOnPomFile(File pomFile) throws MavenInvocationException {
-        InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile(pomFile);
-        request.setGoals(Collections.singletonList("incrementals:incrementalify"));
-        StringBuilderOutputHandler outputHandler = new StringBuilderOutputHandler();
-        request.setOutputHandler(outputHandler);
-
-        if (this.invoker instanceof DefaultInvoker && !skipM2HomeCheck) {
-            String m2Home = System.getenv("M2_HOME");
-            if (m2Home == null || m2Home.isEmpty()) {
-                LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
-                return;
-            }
-            ((DefaultInvoker) this.invoker).setMavenHome(new File(m2Home));
-        }
-
-        InvocationResult result = invoker.execute(request);
-
-        if (result.getExitCode() != 0) {
-            LOG.error("Maven build failed with exit code {}: {}", result.getExitCode(), outputHandler.getOutput());
-            throw new IllegalStateException(
-                    "Maven build failed with exit code " + result.getExitCode() + ". See logs for details.");
-        }
-        LOG.debug("Maven output: {}", outputHandler.getOutput());
-    }
-
     @Override
-    public String getDisplayName() {
+    public @NotNull String getDisplayName() {
         return "Incrementalify Recipe";
     }
 
     @Override
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return "Runs the `mvn incrementals:incrementalify` command to enable incrementals.";
     }
 
     @Override
-    public TreeVisitor<?, ExecutionContext> getVisitor() {
+    public @NotNull TreeVisitor<?, ExecutionContext> getVisitor() {
         return new MavenIsoVisitor<ExecutionContext>() {
             @Override
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext ctx) {
