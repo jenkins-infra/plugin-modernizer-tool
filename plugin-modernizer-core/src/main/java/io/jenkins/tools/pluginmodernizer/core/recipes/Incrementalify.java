@@ -11,13 +11,13 @@ import org.openrewrite.xml.tree.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IncrementalifyRecipe extends Recipe {
+public class Incrementalify extends Recipe {
 
-    private static final Logger LOG = LoggerFactory.getLogger(IncrementalifyRecipe.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Incrementalify.class);
     private Invoker invoker;
     private boolean skipM2HomeCheck = false;
 
-    public IncrementalifyRecipe() {
+    public Incrementalify() {
         this.invoker = new DefaultInvoker();
     }
 
@@ -82,13 +82,13 @@ public class IncrementalifyRecipe extends Recipe {
                     // Capture output for logging
                     StringBuilderOutputHandler outputHandler = new StringBuilderOutputHandler();
                     request.setOutputHandler(outputHandler);
-                    if (IncrementalifyRecipe.this.invoker instanceof DefaultInvoker && !skipM2HomeCheck) {
+                    if (Incrementalify.this.invoker instanceof DefaultInvoker && !skipM2HomeCheck) {
                         String m2Home = System.getenv("M2_HOME");
                         if (m2Home == null || m2Home.isEmpty()) {
                             LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
                             return document;
                         }
-                        ((DefaultInvoker) IncrementalifyRecipe.this.invoker).setMavenHome(new File(m2Home));
+                        ((DefaultInvoker) Incrementalify.this.invoker).setMavenHome(new File(m2Home));
                     }
                     InvocationResult result = invoker.execute(request);
 
