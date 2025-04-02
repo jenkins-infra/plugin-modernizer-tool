@@ -581,9 +581,9 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureIndexJelly
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: io.jenkins.tools.pluginmodernizer.IncrementalifyRecipe
-displayName: Incrementalify Recipe
-description: Runs the `mvn incrementals:incrementalify` command to enable incrementals.
+name: io.jenkins.tools.pluginmodernizer.Incrementalify
+displayName: Enable incrementals
+description: Jenkins evaluation of pull request builds is faster and easier when incremental builds are enabled.
 tags: ['chore', 'incrementals']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.IncrementalifyRecipe
