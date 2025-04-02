@@ -15,7 +15,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-public class IncrementalifyRecipeTest {
+public class IncrementalifyTest {
 
     @TempDir
     Path tempDir;
@@ -41,7 +41,7 @@ public class IncrementalifyRecipeTest {
         assertDoesNotThrow(() -> java.nio.file.Files.writeString(finalPomPath, pomXml));
 
         // Create and configure the recipe
-        IncrementalifyRecipe recipe = new IncrementalifyRecipe();
+        Incrementalify recipe = new Incrementalify();
         // Skip M2_HOME check for testing
         recipe.setSkipM2HomeCheckForTesting(true);
 
