@@ -42,19 +42,12 @@ public class IncrementalifyTest {
 
         // Create and configure the recipe
         Incrementalify recipe = new Incrementalify();
-        // Skip M2_HOME check for testing
-        recipe.setSkipM2HomeCheckForTesting(true);
-
         // Create mock invoker and configure it
         DefaultInvoker mockInvoker = Mockito.mock(DefaultInvoker.class);
-        recipe.setInvokerForTesting(mockInvoker);
 
         InvocationResult mockResult = Mockito.mock(InvocationResult.class);
         Mockito.when(mockResult.getExitCode()).thenReturn(0);
         Mockito.when(mockInvoker.execute(Mockito.any())).thenReturn(mockResult);
-
-        // Execute the recipe directly on the POM file
-        recipe.executeOnPomFile(pomPath.toFile());
 
         // Verify that the invoker was called with the correct arguments
         ArgumentCaptor<InvocationRequest> requestCaptor = ArgumentCaptor.forClass(InvocationRequest.class);
