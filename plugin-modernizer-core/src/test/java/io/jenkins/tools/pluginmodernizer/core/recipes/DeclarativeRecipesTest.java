@@ -2082,6 +2082,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         java(
                                 """
                                 import javax.servlet.ServletException;
+                                import com.gargoylesoftware.htmlunit.HttpMethod;
+                                import com.gargoylesoftware.htmlunit.WebRequest;
+                                import com.gargoylesoftware.htmlunit.html.HtmlPage;
                                 import org.kohsuke.stapler.Stapler;
                                 import org.kohsuke.stapler.StaplerRequest;
                                 import org.kohsuke.stapler.StaplerResponse;
@@ -2093,7 +2096,23 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         StaplerResponse response = Stapler.getCurrentResponse();
                                     }
                                 }
-                                """)));
+                                """,
+                                """
+                                import javax.servlet.ServletException;
+                                import org.htmlunit.HttpMethod;
+                                import org.htmlunit.WebRequest;
+                                import org.htmlunit.html.HtmlPage;
+                                import org.kohsuke.stapler.Stapler;
+                                import org.kohsuke.stapler.StaplerRequest;
+                                import org.kohsuke.stapler.StaplerResponse;
+                                import hudson.util.ChartUtil;
+
+                                public class Foo {
+                                    public void foo() {
+                                        StaplerRequest req = Stapler.getCurrentRequest();
+                                        StaplerResponse response = Stapler.getCurrentResponse();
+                                    }
+                                }""")));
     }
 
     @Test
@@ -2845,7 +2864,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>asm-api</artifactId>
-                      <version>9.7.1-97.v4cc844130d97</version>
+                      <version>9.7.1-129.vf5618e98eed1</version>
                     </dependency>
                   </dependencies>
                   <repositories>
@@ -2955,6 +2974,168 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 </project>
                 """
                                 .formatted(Settings.getPluginVersion("commons-compress-api"))));
+    }
+
+    @Test
+    void migrateToJUnit5() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.MigrateToJUnit5")
+                            .parser(parser)
+                            .expectedCyclesThatMakeChanges(1)
+                            .cycles(1);
+                },
+                // language=java
+                java(
+                        """
+                import org.junit.Before;
+                import org.junit.After;
+                import org.junit.Test;
+                import org.junit.Rule;
+                import org.jvnet.hudson.test.JenkinsRule;
+                import org.junit.Ignore;
+                import org.junit.Assert;
+                import org.hamcrest.Matchers;
+                import org.junit.rules.TemporaryFolder;
+                import java.io.File;
+
+                public class MyTest {
+                    @Rule
+                    public JenkinsRule j = new JenkinsRule();
+                    private TemporaryFolder tempFolder;
+
+                    @Test
+                    public void useJenkinsRule(String str) {
+                        j.before();
+                    }
+
+                    @Before
+                    public void setUp() throws Exception {
+                        tempFolder = new TemporaryFolder();
+                        tempFolder.create();
+                    }
+
+                    @After
+                    public void tearDown() {
+                        tempFolder.delete();
+                    }
+
+                    @Test
+                    public void testSomething() throws Exception {
+                        File tempFile = tempFolder.newFile("test.txt");
+                        Assert.assertTrue("File should exist", tempFile.exists());
+                        Assert.assertEquals(0, tempFile.length());
+                    }
+
+                    @Test
+                    public void testInstanceOf() {
+                        Object obj = new String();
+                        Assert.assertTrue(obj instanceof java.lang.String);
+                    }
+
+                    @Test(expected = IllegalArgumentException.class)
+                    public void testException() {
+                        throw new IllegalArgumentException("Expected");
+                    }
+
+                    @Test
+                    public void testNoException() {
+                        try {
+                            //someMethodThatShouldNotThrow();
+                        } catch (Exception e) {
+                            Assert.fail("Should not throw exception");
+                        }
+                    }
+
+                    @Test
+                    public void testEquality() {
+                        String actual = "hello";
+                        String expected = "hello";
+                        Assert.assertThat(actual, Matchers.equalTo(expected));
+                    }
+
+                    @Ignore
+                    @Test
+                    public void ignoredTest() {
+                        Assert.fail("This should not run");
+                    }
+                }
+                """,
+                        """
+                import org.junit.jupiter.api.*;
+                import org.jvnet.hudson.test.JenkinsRule;
+                import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+                import org.hamcrest.Matchers;
+                import java.io.File;
+
+                import static org.hamcrest.MatcherAssert.assertThat;
+                import static org.junit.jupiter.api.Assertions.*;
+
+                @WithJenkins
+
+                class MyTest {
+                    private File tempFolder;
+
+                    @Test
+                    public void useJenkinsRule(String str, JenkinsRule j) {
+                        j.before();
+                    }
+
+                    @BeforeEach
+                    void setUp() throws Exception {
+                        tempFolder = new File();
+                    }
+
+                    @AfterEach
+                    void tearDown() {
+                        tempFolder.delete();
+                    }
+
+                    @Test
+                    void testSomething() throws Exception {
+                        File tempFile = File.createTempFile("test.txt", null, tempFolder);
+                        assertTrue(tempFile.exists(), "File should exist");
+                        assertEquals(0, tempFile.length());
+                    }
+
+                    @Test
+                    void testInstanceOf() {
+                        Object obj = new String();
+                        assertInstanceOf(java.lang.String.class, obj);
+                    }
+
+                    @Test
+                    void testException() {
+                        assertThrows(IllegalArgumentException.class, () -> {
+                            throw new IllegalArgumentException("Expected");
+                        });
+                    }
+
+                    @Test
+                    void testNoException() {
+                        assertDoesNotThrow(() -> {
+                            //someMethodThatShouldNotThrow();
+                        }, "Should not throw exception");
+                    }
+
+                    @Test
+                    void testEquality() {
+                        String actual = "hello";
+                        String expected = "hello";
+                        assertThat(actual, Matchers.equalTo(expected));
+                    }
+
+                    @Disabled
+                    @Test
+                    void ignoredTest() {
+                        fail("This should not run");
+                    }
+                }
+                """));
     }
 
     @Test

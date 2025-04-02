@@ -497,13 +497,13 @@ public class PluginModernizer {
                             plugin.getName(),
                             plugin.getMetadata().getLocation().toAbsolutePath());
                 } else if (config.isDryRun()) {
-                    LOG.info("Dry run mode. Changes were made on " + plugin.getLocalRepository() + " but not commited");
+                    LOG.info("Dry run mode. Changes were made on " + plugin.getLocalRepository() + " but not committed");
                     printModifiedFiles(plugin);
                 } else if (plugin.isLocal()) {
                     LOG.info("Changes were made on " + plugin.getLocalRepository());
                     printModifiedFiles(plugin);
                 } else if (!plugin.hasErrors()) {
-                    // Change were made
+                    //Changes were made
                     LOG.info("Pull request was open on "
                             + plugin.getRemoteRepository(this.ghService).getHtmlUrl());
                     printModifiedFiles(plugin);
@@ -515,7 +515,7 @@ public class PluginModernizer {
 
     private void printModifiedFiles(Plugin plugin) {
         if (plugin.getModifiedFiles().isEmpty()) {
-            LOG.info("Recipe didn't made any changes");
+            LOG.info("Recipe didn't make any change.");
             return;
         }
         for (String modification : plugin.getModifiedFiles()) {

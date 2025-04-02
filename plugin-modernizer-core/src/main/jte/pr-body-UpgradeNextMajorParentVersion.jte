@@ -39,13 +39,13 @@ Removing the `developers` tag aligns with modern Jenkins infrastructure standard
 #### JEP-227: Replace Acegi Security with Spring Security
 
 Migrating Jenkins plugin code from Acegi Security to Spring Security is important for several reasons:
- - **Security updates**: Spring Security is the modern, actively maintained [successor to Acegi Security](https://github.com/jenkinsci/jep/blob/master/jep/227/README.adoc), providing up-to-date security features and patches.
- - **Compatibility**: Jenkins core version 2.266 and later have replaced Acegi Security with Spring Security, so plugins need to be updated to remain compatible with newer Jenkins versions.
- - **Eliminating false positives**: Security scanners often flag the outdated Acegi Security library as vulnerable, causing unnecessary concerns and exemption requests in security-conscious organizations.
- - **Reducing technical debt**: The Acegi Security code in Jenkins was written over 13 years ago and has barely been touched since, making it difficult to maintain and understand.
+- **Security updates**: Spring Security is the modern, actively maintained [successor to Acegi Security](https://github.com/jenkinsci/jep/blob/master/jep/227/README.adoc), providing up-to-date security features and patches.
+- **Compatibility**: Jenkins core version 2.266 and later have replaced Acegi Security with Spring Security, so plugins need to be updated to remain compatible with newer Jenkins versions.
+- **Eliminating false positives**: Security scanners often flag the outdated Acegi Security library as vulnerable, causing unnecessary concerns and exemption requests in security-conscious organizations.
+- **Reducing technical debt**: The Acegi Security code in Jenkins was written over 13 years ago and has barely been touched since, making it difficult to maintain and understand.
 - **Access to modern features**: Spring Security offers more current security implementations and features that weren't available in Acegi Security.
- - **Community support**: With the Jenkins ecosystem moving to Spring Security, plugins using the newer library will benefit from better community support and compatibility with other plugins.
- - **Simplified API**: The migration offers an opportunity to introduce a new simplified security API in Jenkins, potentially making it easier for plugin developers to work with security-related functions.
+- **Community support**: With the Jenkins ecosystem moving to Spring Security, plugins using the newer library will benefit from better community support and compatibility with other plugins.
+- **Simplified API**: The migration offers an opportunity to introduce a new simplified security API in Jenkins, potentially making it easier for plugin developers to work with security-related functions.
 
 By migrating to Spring Security, plugin developers ensure their code remains compatible with current Jenkins versions, benefit from modern security features, and contribute to a more secure and maintainable Jenkins ecosystem.
 

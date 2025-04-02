@@ -66,7 +66,10 @@ mvn clean install
 
 ### Using the tool
 
-The CLI is distributed by Homebrew and can be installed using the following command
+
+The CLI is distributed by Homebrew and Scoop and it can be installed using the following command
+
+1) Using Homebrew
 
 Install Homebrew if you don't have it already:
 
@@ -84,6 +87,25 @@ Then install the plugin-modernizer-tool
 
 ```
 brew install plugin-modernizer
+```
+2) Using Scoop
+
+Install [Scoop](https://github.com/ScoopInstaller/Install) if you don't have it already:
+
+```
+irm get.scoop.sh | iex
+```
+
+Ensure to Add this Bucket to Scoop
+
+```
+scoop bucket add jenkins-infra https://github.com/jenkins-infra/scoop-bucket.git
+```
+
+Then install the plugin-modernizer-tool
+
+```
+scoop install plugin-modernizer
 ```
 
 ### Setup
