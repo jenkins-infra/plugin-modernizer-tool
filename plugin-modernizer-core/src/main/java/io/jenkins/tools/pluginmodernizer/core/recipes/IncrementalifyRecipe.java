@@ -51,12 +51,9 @@ public class IncrementalifyRecipe extends Recipe {
         InvocationResult result = invoker.execute(request);
 
         if (result.getExitCode() != 0) {
-            LOG.error(
-                    "Maven build failed with exit code {}: {}",
-                    result.getExitCode(),
-                    outputHandler.getOutput());
-            throw new IllegalStateException("Maven build failed with exit code " + result.getExitCode()
-                    + ". See logs for details.");
+            LOG.error("Maven build failed with exit code {}: {}", result.getExitCode(), outputHandler.getOutput());
+            throw new IllegalStateException(
+                    "Maven build failed with exit code " + result.getExitCode() + ". See logs for details.");
         }
         LOG.debug("Maven output: {}", outputHandler.getOutput());
     }
