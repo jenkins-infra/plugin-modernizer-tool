@@ -460,7 +460,60 @@ public class Plugin {
                         String extractedVersion =
                                 xpath.compile("/project/version").evaluate(doc);
                         if (extractedVersion != null && !extractedVersion.isEmpty()) {
-                            version = extractedVersion;
+                            // Check if the version contains property placeholders like ${changelist}
+                            if (extractedVersion.contains("${")) {
+                                try {
+                                    // Find all property placeholders in the format ${property}
+                                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\$\\{([^}]+)\\}");
+                                    java.util.regex.Matcher matcher = pattern.matcher(extractedVersion);
+
+                                    StringBuffer result = new StringBuffer();
+                                    while (matcher.find()) {
+                                        String propertyName = matcher.group(1);
+                                        String propertyValue = null;
+
+                                        // Try to find the property in the POM
+                                        try {
+                                            // First check in properties section
+                                            propertyValue = xpath.compile("/project/properties/" + propertyName).evaluate(doc);
+
+                                            // If not found, check if it's a project property
+                                            if (propertyValue == null || propertyValue.isEmpty()) {
+                                                if ("project.version".equals(propertyName)) {
+                                                    propertyValue = xpath.compile("/project/version").evaluate(doc);
+                                                } else if ("project.groupId".equals(propertyName)) {
+                                                    propertyValue = xpath.compile("/project/groupId").evaluate(doc);
+                                                } else if ("project.artifactId".equals(propertyName)) {
+                                                    propertyValue = xpath.compile("/project/artifactId").evaluate(doc);
+                                                }
+                                            }
+
+                                            // If still not found, check for common values
+                                            if (propertyValue == null || propertyValue.isEmpty()) {
+                                                if ("changelist".equals(propertyName)) {
+                                                    propertyValue = "-SNAPSHOT"; // Common convention
+                                                } else if ("sha1".equals(propertyName)) {
+                                                    propertyValue = ""; // Often empty in local builds
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            LOG.debug("Error resolving property {}: {}", propertyName, e.getMessage());
+                                        }
+
+                                        // Replace the property placeholder with its value or keep it if not found
+                                        matcher.appendReplacement(result, propertyValue != null ? propertyValue : matcher.group(0));
+                                    }
+                                    matcher.appendTail(result);
+
+                                    version = result.toString();
+                                } catch (Exception e) {
+                                    LOG.debug("Failed to resolve version properties: {}", e.getMessage());
+                                    version = extractedVersion; // Use the original version if resolution fails
+                                }
+                            } else {
+                                version = extractedVersion;
+                            }
+
                             // Also update the metadata if it exists
                             if (this.metadata != null) {
                                 this.metadata.setVersion(version);
