@@ -457,8 +457,13 @@ public class Plugin {
 
                         XPathFactory xPathFactory = XPathFactory.newInstance();
                         XPath xpath = xPathFactory.newXPath();
-                        String extractedVersion =
-                                xpath.compile("/project/version").evaluate(doc);
+                        String extractedVersion;
+                        try {
+                            extractedVersion = xpath.compile("/project/version").evaluate(doc);
+                        } catch (XPathExpressionException e) {
+                            LOG.debug("Error evaluating XPath for version: {}", e.getMessage());
+                            extractedVersion = ""; // Set to empty string on error
+                        }
                         if (extractedVersion != null && !extractedVersion.isEmpty()) {
                             // Check if the version contains property placeholders like ${changelist}
                             if (extractedVersion.contains("${")) {
