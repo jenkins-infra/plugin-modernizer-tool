@@ -123,6 +123,7 @@ public class Plugin {
 
     /**
      * Build a minimal plugin object with name
+     *
      * @param name Name of the plugin
      * @return Plugin object
      */
@@ -132,7 +133,8 @@ public class Plugin {
 
     /**
      * Build a local plugin object with name and location
-     * @param name Name of the plugin
+     *
+     * @param name     Name of the plugin
      * @param location Location of the plugin
      * @return Plugin object
      */
@@ -142,6 +144,7 @@ public class Plugin {
 
     /**
      * Set the config of the plugin
+     *
      * @param config The config
      * @return Plugin object
      */
@@ -152,6 +155,7 @@ public class Plugin {
 
     /**
      * Set the name of the plugin
+     *
      * @param name Name of the plugin
      * @return Plugin object
      */
@@ -162,6 +166,7 @@ public class Plugin {
 
     /**
      * Set the local flag of the plugin
+     *
      * @param local Local flag
      * @return Plugin object
      */
@@ -172,6 +177,7 @@ public class Plugin {
 
     /**
      * Set the local repository path of the plugin
+     *
      * @param localRepository Local repository path
      * @return Plugin object
      */
@@ -202,6 +208,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has commits to be pushed
+     *
      * @return Plugin object
      */
     public Plugin withCommits() {
@@ -211,6 +218,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has no commits to be pushed
+     *
      * @return Plugin object
      */
     public Plugin withoutCommits() {
@@ -220,6 +228,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has changes pushed and ready to be merged
+     *
      * @return Plugin object
      */
     public Plugin withChangesPushed() {
@@ -229,6 +238,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has no changes pushed and ready to be merged
+     *
      * @return Plugin object
      */
     public Plugin withoutChangesPushed() {
@@ -238,6 +248,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has a pull request open
+     *
      * @return Plugin object
      */
     public Plugin withPullRequest() {
@@ -247,6 +258,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has no pull request open
+     *
      * @return Plugin object
      */
     public Plugin withoutPullRequest() {
@@ -256,6 +268,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any commits
+     *
      * @return True if the plugin has commits
      */
     public boolean hasCommits() {
@@ -264,6 +277,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any changes pushed and ready to be merged
+     *
      * @return True if the plugin has changes pushed
      */
     public boolean hasChangesPushed() {
@@ -272,6 +286,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any changes pushed and ready to be merged
+     *
      * @return True if the plugin has changes pushed
      */
     public boolean hasPullRequest() {
@@ -280,6 +295,7 @@ public class Plugin {
 
     /**
      * Convenience method to check if the plugin is using Spotless
+     *
      * @return True if the plugin is using Spotless
      */
     public boolean isUsingSpotless() {
@@ -290,6 +306,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any errors
+     *
      * @return True if the plugin has errors
      */
     public boolean hasErrors() {
@@ -298,6 +315,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any precondition errors
+     *
      * @return True if the plugin has precondition errors
      */
     public boolean hasPreconditionErrors() {
@@ -308,6 +326,7 @@ public class Plugin {
 
     /**
      * Get the precondition errors of the plugin
+     *
      * @return Set of precondition errors
      */
     public Set<PreconditionError> getPreconditionErrors() {
@@ -326,6 +345,7 @@ public class Plugin {
 
     /**
      * Remove a precondition error from the metadata errors
+     *
      * @param preconditionError Precondition error to remove
      */
     public void removePreconditionError(PreconditionError preconditionError) {
@@ -339,6 +359,7 @@ public class Plugin {
 
     /**
      * Get the errors of the plugin
+     *
      * @return List of errors
      */
     public List<PluginProcessingException> getErrors() {
@@ -347,8 +368,9 @@ public class Plugin {
 
     /**
      * Add an error to the plugin
+     *
      * @param message The message
-     * @param e The exception
+     * @param e       The exception
      */
     public void addError(String message, Exception e) {
         LOG.error(getMarker(), message, e);
@@ -363,6 +385,7 @@ public class Plugin {
 
     /**
      * Add an error to the plugin
+     *
      * @param message The message
      */
     public void addError(String message) {
@@ -373,6 +396,7 @@ public class Plugin {
 
     /**
      * Create a log file path with the given prefix and current date
+     *
      * @param prefix The log file prefix
      * @return Path to the log file
      */
@@ -473,6 +497,7 @@ public class Plugin {
 
         ensureLogDirectoryExists(networkFailureLogPath);
         try {
+            // Network failures are logged without duplicate checking, as we want to track each occurrence
             Files.writeString(
                     networkFailureLogPath,
                     name + ": " + message + "\n",
@@ -503,6 +528,7 @@ public class Plugin {
 
     /**
      * Add a tag to the plugin
+     *
      * @param tag Tag to add
      * @return Plugin object
      */
@@ -513,6 +539,7 @@ public class Plugin {
 
     /**
      * Add tags to the plugin
+     *
      * @param tags Tags to add
      * @return Plugin object
      */
@@ -523,6 +550,7 @@ public class Plugin {
 
     /**
      * Remove tags from the plugin
+     *
      * @return Plugin object
      */
     public Plugin withoutTags() {
@@ -532,6 +560,7 @@ public class Plugin {
 
     /**
      * Remove errors from the plugin
+     *
      * @return Plugin object
      */
     public Plugin withoutErrors() {
@@ -541,6 +570,7 @@ public class Plugin {
 
     /**
      * Get the configuration of the plugin
+     *
      * @return Configuration
      */
     public Config getConfig() {
@@ -549,6 +579,7 @@ public class Plugin {
 
     /**
      * Get the name of the plugin
+     *
      * @return Name of the plugin
      */
     public String getName() {
@@ -557,6 +588,7 @@ public class Plugin {
 
     /**
      * Get the repository name of the plugin
+     *
      * @return Repository name of the plugin
      */
     public String getRepositoryName() {
@@ -565,6 +597,7 @@ public class Plugin {
 
     /**
      * Return if the plugin is local to the system
+     *
      * @return True if the plugin is local
      */
     public boolean isLocal() {
@@ -573,6 +606,7 @@ public class Plugin {
 
     /**
      * Get the local repository path
+     *
      * @return Local repository path
      */
     public Path getLocalRepository() {
@@ -585,6 +619,7 @@ public class Plugin {
 
     /**
      * Get the URI of the repository on the given organization
+     *
      * @param organization Organization name (e.g. jenkinsci)
      * @return URI of the repository
      */
@@ -594,6 +629,7 @@ public class Plugin {
 
     /**
      * Get the path of the JDK directory
+     *
      * @return Path of the JDK directory
      */
     public JDK getJDK() {
@@ -602,6 +638,7 @@ public class Plugin {
 
     /**
      * Get the path of the log file for the plugin
+     *
      * @return Path of the log file
      */
     public Path getLogFile() {
@@ -610,6 +647,7 @@ public class Plugin {
 
     /**
      * Get the login marker for the plugin
+     *
      * @return Marker object
      */
     public Marker getMarker() {
@@ -618,6 +656,7 @@ public class Plugin {
 
     /**
      * Ensures that the directories exist to store the logs.
+     *
      * @param logPath The path to check for the missing directories
      */
     private void ensureLogDirectoryExists(Path logPath) {
@@ -635,6 +674,7 @@ public class Plugin {
 
     /**
      * Get the list of tags for the plugin
+     *
      * @return List of tags
      */
     public Set<String> getTags() {
@@ -643,6 +683,7 @@ public class Plugin {
 
     /**
      * Execute maven clean on this plugin
+     *
      * @param maven The maven invoker instance
      */
     public void clean(MavenInvoker maven) {
@@ -651,6 +692,7 @@ public class Plugin {
 
     /**
      * Execute maven compile on this plugin. Compile is skipped if only metadata is required
+     *
      * @param maven The maven invoker instance
      */
     public void compile(MavenInvoker maven) {
@@ -671,8 +713,9 @@ public class Plugin {
     /**
      * Verify the plugin without tests and quick build using the given maven invoker and JDK.
      * This is useful to run recipes on very outdated plugin
+     *
      * @param maven The maven invoker instance
-     * @param jdk The JDK to use
+     * @param jdk   The JDK to use
      */
     public void verifyQuickBuild(MavenInvoker maven, JDK jdk) {
         LOG.info("Quick build without tests {} using with JDK {} ... Please be patient", name, jdk.getMajor());
@@ -685,6 +728,7 @@ public class Plugin {
 
     /**
      * Execute maven verify on this plugin
+     *
      * @param maven The maven invoker instance
      */
     public void verify(MavenInvoker maven) {
@@ -702,6 +746,7 @@ public class Plugin {
 
     /**
      * Format the plugin using spotless
+     *
      * @param maven The maven invoker instance
      */
     public void format(MavenInvoker maven) {
@@ -723,6 +768,7 @@ public class Plugin {
 
     /**
      * Enrich the metadata of the plugin and save it
+     *
      * @param pluginService The update center service
      */
     public void enrichMetadata(PluginService pluginService) {
@@ -738,6 +784,7 @@ public class Plugin {
 
     /**
      * Collect plugin metadata
+     *
      * @param maven The maven invoker instance
      */
     public void collectMetadata(MavenInvoker maven) {
@@ -771,6 +818,7 @@ public class Plugin {
 
     /**
      * Run the openrewrite plugin on this plugin
+     *
      * @param maven The maven invoker instance
      */
     public void runOpenRewrite(MavenInvoker maven) {
@@ -784,6 +832,7 @@ public class Plugin {
 
     /**
      * Fork this plugin
+     *
      * @param service The GitHub service
      */
     public void fork(GHService service) {
@@ -796,6 +845,7 @@ public class Plugin {
 
     /**
      * Fork sync this plugin
+     *
      * @param service The GitHub service
      */
     public void sync(GHService service) {
@@ -808,6 +858,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is forked
+     *
      * @param service The GitHub service
      */
     public boolean isForked(GHService service) {
@@ -816,6 +867,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is archived
+     *
      * @param service The GitHub service
      * @return True if the plugin is archived
      */
@@ -825,6 +877,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is deprecated in the update center
+     *
      * @param pluginService The update center service
      * @return True if the plugin is deprecated
      */
@@ -834,6 +887,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is deprecated in the update center
+     *
      * @return True if the plugin is deprecated
      */
     public boolean isDeprecated() {
@@ -842,6 +896,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is an API plugin
+     *
      * @param pluginService The update center service
      * @return True if the plugin is an API plugin
      */
@@ -851,6 +906,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is an API plugin
+     *
      * @return True if the plugin is an API plugin
      */
     public boolean isApiPlugin() {
@@ -859,7 +915,8 @@ public class Plugin {
 
     /**
      * Delete the plugin fork
-     * @param service  The GitHub service
+     *
+     * @param service The GitHub service
      */
     public void deleteFork(GHService service) {
         service.deleteFork(this);
@@ -867,6 +924,7 @@ public class Plugin {
 
     /**
      * Checkout the plugin branch
+     *
      * @param service The GitHub service
      */
     public void checkoutBranch(GHService service) {
@@ -875,6 +933,7 @@ public class Plugin {
 
     /**
      * Commit the changes to the plugin repository
+     *
      * @param service The GitHub service
      */
     public void commit(GHService service) {
@@ -883,6 +942,7 @@ public class Plugin {
 
     /**
      * Push the changes to the plugin repository
+     *
      * @param service The GitHub service
      */
     public void push(GHService service) {
@@ -891,6 +951,7 @@ public class Plugin {
 
     /**
      * Open a pull request for the plugin
+     *
      * @param service The GitHub service
      */
     public void openPullRequest(GHService service) {
@@ -899,6 +960,7 @@ public class Plugin {
 
     /**
      * Fetch the plugin code into local directory
+     *
      * @param service The GitHub service
      */
     public void fetch(GHService service) {
@@ -907,6 +969,7 @@ public class Plugin {
 
     /**
      * Get the associated repository for this plugin
+     *
      * @param service The GitHub service
      * @return The repository object
      */
@@ -916,6 +979,7 @@ public class Plugin {
 
     /**
      * Get the associated fork repository for this plugin
+     *
      * @param service The GitHub service
      * @return The repository object
      */
@@ -925,6 +989,7 @@ public class Plugin {
 
     /**
      * Get the metadata of the plugin
+     *
      * @return Plugin metadata
      */
     public PluginMetadata getMetadata() {
@@ -933,6 +998,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has metadata loaded in memory
+     *
      * @return True if the plugin has metadata loaded
      */
     public boolean hasMetadata() {
@@ -941,6 +1007,7 @@ public class Plugin {
 
     /**
      * Set the metadata of the plugin
+     *
      * @param metadata Plugin metadata
      */
     public void setMetadata(PluginMetadata metadata) {
@@ -949,6 +1016,7 @@ public class Plugin {
 
     /**
      * Load metadata from cache
+     *
      * @param cacheManager The cache manager
      */
     public void loadMetadata(CacheManager cacheManager) {
@@ -957,6 +1025,7 @@ public class Plugin {
 
     /**
      * Copy metadata from plugin target directory to cache
+     *
      * @param cacheManager The cache manager
      */
     public void copyMetadata(CacheManager cacheManager) {
@@ -974,6 +1043,7 @@ public class Plugin {
 
     /**
      * Add a modified file to the plugin
+     *
      * @param files The files to add
      */
     public void addModifiedFiles(Collection<String> files) {
@@ -982,6 +1052,7 @@ public class Plugin {
 
     /**
      * Return a set of modified files in the plugin
+     *
      * @return Set of modified files
      */
     public Set<String> getModifiedFiles() {
@@ -990,6 +1061,7 @@ public class Plugin {
 
     /**
      * Build cache manager for this plugin
+     *
      * @return Cache manager
      */
     private CacheManager buildPluginTargetDirectoryCacheManager() {
@@ -1004,6 +1076,7 @@ public class Plugin {
 
     /**
      * Static parse of the pom file to a XML document
+     *
      * @param pom The path to the pom file
      * @return The XML document
      */
