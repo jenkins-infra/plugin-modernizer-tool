@@ -486,9 +486,31 @@ public class Plugin {
                                         }
 
                                         try {
-                                            // First check in properties section - using a safe approach
-                                            propertyValue = xpath.compile("/project/properties/" + propertyName)
-                                                    .evaluate(doc);
+                                            // Use a completely safe approach with predefined XPath expressions
+                                            // Instead of dynamically constructing XPath expressions, use a fixed set
+                                            // This approach is immune to XPath injection
+                                            switch (propertyName) {
+                                                case "changelist":
+                                                    propertyValue = xpath.compile("/project/properties/changelist").evaluate(doc);
+                                                    break;
+                                                case "sha1":
+                                                    propertyValue = xpath.compile("/project/properties/sha1").evaluate(doc);
+                                                    break;
+                                                case "revision":
+                                                    propertyValue = xpath.compile("/project/properties/revision").evaluate(doc);
+                                                    break;
+                                                case "jenkins.version":
+                                                    propertyValue = xpath.compile("/project/properties/jenkins.version").evaluate(doc);
+                                                    break;
+                                                case "java.level":
+                                                    propertyValue = xpath.compile("/project/properties/java.level").evaluate(doc);
+                                                    break;
+                                                default:
+                                                    // For security reasons, we only support a whitelist of property names
+                                                    LOG.debug("Unsupported property name: {}", propertyName);
+                                                    propertyValue = "";
+                                                    break;
+                                            }
 
                                             // If not found, check if it's a project property
                                             if (propertyValue == null || propertyValue.isEmpty()) {
@@ -1198,7 +1220,32 @@ public class Plugin {
      */
     private boolean isValidMavenPropertyName(String propertyName) {
         // Maven property names should only contain alphanumeric characters, dots, hyphens, and underscores
-        return propertyName != null && propertyName.matches("^[\\w.-]+$");
+        // Use a very strict pattern to prevent any XPath injection
+        if (propertyName == null) {
+            return false;
+        }
+
+        // Check for common Maven property names first
+        if ("changelist".equals(propertyName)
+                || "sha1".equals(propertyName)
+                || "revision".equals(propertyName)
+                || "project.version".equals(propertyName)
+                || "project.groupId".equals(propertyName)
+                || "project.artifactId".equals(propertyName)) {
+            return true;
+        }
+
+        // Otherwise, use a very strict pattern
+        return propertyName.matches("^[a-zA-Z0-9][-_.a-zA-Z0-9]*$")
+                && !propertyName.contains("..")
+                && // Prevent path traversal
+                !propertyName.contains("/")
+                && // Prevent XPath manipulation
+                !propertyName.contains("\\")
+                && // Prevent escaping
+                !propertyName.contains("'")
+                && // Prevent quote injection
+                !propertyName.contains("\""); // Prevent quote injection
     }
 
     @Override
