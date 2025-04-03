@@ -96,6 +96,11 @@ public class PomResolutionVisitor extends MavenIsoVisitor<PluginMetadata> {
         pluginMetadata.setJenkinsVersion(
                 resolvedPom.getManagedVersion("org.jenkins-ci.main", "jenkins-core", null, null));
 
+        // Set the plugin version if not already set
+        if (pluginMetadata.getVersion() == null && pom.getVersion() != null) {
+            pluginMetadata.setVersion(pom.getVersion());
+        }
+
         return document;
     }
 
