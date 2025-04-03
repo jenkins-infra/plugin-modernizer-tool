@@ -2864,7 +2864,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>asm-api</artifactId>
-                      <version>9.7.1-129.vf5618e98eed1</version>
+                      <version>%s</version>
                     </dependency>
                   </dependencies>
                   <repositories>
@@ -2880,7 +2880,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     </pluginRepository>
                   </pluginRepositories>
                 </project>
-                """));
+                """
+                                .formatted(Settings.getPluginVersion("asm-api"))));
     }
 
     @Test

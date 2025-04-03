@@ -497,13 +497,14 @@ public class PluginModernizer {
                             plugin.getName(),
                             plugin.getMetadata().getLocation().toAbsolutePath());
                 } else if (config.isDryRun()) {
-                    LOG.info("Dry run mode. Changes were made on " + plugin.getLocalRepository() + " but not committed");
+                    LOG.info(
+                            "Dry run mode. Changes were made on " + plugin.getLocalRepository() + " but not committed");
                     printModifiedFiles(plugin);
                 } else if (plugin.isLocal()) {
                     LOG.info("Changes were made on " + plugin.getLocalRepository());
                     printModifiedFiles(plugin);
                 } else if (!plugin.hasErrors()) {
-                    //Changes were made
+                    // Changes were made
                     LOG.info("Pull request was open on "
                             + plugin.getRemoteRepository(this.ghService).getHtmlUrl());
                     printModifiedFiles(plugin);
