@@ -411,10 +411,44 @@ public class Plugin {
                 Files.createFile(failureLogPath);
             }
             Set<String> existingEntries = new HashSet<>(Files.readAllLines(failureLogPath));
-            String entry = name + ":"
-                    + (this.metadata != null && this.metadata.getVersion() != null
-                            ? this.metadata.getVersion()
-                            : "unknown");
+            // Try to get the version from metadata or directly from pom.xml
+            String version = "unknown";
+            if (this.metadata != null && this.metadata.getVersion() != null) {
+                version = this.metadata.getVersion();
+            } else {
+                // Try to extract version directly from pom.xml
+                try {
+                    Path pomPath = getLocalRepository().resolve("pom.xml");
+                    if (Files.exists(pomPath)) {
+                        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                        dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                        dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                        dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                        dbFactory.setXIncludeAware(false);
+                        dbFactory.setExpandEntityReferences(false);
+                        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                        Document doc = dBuilder.parse(pomPath.toFile());
+                        doc.getDocumentElement().normalize();
+
+                        XPathFactory xPathFactory = XPathFactory.newInstance();
+                        XPath xpath = xPathFactory.newXPath();
+                        String extractedVersion =
+                                xpath.compile("/project/version").evaluate(doc);
+                        if (extractedVersion != null && !extractedVersion.isEmpty()) {
+                            version = extractedVersion;
+                            // Also update the metadata if it exists
+                            if (this.metadata != null) {
+                                this.metadata.setVersion(version);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.debug("Failed to extract version from pom.xml", e);
+                }
+            }
+
+            String entry = name + ":" + version;
             if (!existingEntries.contains(entry)) {
                 Files.writeString(
                         failureLogPath,
