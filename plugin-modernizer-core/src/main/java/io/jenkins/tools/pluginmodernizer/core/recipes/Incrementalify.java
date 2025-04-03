@@ -1,8 +1,9 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import io.jenkins.tools.pluginmodernizer.core.impl.MavenInvoker;
-import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
-import jakarta.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
@@ -24,9 +25,6 @@ public class Incrementalify extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(Incrementalify.class);
 
-    @Inject
-    private MavenInvoker mavenInvoker;
-
     @Override
     public @NotNull String getDisplayName() {
         return "Incrementalify recipe";
@@ -42,16 +40,22 @@ public class Incrementalify extends Recipe {
         return new MavenIsoVisitor<ExecutionContext>() {
             @Override
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext ctx) {
-                if (document == null || document.getSourcePath() == null) {
-                    LOG.warn("Document or source path is null, skipping incrementalify");
+                if (document == null) {
+                    LOG.warn("Document is null, skipping incrementalify");
                     return document;
                 }
 
-                LOG.info("Visiting document with path: {}", document.getSourcePath());
+                // Get the source path from the document
+                Path sourcePath = document.getSourcePath();
+                if (sourcePath == null) {
+                    LOG.warn("Source path is null, skipping incrementalify");
+                    return document;
+                }
+
+                LOG.info("Visiting document with path: {}", sourcePath);
 
                 // Get the parent path or use the current directory if parent is null
                 Path workingPath;
-                Path sourcePath = document.getSourcePath();
                 Path parentPath = sourcePath.getParent();
 
                 if (parentPath == null) {
@@ -63,19 +67,46 @@ public class Incrementalify extends Recipe {
                 }
 
                 try {
-                    // Create a temporary Plugin object to use with MavenInvoker
-                    Plugin plugin = Plugin.build("temp-plugin", workingPath);
-
-                    // Run the incrementals:incrementalify goal which will:
-                    // 1. Add the incrementals-maven-plugin to the pom.xml if needed
-                    // 2. Create the .mvn directory and necessary files
-                    // 3. Configure the plugin for incremental builds
+                    // Run the incrementals:incrementalify goal using ProcessBuilder
                     LOG.info("Running incrementals:incrementalify goal...");
-                    mavenInvoker.invokeGoal(plugin, "incrementals:incrementalify");
 
-                    LOG.info("Successfully enabled incrementals for plugin at {}", workingPath.toAbsolutePath());
-                } catch (Exception e) {
+                    // Create the process builder for running the Maven command
+                    ProcessBuilder processBuilder = new ProcessBuilder("mvn", "incrementals:incrementalify");
+
+                    // Set the working directory
+                    processBuilder.directory(workingPath.toFile());
+
+                    // Redirect error stream to output stream
+                    processBuilder.redirectErrorStream(true);
+
+                    // Start the process
+                    Process process = processBuilder.start();
+
+                    // Read the output
+                    try (BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        StringBuilder output = new StringBuilder();
+                        while ((line = reader.readLine()) != null) {
+                            // Collect the output but don't log each line individually
+                            output.append(line).append(System.lineSeparator());
+                        }
+                        // Log a message about the process completion instead
+                        LOG.info("Maven process output collected");
+                    }
+
+                    // Wait for the process to complete
+                    int exitCode = process.waitFor();
+
+                    if (exitCode == 0) {
+                        LOG.info("Successfully enabled incrementals for plugin at {}", workingPath.toAbsolutePath());
+                    } else {
+                        LOG.error("Failed to enable incrementals, exit code: {}", exitCode);
+                        LOG.info("To enable incrementals, run: mvn incrementals:incrementalify");
+                    }
+                } catch (IOException | InterruptedException e) {
                     LOG.error("Error enabling incrementals", e);
+                    LOG.info("To enable incrementals, run: mvn incrementals:incrementalify");
                     // Return the original document if there was an error
                     return document;
                 }
