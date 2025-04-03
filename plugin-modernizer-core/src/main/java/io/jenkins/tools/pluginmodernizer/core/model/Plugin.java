@@ -464,7 +464,8 @@ public class Plugin {
                             if (extractedVersion.contains("${")) {
                                 try {
                                     // Find all property placeholders in the format ${property}
-                                    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\$\\{([^}]+)\\}");
+                                    java.util.regex.Pattern pattern =
+                                            java.util.regex.Pattern.compile("\\$\\{([^}]+)\\}");
                                     java.util.regex.Matcher matcher = pattern.matcher(extractedVersion);
 
                                     StringBuffer result = new StringBuffer();
@@ -473,18 +474,29 @@ public class Plugin {
                                         String propertyValue = null;
 
                                         // Try to find the property in the POM
+                                        // Validate property name to prevent XPath injection
+                                        if (!isValidMavenPropertyName(propertyName)) {
+                                            LOG.debug("Invalid property name: {}", propertyName);
+                                            continue;
+                                        }
+
                                         try {
-                                            // First check in properties section
-                                            propertyValue = xpath.compile("/project/properties/" + propertyName).evaluate(doc);
+                                            // First check in properties section - using a safe approach
+                                            propertyValue = xpath.compile("/project/properties/" + propertyName)
+                                                    .evaluate(doc);
 
                                             // If not found, check if it's a project property
                                             if (propertyValue == null || propertyValue.isEmpty()) {
+                                                // Use predefined XPath expressions to avoid injection
                                                 if ("project.version".equals(propertyName)) {
-                                                    propertyValue = xpath.compile("/project/version").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/version")
+                                                            .evaluate(doc);
                                                 } else if ("project.groupId".equals(propertyName)) {
-                                                    propertyValue = xpath.compile("/project/groupId").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/groupId")
+                                                            .evaluate(doc);
                                                 } else if ("project.artifactId".equals(propertyName)) {
-                                                    propertyValue = xpath.compile("/project/artifactId").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/artifactId")
+                                                            .evaluate(doc);
                                                 }
                                             }
 
@@ -496,17 +508,22 @@ public class Plugin {
                                                     propertyValue = ""; // Often empty in local builds
                                                 }
                                             }
-                                        } catch (Exception e) {
+                                        } catch (javax.xml.xpath.XPathExpressionException e) {
                                             LOG.debug("Error resolving property {}: {}", propertyName, e.getMessage());
                                         }
 
                                         // Replace the property placeholder with its value or keep it if not found
-                                        matcher.appendReplacement(result, propertyValue != null ? propertyValue : matcher.group(0));
+                                        matcher.appendReplacement(
+                                                result, propertyValue != null ? propertyValue : matcher.group(0));
                                     }
                                     matcher.appendTail(result);
 
                                     version = result.toString();
-                                } catch (Exception e) {
+                                } catch (java.util.regex.PatternSyntaxException e) {
+                                    LOG.debug("Failed to resolve version properties: {}", e.getMessage());
+                                    version = extractedVersion; // Use the original version if resolution fails
+
+                                } catch (IllegalArgumentException e) {
                                     LOG.debug("Failed to resolve version properties: {}", e.getMessage());
                                     version = extractedVersion; // Use the original version if resolution fails
                                 }
@@ -520,7 +537,9 @@ public class Plugin {
                             }
                         }
                     }
-                } catch (Exception e) {
+                } catch (javax.xml.parsers.ParserConfigurationException
+                        | org.xml.sax.SAXException
+                        | java.io.IOException e) {
                     LOG.debug("Failed to extract version from pom.xml", e);
                 }
             }
@@ -1163,6 +1182,18 @@ public class Plugin {
         if (o == null || getClass() != o.getClass()) return false;
         Plugin plugin = (Plugin) o;
         return Objects.equals(name, plugin.name);
+    }
+
+    /**
+     * Validates if a string is a valid Maven property name to prevent XPath injection.
+     * Maven property names should only contain alphanumeric characters, dots, hyphens, and underscores.
+     *
+     * @param propertyName The property name to validate
+     * @return True if the property name is valid, false otherwise
+     */
+    private boolean isValidMavenPropertyName(String propertyName) {
+        // Maven property names should only contain alphanumeric characters, dots, hyphens, and underscores
+        return propertyName != null && propertyName.matches("^[\\w.-]+$");
     }
 
     @Override
