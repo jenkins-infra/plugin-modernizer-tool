@@ -80,6 +80,8 @@ public class PomResolutionVisitor extends MavenIsoVisitor<PluginMetadata> {
                     // Set bom
                     setBomVersion(parentPom, pluginMetadata);
 
+                    // Set version
+                    pluginMetadata.setVersion(pom.getVersion());
                 } catch (MavenDownloadingException e) {
                     throw new RuntimeException(e);
                 }
@@ -93,6 +95,11 @@ public class PomResolutionVisitor extends MavenIsoVisitor<PluginMetadata> {
         pluginMetadata.setProperties(properties);
         pluginMetadata.setJenkinsVersion(
                 resolvedPom.getManagedVersion("org.jenkins-ci.main", "jenkins-core", null, null));
+
+        // Set the plugin version if not already set
+        if (pluginMetadata.getVersion() == null && pom.getVersion() != null) {
+            pluginMetadata.setVersion(pom.getVersion());
+        }
 
         return document;
     }
