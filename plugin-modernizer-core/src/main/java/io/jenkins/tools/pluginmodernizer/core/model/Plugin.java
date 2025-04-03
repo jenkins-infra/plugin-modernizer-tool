@@ -460,7 +460,7 @@ public class Plugin {
                         String extractedVersion;
                         try {
                             extractedVersion = xpath.compile("/project/version").evaluate(doc);
-                        } catch (XPathExpressionException e) {
+                        } catch (javax.xml.xpath.XPathExpressionException e) {
                             LOG.debug("Error evaluating XPath for version: {}", e.getMessage());
                             extractedVersion = ""; // Set to empty string on error
                         }
