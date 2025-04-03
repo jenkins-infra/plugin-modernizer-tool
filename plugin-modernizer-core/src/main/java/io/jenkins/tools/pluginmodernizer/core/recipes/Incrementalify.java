@@ -1,8 +1,9 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import java.io.File;
-import java.util.Collections;
-import org.apache.maven.shared.invoker.*;
+import io.jenkins.tools.pluginmodernizer.core.impl.MavenInvoker;
+import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
+import jakarta.inject.Inject;
+import java.nio.file.Path;
 import org.jetbrains.annotations.NotNull;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
@@ -12,15 +13,19 @@ import org.openrewrite.xml.tree.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Recipe to enable incrementals in a Jenkins plugin.
+ * This recipe runs the incrementals:incrementalify goal which:
+ * 1. Adds the incrementals-maven-plugin to the pom.xml if needed
+ * 2. Creates the .mvn directory and necessary files
+ * 3. Configures the plugin for incremental builds
+ */
 public class Incrementalify extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(Incrementalify.class);
-    private final Invoker invoker;
-    private static final boolean skipM2HomeCheck = false;
 
-    public Incrementalify() {
-        this.invoker = new DefaultInvoker();
-    }
+    @Inject
+    private MavenInvoker mavenInvoker;
 
     @Override
     public @NotNull String getDisplayName() {
@@ -29,7 +34,7 @@ public class Incrementalify extends Recipe {
 
     @Override
     public @NotNull String getDescription() {
-        return "Runs the `mvn incrementals:incrementalify` command to enable incrementals.";
+        return "Enables incrementals in a Jenkins plugin by running the incrementals:incrementalify goal.";
     }
 
     @Override
@@ -37,57 +42,46 @@ public class Incrementalify extends Recipe {
         return new MavenIsoVisitor<ExecutionContext>() {
             @Override
             public Xml.Document visitDocument(Xml.Document document, ExecutionContext ctx) {
-                LOG.info("Visiting document with path: {}", document.getSourcePath());
-                try {
-                    InvocationRequest request = new DefaultInvocationRequest();
-                    // Use the actual path of the document being processed
-                    request.setPomFile(document.getSourcePath().toFile());
-                    request.setGoals(Collections.singletonList("incrementals:incrementalify"));
-                    // Capture output for logging
-                    StringBuilderOutputHandler outputHandler = new StringBuilderOutputHandler();
-                    request.setOutputHandler(outputHandler);
-                    if (Incrementalify.this.invoker instanceof DefaultInvoker && !skipM2HomeCheck) {
-                        String m2Home = System.getenv("M2_HOME");
-                        if (m2Home == null || m2Home.isEmpty()) {
-                            LOG.error("M2_HOME environment variable is not set. Unable to execute Maven command.");
-                            return document;
-                        }
-                        ((DefaultInvoker) Incrementalify.this.invoker).setMavenHome(new File(m2Home));
-                    }
-                    InvocationResult result = invoker.execute(request);
+                if (document == null || document.getSourcePath() == null) {
+                    LOG.warn("Document or source path is null, skipping incrementalify");
+                    return document;
+                }
 
-                    if (result.getExitCode() != 0) {
-                        LOG.error(
-                                "Maven build failed with exit code {}: {}",
-                                result.getExitCode(),
-                                outputHandler.getOutput());
-                        throw new IllegalStateException("Maven build failed with exit code " + result.getExitCode()
-                                + ". See logs for details.");
-                    }
-                    LOG.debug("Maven output: {}", outputHandler.getOutput());
-                } catch (MavenInvocationException e) {
-                    LOG.error("Error executing mvn incrementals:incrementalify", e);
-                    return document; // Explicitly return the original document
+                LOG.info("Visiting document with path: {}", document.getSourcePath());
+
+                // Get the parent path or use the current directory if parent is null
+                Path workingPath;
+                Path sourcePath = document.getSourcePath();
+                Path parentPath = sourcePath.getParent();
+
+                if (parentPath == null) {
+                    // If the parent path is null, use the current directory
+                    LOG.info("Parent path is null for document: {}, using current directory", sourcePath);
+                    workingPath = Path.of(".");
+                } else {
+                    workingPath = parentPath;
+                }
+
+                try {
+                    // Create a temporary Plugin object to use with MavenInvoker
+                    Plugin plugin = Plugin.build("temp-plugin", workingPath);
+
+                    // Run the incrementals:incrementalify goal which will:
+                    // 1. Add the incrementals-maven-plugin to the pom.xml if needed
+                    // 2. Create the .mvn directory and necessary files
+                    // 3. Configure the plugin for incremental builds
+                    LOG.info("Running incrementals:incrementalify goal...");
+                    mavenInvoker.invokeGoal(plugin, "incrementals:incrementalify");
+
+                    LOG.info("Successfully enabled incrementals for plugin at {}", workingPath.toAbsolutePath());
+                } catch (Exception e) {
+                    LOG.error("Error enabling incrementals", e);
+                    // Return the original document if there was an error
+                    return document;
                 }
 
                 return super.visitDocument(document, ctx);
             }
         };
-    }
-
-    /**
-     * Simple output handler implementation to capture Maven output
-     */
-    private static class StringBuilderOutputHandler implements InvocationOutputHandler {
-        private final StringBuilder output = new StringBuilder();
-
-        @Override
-        public void consumeLine(String line) {
-            output.append(line).append(System.lineSeparator());
-        }
-
-        public String getOutput() {
-            return output.toString();
-        }
     }
 }
