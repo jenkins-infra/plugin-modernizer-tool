@@ -250,6 +250,106 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                         }
                         """));
     }
+    // test to check, not to add duplicate super call
+    @Test
+    void migrateAcegiToSpringSecurityWhenBarExtendsAbstractAuthenticationTokenWithSuperCall() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipe(new MigrateAcegiSecurityToSpringSecurity())
+                            .expectedCyclesThatMakeChanges(1)
+                            .cycles(1)
+                            .parser(parser);
+                },
+                java(
+                        // language=java
+                        """
+                         import org.acegisecurity.Authentication;
+                         import org.acegisecurity.GrantedAuthority;
+                         import org.acegisecurity.GrantedAuthorityImpl;
+                         import org.acegisecurity.providers.AbstractAuthenticationToken;
+                         import org.acegisecurity.context.SecurityContextHolder;
+                         import org.acegisecurity.AuthenticationException;
+                         import org.acegisecurity.AuthenticationManager;
+                         import org.acegisecurity.BadCredentialsException;
+                         import org.acegisecurity.userdetails.UserDetails;
+                         import org.acegisecurity.userdetails.UserDetailsService;
+                         import org.acegisecurity.userdetails.UsernameNotFoundException;
+                         import jenkins.model.Jenkins;
+                         import jenkins.security.SecurityListener;
+
+                         public class Bar extends AbstractAuthenticationToken {
+                             Bar() {
+                                 super(null);
+                                 System.out.println("Bar");
+                             }
+                             @Override
+                             public GrantedAuthority[] getAuthorities() {
+                                 return getName() != null? null : new GrantedAuthority[0];
+                             }
+
+                             @Override
+                             public Object getCredentials() {
+                                 return null;
+                             }
+
+                             @Override
+                             public Object getPrincipal() {
+                                 return getName();
+                             }
+
+                             @Override
+                             public String getName() {
+                                 return null;
+                             }
+                         }
+                         """,
+                        // language=java
+                        """
+                        import org.springframework.security.authentication.AbstractAuthenticationToken;
+                        import org.springframework.security.core.Authentication;
+                        import org.springframework.security.core.GrantedAuthority;
+                        import org.springframework.security.core.context.SecurityContextHolder;
+                        import org.springframework.security.core.AuthenticationException;
+                        import org.springframework.security.core.userdetails.UserDetails;
+                        import org.springframework.security.core.userdetails.UserDetailsService;
+                        import org.springframework.security.core.userdetails.UsernameNotFoundException;
+                        import jenkins.model.Jenkins;
+                        import jenkins.security.SecurityListener;
+                        import org.springframework.security.core.authority.SimpleGrantedAuthority;
+                        import java.util.List;
+                        import java.util.Collection;
+                        import org.springframework.security.authentication.AuthenticationManager;
+                        import org.springframework.security.authentication.BadCredentialsException;
+
+                        public class Bar extends AbstractAuthenticationToken {
+                            Bar() {
+                                super(null);
+                                System.out.println("Bar");
+                            }
+                            @Override
+                            public Collection<GrantedAuthority> getAuthorities() {
+                                return getName() != null? null : List.of();
+                            }
+
+                            @Override
+                            public Object getCredentials() {
+                                return null;
+                            }
+
+                            @Override
+                            public Object getPrincipal() {
+                                return getName();
+                            }
+
+                            @Override
+                            public String getName() {
+                                return null;
+                            }
+                        }
+                        """));
+    }
 
     @Test
     void migrateLoadUserByUsernameToLoadUserByUsername2ButNotInUserDetailsService() {

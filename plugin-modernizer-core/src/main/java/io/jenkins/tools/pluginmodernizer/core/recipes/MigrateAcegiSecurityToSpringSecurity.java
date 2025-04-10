@@ -337,7 +337,7 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                                             && body.getStatements()
                                                     .get(0)
                                                     .printTrimmed()
-                                                    .contains("super(new GrantedAuthority[] {})"))) {
+                                                    .contains("super("))) {
                                 method = addSuperCallTemplate.apply(
                                         updateCursor(method),
                                         body.getCoordinates().firstStatement());
