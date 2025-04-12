@@ -25,12 +25,21 @@ sources:
         pattern: "latest"
 
 targets:
-  updateVersionsProperties:
+  updateBomVersionProperties:
     name: "Update jenkins-bom version in recipes.yml"
     kind: file
     spec:
       file: ./plugin-modernizer-core/src/main/resources/versions.properties
       matchPattern: "(?m)^(bom.version =) (.*)"
+      replacePattern: '$1 {{ source "latestBomVersion" }}'
+    sourceid: latestBomVersion
+    scmid: default
+  updateRecommendedBomVersionProperties:
+    name: "Update recommended jenkins-bom version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(bom.recommended.version =) (.*)"
       replacePattern: '$1 {{ source "latestBomVersion" }}'
     sourceid: latestBomVersion
     scmid: default
