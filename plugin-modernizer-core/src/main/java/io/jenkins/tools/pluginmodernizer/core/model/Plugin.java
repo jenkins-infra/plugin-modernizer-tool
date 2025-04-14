@@ -491,22 +491,28 @@ public class Plugin {
                                             // This approach is immune to XPath injection
                                             switch (propertyName) {
                                                 case "changelist":
-                                                    propertyValue = xpath.compile("/project/properties/changelist").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/properties/changelist")
+                                                            .evaluate(doc);
                                                     break;
                                                 case "sha1":
-                                                    propertyValue = xpath.compile("/project/properties/sha1").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/properties/sha1")
+                                                            .evaluate(doc);
                                                     break;
                                                 case "revision":
-                                                    propertyValue = xpath.compile("/project/properties/revision").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/properties/revision")
+                                                            .evaluate(doc);
                                                     break;
                                                 case "jenkins.version":
-                                                    propertyValue = xpath.compile("/project/properties/jenkins.version").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/properties/jenkins.version")
+                                                            .evaluate(doc);
                                                     break;
                                                 case "java.level":
-                                                    propertyValue = xpath.compile("/project/properties/java.level").evaluate(doc);
+                                                    propertyValue = xpath.compile("/project/properties/java.level")
+                                                            .evaluate(doc);
                                                     break;
                                                 default:
-                                                    // For security reasons, we only support a whitelist of property names
+                                                    // For security reasons, we only support a whitelist of property
+                                                    // names
                                                     LOG.debug("Unsupported property name: {}", propertyName);
                                                     propertyValue = "";
                                                     break;
