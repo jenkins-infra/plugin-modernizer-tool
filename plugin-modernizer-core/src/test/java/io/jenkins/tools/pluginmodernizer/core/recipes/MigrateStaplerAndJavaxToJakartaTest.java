@@ -72,6 +72,7 @@ public class MigrateStaplerAndJavaxToJakartaTest implements RewriteTest {
                     spec.recipe(new MigrateStaplerAndJavaxToJakarta()).parser(parser);
                 },
                 srcTestJava(
+                        // language=java
                         java(
                                 """
                         package hudson.util;

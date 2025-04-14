@@ -195,7 +195,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("Updates SCM URLs in POM files from git:// to https:// protocol.", result);
+        assertEquals("Updates SCM URLs in POM files from git:// to https:// protocol", result);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("chore(pom): Use recommended core version 2.452.4, and Java 11.", result);
+        assertEquals("chore(pom): Use recommended core version 2.452.4, and Java 11", result);
     }
 
     @Test
@@ -301,7 +301,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("feat(java): Require Jenkins core 2.479.3 and Java 17.", result);
+        assertEquals("feat(java): Require Jenkins core 2.479.3 and Java 17", result);
     }
 
     @Test
@@ -559,7 +559,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("Merges .gitignore entries from archetype with existing .gitignore file.", result);
+        assertEquals("Merges .gitignore entries from archetype with existing .gitignore file", result);
     }
 
     @Test
