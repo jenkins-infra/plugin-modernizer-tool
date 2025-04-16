@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jenkins-ci</groupId>
     <artifactId>jenkins</artifactId>
-    <version>1.130</version>
+    <version>1.131</version>
     <relativePath />
   </parent>
 
@@ -46,37 +46,37 @@
 
     <!-- Version -->
     <jenkins.core.minimum.version>2.462.3</jenkins.core.minimum.version>
-    <openrewrite.bom.version>3.5.0</openrewrite.bom.version>
-    <openrewrite.maven.plugin.version>6.4.0</openrewrite.maven.plugin.version>
+    <openrewrite.bom.version>3.6.1</openrewrite.bom.version>
+    <openrewrite.maven.plugin.version>6.6.1</openrewrite.maven.plugin.version>
     <micrometer.version>1.14.5</micrometer.version>
     <slf4j.version>2.0.17</slf4j.version>
     <logback.version>1.5.18</logback.version>
     <picocli.version>4.7.6</picocli.version>
-    <common.io.version>2.18.0</common.io.version>
+    <common.io.version>2.19.0</common.io.version>
     <common.lang3.version>3.17.0</common.lang3.version>
-    <common.text.version>1.13.0</common.text.version>
+    <common.text.version>1.13.1</common.text.version>
     <asm.version>9.8</asm.version>
-    <gson.version>2.12.1</gson.version>
+    <gson.version>2.13.0</gson.version>
     <jackson.version>2.17.3</jackson.version>
     <maven.version>3.9.9</maven.version>
     <commons-codec.version>1.18.0</commons-codec.version>
-    <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <jgit.version>7.2.0.202503040940-r</jgit.version>
     <github-api.version>2.0-rc.1</github-api.version>
     <commons-compress.version>1.27.1</commons-compress.version>
-    <guava.version>33.4.6-jre</guava.version>
-    <byte-buddy.version>1.17.4</byte-buddy.version>
+    <guava.version>33.4.8-jre</guava.version>
+    <byte-buddy.version>1.17.5</byte-buddy.version>
     <wiremock.version>3.12.1</wiremock.version>
     <jte.version>3.2.0</jte.version>
     <snakeyaml.version>2.4</snakeyaml.version>
     <guice.version>7.0.0</guice.version>
     <error.prone.version>2.37.0</error.prone.version>
-    <checker.qual.version>3.49.1</checker.qual.version>
+    <checker.qual.version>3.49.2</checker.qual.version>
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
     <jwt.version>0.12.6</jwt.version>
     <bouncycastle.version>1.80</bouncycastle.version>
-    <maven.surefire.version>3.5.2</maven.surefire.version>
-    <maven.failsafe.version>3.5.2</maven.failsafe.version>
+    <maven.surefire.version>3.5.3</maven.surefire.version>
+    <maven.failsafe.version>3.5.3</maven.failsafe.version>
     <testcontainers.version>1.20.6</testcontainers.version>
     <testcontainers.git.version>0.11.0</testcontainers.git.version>
     <apache.mina.version>2.14.0</apache.mina.version>

@@ -110,6 +110,9 @@ name: io.jenkins.tools.pluginmodernizer.MigrateToJUnit5
 displayName: Migrate to JUnit 5
 description: Migrate tests to JUnit5.
 tags: ['migration', 'testing']
+preconditions:
+  - org.openrewrite.java.search.DoesNotUseType:
+      fullyQualifiedTypeName: org.jvnet.hudson.test.JenkinsSessionRule
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AnnotateWithJenkins  
   - org.openrewrite.java.testing.junit5.UpdateTestAnnotation
@@ -341,7 +344,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: gson-api
-      pluginVersion: 2.12.1-113.v347686d6729f
+      pluginVersion: 2.13.0-133.v5a_e3236a_8251
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson

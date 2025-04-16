@@ -201,126 +201,151 @@ public class AddDetachedPluginDependencyTest implements RewriteTest {
                 """),
                 srcTestJava(
                         java(
+                                // language=java
                                 """
                 package hudson.maven;
                 public class MavenModuleSet {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.scm;
                 public class SubversionSCM {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks;
                 public class Ant {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks;
                 public class JavadocArchiver {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks;
                 public class Mailer {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks.junit;
                 public class JUnitResultArchiver {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.model;
                 public class ExternalJob {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class LDAPSecurityRealm {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class PAMSecurityRealm {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class GlobalMatrixAuthorizationStrategy {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class ProjectMatrixAuthorizationStrategy {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class AuthorizationMatrixProperty {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.slaves;
                 public class CommandLauncher {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tools;
                 public class JDKInstaller {}
                 """),
                         java(
+                                // language=java
                                 """
                 package javax.xml.bind;
                 public class JAXBContext {}
                 """),
                         java(
+                                // language=java
                                 """
                 package com.trilead.ssh2;
                 public class Connection {}
                 """),
                         java(
+                                // language=java
                                 """
                 package org.jenkinsci.main.modules.sshd;
                 public class SSHD {}
                 """),
                         java(
+                                // language=java
                                 """
                 package javax.activation;
                 public class DataHandler {}
                 """),
                         java(
+                                // language=java
                                 """
                 package jenkins.bouncycastle.api;
                 public class BouncyCastlePlugin {}
                 """),
                         java(
+                                // language=java
                                 """
                 package jenkins.plugins.javax.activation;
                 public class CommandMapInitializer {}
                 """),
                         java(
+                                // language=java
                                 """
                 package jenkins.plugins.javax.activation;
                 public class FileTypeMapInitializer {}
                 """),
                         java(
+                                // language=java
                                 """
                 package org.jenkinsci.main.modules.instance_identity;
                 public class InstanceIdentity {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.markup;
                 public class RawHtmlMarkupFormatter {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.matrix;
                 public class MatrixProject {}
                 """)),
                 srcMainJava(
+                        // language=java
                         java(
                                 """
                 import hudson.maven.MavenModuleSet;
@@ -532,126 +557,151 @@ public class AddDetachedPluginDependencyTest implements RewriteTest {
                 """),
                 srcTestJava(
                         java(
+                                // language=java
                                 """
                 package hudson.maven;
                 public class MavenModuleSet {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.scm;
                 public class SubversionSCM {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks;
                 public class Ant {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks;
                 public class JavadocArchiver {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks;
                 public class Mailer {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tasks.junit;
                 public class JUnitResultArchiver {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.model;
                 public class ExternalJob {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class LDAPSecurityRealm {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class PAMSecurityRealm {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class GlobalMatrixAuthorizationStrategy {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class ProjectMatrixAuthorizationStrategy {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.security;
                 public class AuthorizationMatrixProperty {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.slaves;
                 public class CommandLauncher {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.tools;
                 public class JDKInstaller {}
                 """),
                         java(
+                                // language=java
                                 """
                 package javax.xml.bind;
                 public class JAXBContext {}
                 """),
                         java(
+                                // language=java
                                 """
                 package com.trilead.ssh2;
                 public class Connection {}
                 """),
                         java(
+                                // language=java
                                 """
                 package org.jenkinsci.main.modules.sshd;
                 public class SSHD {}
                 """),
                         java(
+                                // language=java
                                 """
                 package javax.activation;
                 public class DataHandler {}
                 """),
                         java(
+                                // language=java
                                 """
                 package jenkins.bouncycastle.api;
                 public class BouncyCastlePlugin {}
                 """),
                         java(
+                                // language=java
                                 """
                 package jenkins.plugins.javax.activation;
                 public class CommandMapInitializer {}
                 """),
                         java(
+                                // language=java
                                 """
                 package jenkins.plugins.javax.activation;
                 public class FileTypeMapInitializer {}
                 """),
                         java(
+                                // language=java
                                 """
                 package org.jenkinsci.main.modules.instance_identity;
                 public class InstanceIdentity {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.markup;
                 public class RawHtmlMarkupFormatter {}
                 """),
                         java(
+                                // language=java
                                 """
                 package hudson.matrix;
                 public class MatrixProject {}
                 """)),
                 srcMainJava(
+                        // language=java
                         java(
                                 """
                 import hudson.maven.MavenModuleSet;
