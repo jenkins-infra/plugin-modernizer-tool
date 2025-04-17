@@ -1,0 +1,47 @@
+name: Update wiremock version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  wiremockVersion:
+    kind: githubrelease
+    spec:
+      owner: "wiremock"
+      repository: "wiremock"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateWiremockVersion:
+    name: Update wiremock.version in versions.properties
+    kind: file
+    spec:
+      file: plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: >-
+        wiremock\.version\s*=\s*.*
+      replacePattern: >-
+        wiremock.version = {{ source "wiremockVersion" }}
+
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update wiremock version to {{ source "wiremockVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli

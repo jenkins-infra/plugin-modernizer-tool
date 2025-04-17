@@ -222,6 +222,14 @@ public class Settings {
         return readProperty("jenkins-test-harness.version", "versions.properties");
     }
 
+    /**
+     * Return the Wiremock version
+     * @return The Wiremock version
+     */
+    public static String getWiremockVersion() {
+        return readProperty("wiremock.version", "versions.properties");
+    }
+
     public static String getJenkinsMinimumBaseline() {
         String jenkinsVersion = getJenkinsMinimumVersion();
         if (JENKINS_VERSION_LTS_PATTERN.test(jenkinsVersion)) {

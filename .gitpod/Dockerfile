@@ -7,9 +7,9 @@ FROM gitpod/workspace-java-17
 
 # Define the versions of the JDKs to install. This is used by the `sdk install java` command to install the specified JDK.
 ENV JDK8_PACKAGE=8.0.442-tem
-ENV JDK11_PACKAGE=11.0.26-tem
-ENV JDK17_PACKAGE=17.0.14-tem
-ENV JDK21_PACKAGE=21.0.6-tem
+ENV JDK11_PACKAGE=11.0.27-tem
+ENV JDK17_PACKAGE=17.0.15-tem
+ENV JDK21_PACKAGE=21.0.7-tem
 
 # Update the package list and install Maven. Maven is required for building Java projects, including Jenkins plugins.
 # The `apt-get update` command updates the list of available packages and their versions, but it does not install or
