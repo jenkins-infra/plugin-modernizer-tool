@@ -20,10 +20,30 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- Explicitly manage jackson-datatype-jsr310 version to resolve dependency conflicts -->
+      <!-- Explicitly manage Jackson versions to resolve dependency conflicts -->
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
+        <version>2.18.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.18.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.18.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>2.18.3</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-yaml</artifactId>
         <version>2.18.3</version>
       </dependency>
     </dependencies>
