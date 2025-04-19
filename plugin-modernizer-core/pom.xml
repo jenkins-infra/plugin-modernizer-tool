@@ -20,6 +20,7 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+      <!-- Jackson dependencies are managed by the parent POM -->
     </dependencies>
   </dependencyManagement>
 
@@ -27,6 +28,10 @@
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
     <dependency>
       <groupId>com.github.spotbugs</groupId>
