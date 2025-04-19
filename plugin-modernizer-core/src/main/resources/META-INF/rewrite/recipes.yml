@@ -461,6 +461,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
 type: specs.openrewrite.org/v1beta/recipe
