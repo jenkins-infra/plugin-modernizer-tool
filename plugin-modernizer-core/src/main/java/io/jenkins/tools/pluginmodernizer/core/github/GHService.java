@@ -1031,7 +1031,7 @@ public class GHService {
                     getGithubOwner() + ":" + branchName,
                     repository.getDefaultBranch(),
                     prBody,
-                    false,
+                    true,
                     config.isDraft());
             LOG.info("Pull request created: {}", pr.getHtmlUrl());
             plugin.withPullRequest();

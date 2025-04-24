@@ -782,7 +782,7 @@ public class GHServiceTest {
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(false), eq(false));
+                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
 
         // Test
         service.openPullRequest(plugin);
@@ -866,7 +866,7 @@ public class GHServiceTest {
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(false), eq(true));
+                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(true));
 
         // Test
         service.openPullRequest(plugin);

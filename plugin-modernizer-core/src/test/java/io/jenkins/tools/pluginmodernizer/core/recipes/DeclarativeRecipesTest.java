@@ -709,6 +709,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <artifactId>jenkins-test-harness</artifactId>
                               <version>2.41.1</version>
                             </dependency>
+                            <dependency>
+                              <groupId>com.github.tomakehurst</groupId>
+                              <artifactId>wiremock-jre8-standalone</artifactId>
+                              <version>2.35.2</version>
+                              <scope>test</scope>
+                            </dependency>
                           </dependencies>
                           <repositories>
                             <repository>
@@ -768,6 +774,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <groupId>org.jenkins-ci.main</groupId>
                               <artifactId>jenkins-test-harness</artifactId>
                             </dependency>
+                            <dependency>
+                              <groupId>org.wiremock</groupId>
+                              <artifactId>wiremock-standalone</artifactId>
+                              <version>%s</version>
+                              <scope>test</scope>
+                            </dependency>
                           </dependencies>
                           <repositories>
                             <repository>
@@ -786,7 +798,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getRecommendedBomVersion())));
+                                        Settings.getRecommendedBomVersion(),
+                                        Settings.getWiremockVersion())));
     }
 
     @Test
@@ -1117,6 +1130,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <groupId>io.jenkins.plugins</groupId>
                           <artifactId>json-api</artifactId>
                         </dependency>
+                        <dependency>
+                          <groupId>com.github.tomakehurst</groupId>
+                          <artifactId>wiremock</artifactId>
+                          <version>3.0.1</version>
+                          <scope>test</scope>
+                        </dependency>
                       </dependencies>
                     </project>
                     """,
@@ -1185,13 +1204,20 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <groupId>io.jenkins.plugins</groupId>
                           <artifactId>json-api</artifactId>
                         </dependency>
+                        <dependency>
+                          <groupId>org.wiremock</groupId>
+                          <artifactId>wiremock</artifactId>
+                          <version>%s</version>
+                          <scope>test</scope>
+                        </dependency>
                       </dependencies>
                     </project>
                     """
                                 .formatted(
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getRecommendedBomVersion())));
+                                        Settings.getRecommendedBomVersion(),
+                                        Settings.getWiremockVersion())));
     }
 
     @Test
@@ -1257,6 +1283,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <artifactId>jenkins-test-harness</artifactId>
                                 <version>2.41.1</version>
                               </dependency>
+                              <dependency>
+                                <groupId>com.github.tomakehurst</groupId>
+                                <artifactId>wiremock-jre8-standalone</artifactId>
+                                <version>2.35.2</version>
+                                <scope>test</scope>
+                              </dependency>
                             </dependencies>
                           <repositories>
                             <repository>
@@ -1312,6 +1344,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <groupId>org.jenkins-ci.main</groupId>
                                 <artifactId>jenkins-test-harness</artifactId>
                               </dependency>
+                              <dependency>
+                                <groupId>org.wiremock</groupId>
+                                <artifactId>wiremock-standalone</artifactId>
+                                <version>%s</version>
+                                <scope>test</scope>
+                              </dependency>
                             </dependencies>
                           <repositories>
                             <repository>
@@ -1327,7 +1365,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """
-                                .formatted(Settings.getRecommendedBomVersion())));
+                                .formatted(Settings.getRecommendedBomVersion(), Settings.getWiremockVersion())));
     }
 
     @Test
@@ -1817,6 +1855,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <maven.compiler.target>11</maven.compiler.target>
                                 <maven.compiler.release>11</maven.compiler.release>
                               </properties>
+                              <dependencies>
+                                <dependency>
+                                  <groupId>com.github.tomakehurst</groupId>
+                                  <artifactId>wiremock-jre8-standalone</artifactId>
+                                  <version>2.35.2</version>
+                                  <scope>test</scope>
+                                </dependency>
+                              </dependencies>
                               <repositories>
                                 <repository>
                                   <id>repo.jenkins-ci.org</id>
@@ -1853,6 +1899,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                                 <jenkins.version>2.479.3</jenkins.version>
                               </properties>
+                              <dependencies>
+                                <dependency>
+                                  <groupId>org.wiremock</groupId>
+                                  <artifactId>wiremock-standalone</artifactId>
+                                  <version>%s</version>
+                                  <scope>test</scope>
+                                </dependency>
+                              </dependencies>
                               <repositories>
                                 <repository>
                                   <id>repo.jenkins-ci.org</id>
@@ -1868,7 +1922,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             </project>
                             """
                                 .formatted(
-                                        Settings.getJenkinsParentVersion(), Settings.getJenkinsTestHarnessVersion())),
+                                        Settings.getJenkinsParentVersion(),
+                                        Settings.getJenkinsTestHarnessVersion(),
+                                        Settings.getWiremockVersion())),
                 srcMainResources(
                         // language=java
                         java(
@@ -2025,6 +2081,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <artifactId>jenkins-test-harness</artifactId>
                                 <version>2.41.1</version>
                               </dependency>
+                              <dependency>
+                                <groupId>com.github.tomakehurst</groupId>
+                                <artifactId>wiremock</artifactId>
+                                <version>3.0.1</version>
+                                <scope>test</scope>
+                              </dependency>
                             </dependencies>
                           <repositories>
                             <repository>
@@ -2077,6 +2139,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <groupId>org.jenkins-ci.main</groupId>
                                 <artifactId>jenkins-test-harness</artifactId>
                               </dependency>
+                              <dependency>
+                                <groupId>org.wiremock</groupId>
+                                <artifactId>wiremock</artifactId>
+                                <version>%s</version>
+                                <scope>test</scope>
+                              </dependency>
                             </dependencies>
                           <repositories>
                             <repository>
@@ -2095,7 +2163,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsParentVersion(),
                                         Settings.getJenkinsTestHarnessVersion(),
-                                        Settings.getBomVersion())),
+                                        Settings.getBomVersion(),
+                                        Settings.getWiremockVersion())),
                 srcTestJava(
                         java(
                                 // language=java
