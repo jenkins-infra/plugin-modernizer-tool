@@ -209,14 +209,14 @@ public class UpdateBomTest implements RewriteTest {
                    <packaging>hpi</packaging>
                    <name>Empty Plugin</name>
                    <properties>
-                        <jenkins.version>2.440.3</jenkins.version>
+                        <jenkins.version>2.462.3</jenkins.version>
                    </properties>
                     <dependencyManagement>
                       <dependencies>
                         <dependency>
                           <groupId>io.jenkins.tools.bom</groupId>
                           <artifactId>bom-2.462.x</artifactId>
-                          <version>3978.v798f83946d2c</version>
+                          <version>4343.v54a_2ec681d1f</version>
                           <type>pom</type>
                           <scope>import</scope>
                         </dependency>
@@ -240,7 +240,7 @@ public class UpdateBomTest implements RewriteTest {
                    <packaging>hpi</packaging>
                    <name>Empty Plugin</name>
                    <properties>
-                        <jenkins.version>2.440.3</jenkins.version>
+                        <jenkins.version>2.462.3</jenkins.version>
                    </properties>
                     <dependencyManagement>
                       <dependencies>

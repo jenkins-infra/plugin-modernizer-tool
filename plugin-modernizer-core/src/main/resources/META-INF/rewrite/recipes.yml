@@ -345,7 +345,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: gson-api
-      pluginVersion: 2.13.0-133.v5a_e3236a_8251
+      pluginVersion: 2.13.1-139.v4569c2ef303f
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson
