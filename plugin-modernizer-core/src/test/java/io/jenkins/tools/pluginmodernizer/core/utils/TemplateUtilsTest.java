@@ -292,7 +292,7 @@ public class TemplateUtilsTest {
         Recipe recipe = mock(Recipe.class);
 
         doReturn(metadata).when(plugin).getMetadata();
-        doReturn("2.479.3").when(metadata).getJenkinsVersion();
+        doReturn("2.492.3").when(metadata).getJenkinsVersion();
         doReturn("io.jenkins.tools.pluginmodernizer.UpgradeNextMajorParentVersion")
                 .when(recipe)
                 .getName();
@@ -301,7 +301,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("feat(java): Require Jenkins core 2.479.3 and Java 17", result);
+        assertEquals("feat(java): Require Jenkins core 2.492.3 and Java 17", result);
     }
 
     @Test
