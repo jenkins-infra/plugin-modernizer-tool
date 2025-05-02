@@ -168,8 +168,8 @@ recipeList:
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeNextMajorParentVersion
-displayName: Upgrade to the next major parent version (5.X) requiring Jenkins 2.479 and Java 17
-description: Upgrade to the next major parent version (5.X) requiring Jenkins 2.479 and Java 17.
+displayName: Upgrade to the next major parent version (5.X) requiring Jenkins 2.492 and Java 17
+description: Upgrade to the next major parent version (5.X) requiring Jenkins 2.492 and Java 17.
 tags: ['dependencies']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
@@ -180,9 +180,9 @@ recipeList:
       artifactId: plugin
       newVersion: 5.X
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.479.3
+      minimumVersion: 2.492.3
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
-      jenkinsVersion: 2.479.3
+      jenkinsVersion: 2.492.3
   - org.openrewrite.java.ChangePackage:  #deprecating
       oldPackageName: com.gargoylesoftware.htmlunit
       newPackageName: org.htmlunit
@@ -361,7 +361,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: org.jenkins-ci.plugins
       pluginArtifactId: jsoup
-      pluginVersion: 1.19.1-38.v216a_f3721b_3c
+      pluginVersion: 1.20.1-46.ve5f1416988c2
       replaces:
         - groupId: org.jsoup
           artifactId: jsoup
@@ -576,7 +576,7 @@ description: Check if the plugin using using a version with commons-compress rem
 tags: ['condition']
 recipeList:
   - org.openrewrite.jenkins.IsJenkinsPlugin:
-      version: "[2.489,)" # Adapt when LTS
+      version: "[2.492.1,)"
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
