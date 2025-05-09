@@ -1,0 +1,86 @@
+name: Update jenkins versions
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestBomVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "bom"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+  latestJenkinsTestHarnessVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "jenkins-test-harness"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+  latestPluginPomVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "plugin-pom"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+    transformers:
+      - trimprefix: "plugin-"
+
+targets:
+  updateJenkinsBom:
+    name: "Update jenkins-bom version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(bom.version =) (.*)"
+      replacePattern: '$1 {{ source "latestBomVersion" }}'
+    sourceid: latestBomVersion
+    scmid: default
+  updateJenkinsTestHarness:
+    name: "Update jenkins-test-harness version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(jenkins-test-harness.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJenkinsTestHarnessVersion" }}'
+    sourceid: latestJenkinsTestHarnessVersion
+    scmid: default
+  updateJenkinsParentPom:
+    name: "Update plugin-pom version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(jenkins.parent.version =) (.*)"
+      replacePattern: '$1 {{ source "latestPluginPomVersion" }}'
+    sourceid: latestPluginPomVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update jenkins versions'
+    spec:
+      labels:
+        - dependencies
+        - updatecli

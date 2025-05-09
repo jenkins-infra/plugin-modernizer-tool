@@ -190,6 +190,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateStaplerAndJavaxToJakarta
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateAcegiSecurityToSpringSecurity
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock
+  - io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
   - io.jenkins.tools.pluginmodernizer.RemoveDevelopersTag
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
@@ -244,6 +245,16 @@ recipeList:
       propertyName: maven.compiler.source
   - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveProperty: # Set by parent, ensure it's removed
       propertyName: maven.compiler.target
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
+displayName: Replace IOException2 With IOException
+tags: ['developer']
+description: Replace hudson.util.IOException2 With java.io.IOException.
+recipeList:
+    - org.openrewrite.java.ChangeType:
+        oldFullyQualifiedTypeName: hudson.util.IOException2
+        newFullyQualifiedTypeName: java.io.IOException
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.ReplaceLibrariesWithApiPlugin
@@ -459,6 +470,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveDevelopersTag
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
+  - io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock
