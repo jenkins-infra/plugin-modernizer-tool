@@ -659,4 +659,42 @@ public class TemplateUtilsTest {
                 result.contains("This PR aims to migrate all tests to JUnit 5. Changes include:"),
                 "Missing This PR aims to migrate all tests to JUnit 5. Changes include: section");
     }
+
+    @Test
+    public void testFriendlyPrTitleReplaceIOException2WithIOException() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Remove usage of deprecated IOException2", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyReplaceIOException2WithIOException() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Just ensure it's using some key overall text
+        assertTrue(
+                result.contains("Remove usage of deprecated IOException2"),
+                "Remove usage of deprecated IOException2 section");
+    }
 }

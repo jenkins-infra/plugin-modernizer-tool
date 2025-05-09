@@ -648,9 +648,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
     @Test
     void upgradeToRecommendCoreVersionTest() {
         rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml",
-                        "io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion"),
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion")
+                            .parser(parser);
+                },
                 // language=yaml
                 yaml("{}", sourceSpecs -> {
                     sourceSpecs.path(ArchetypeCommonFile.WORKFLOW_CD.getPath());
@@ -799,7 +804,55 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
                                         Settings.getRecommendedBomVersion(),
-                                        Settings.getWiremockVersion())));
+                                        Settings.getWiremockVersion())),
+                srcMainResources(
+                        // language=java
+                        java(
+                                """
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
+
+                                public class Foo {
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
+                                }
+                                """,
+                                """
+                                import java.io.File;
+                                import java.io.IOException;
+
+                                public class Foo {
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
+                                }
+                                """)));
     }
 
     @Test
@@ -1947,6 +2000,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import jenkins.model.Jenkins;
                                 import jenkins.security.SecurityListener;
                                 import hudson.security.SecurityRealm;
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
 
                                 public class Foo extends SecurityRealm {
                                     @Override
@@ -1966,6 +2022,21 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         StaplerResponse response = Stapler.getCurrentResponse();
                                         Authentication auth = Jenkins.getAuthentication();
                                     }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
                                 }
                                 """,
                                 """
@@ -1983,6 +2054,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import jenkins.model.Jenkins;
                                 import jenkins.security.SecurityListener;
                                 import hudson.security.SecurityRealm;
+                                import java.io.File;
+                                import java.io.IOException;
                                 import org.springframework.security.core.authority.SimpleGrantedAuthority;
                                 import org.springframework.security.authentication.AbstractAuthenticationToken;
                                 import java.util.List;
@@ -2007,6 +2080,21 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         StaplerRequest2 req = Stapler.getCurrentRequest2();
                                         StaplerResponse2 response = Stapler.getCurrentResponse2();
                                         Authentication auth = Jenkins.getAuthentication2();
+                                    }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
                                     }
                                 }
                                 """)));
@@ -2184,11 +2272,29 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.kohsuke.stapler.StaplerRequest;
                                 import org.kohsuke.stapler.StaplerResponse;
                                 import hudson.util.ChartUtil;
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
 
                                 public class Foo {
                                     public void foo() {
                                         StaplerRequest req = Stapler.getCurrentRequest();
                                         StaplerResponse response = Stapler.getCurrentResponse();
+                                    }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
                                     }
                                 }
                                 """,
@@ -2201,11 +2307,28 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.kohsuke.stapler.StaplerRequest;
                                 import org.kohsuke.stapler.StaplerResponse;
                                 import hudson.util.ChartUtil;
+                                import java.io.File;
+                                import java.io.IOException;
 
                                 public class Foo {
                                     public void foo() {
                                         StaplerRequest req = Stapler.getCurrentRequest();
                                         StaplerResponse response = Stapler.getCurrentResponse();
+                                    }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
                                     }
                                 }""")));
     }
