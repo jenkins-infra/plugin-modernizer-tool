@@ -34,16 +34,16 @@ public class AnnotateWithJenkinsTest implements RewriteTest {
 
                         public class MyTest {
                             @Rule
-                            public JenkinsRule j = new JenkinsRule();
+                            public JenkinsRule jr = new JenkinsRule();
 
                             @Test
                             public void myTestMethod() {
-                                j.before();
+                                jr.before();
                             }
 
                             @Test
                             public void myTestMethodWithParam(String str) {
-                                j.before();
+                                jr.before();
                             }
                         }
                         """,
@@ -57,13 +57,13 @@ public class AnnotateWithJenkinsTest implements RewriteTest {
                         public class MyTest {
 
                             @Test
-                            public void myTestMethod(JenkinsRule j) {
-                                j.before();
+                            public void myTestMethod(JenkinsRule jr) {
+                                jr.before();
                             }
 
                             @Test
-                            public void myTestMethodWithParam(String str, JenkinsRule j) {
-                                j.before();
+                            public void myTestMethodWithParam(String str, JenkinsRule jr) {
+                                jr.before();
                             }
                         }
                         """));

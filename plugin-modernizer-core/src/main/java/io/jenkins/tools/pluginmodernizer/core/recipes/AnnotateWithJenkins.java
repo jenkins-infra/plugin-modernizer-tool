@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.ScanningRecipe;
@@ -129,27 +130,31 @@ public class AnnotateWithJenkins extends ScanningRecipe<Set<String>> {
                     LOG.info("Annotated class with @WithJenkins: {}", classDecl.getSimpleName());
                 }
                 // Remove the @Rule JenkinsRule field
+                AtomicReference<String> jenkinsRuleFieldName = new AtomicReference<>(null);
                 classDecl = classDecl.withBody(classDecl
                         .getBody()
                         .withStatements(classDecl.getBody().getStatements().stream()
                                 .filter(statement -> {
                                     if (statement instanceof J.VariableDeclarations) {
                                         J.VariableDeclarations varDecl = (J.VariableDeclarations) statement;
-                                        return varDecl.getVariables().stream().noneMatch(variable -> {
-                                            JavaType.FullyQualified type = (JavaType.FullyQualified) variable.getType();
-                                            return type != null
+                                        for (J.VariableDeclarations.NamedVariable var : varDecl.getVariables()) {
+                                            JavaType.FullyQualified type = (JavaType.FullyQualified) var.getType();
+                                            if (type != null
                                                     && type.getFullyQualifiedName()
                                                             .equals("org.jvnet.hudson.test.JenkinsRule")
                                                     && varDecl.getLeadingAnnotations().stream()
                                                             .anyMatch(ann -> ann.getSimpleName()
-                                                                    .equals("Rule"));
-                                        });
+                                                                    .equals("Rule"))) {
+                                                jenkinsRuleFieldName.set(var.getSimpleName());
+                                                return false; // remove this field
+                                            }
+                                        }
                                     }
                                     return true;
                                 })
                                 .collect(Collectors.toList())));
 
-                // Add parameter JenkinsRule j to all the methods that uses j.something
+                // Add parameter JenkinsRule <variableName> to all the methods that uses <variableName>.something
                 classDecl = classDecl.withBody(classDecl
                         .getBody()
                         .withStatements(classDecl.getBody().getStatements().stream()
@@ -158,10 +163,12 @@ public class AnnotateWithJenkins extends ScanningRecipe<Set<String>> {
                                         J.MethodDeclaration methodDecl = (J.MethodDeclaration) statement;
                                         if (methodDecl.getBody() != null
                                                 && methodDecl.getBody().getStatements().stream()
-                                                        .anyMatch(stmt ->
-                                                                stmt.print().contains("j."))) {
+                                                        .anyMatch(stmt -> stmt.print()
+                                                                .contains(jenkinsRuleFieldName.get() + "."))) {
                                             LOG.info(
-                                                    "JenkinsRule j parameter added to: {}", methodDecl.getSimpleName());
+                                                    "JenkinsRule {} parameter added to: {}",
+                                                    jenkinsRuleFieldName.get(),
+                                                    methodDecl.getSimpleName());
                                             J.MethodDeclaration finalMethodDecl = methodDecl;
                                             methodDecl = methodDecl.withParameters(new ArrayList<>() {
 
@@ -197,7 +204,7 @@ public class AnnotateWithJenkins extends ScanningRecipe<Set<String>> {
                                                                                     Tree.randomId(),
                                                                                     Space.EMPTY,
                                                                                     Markers.EMPTY,
-                                                                                    "j",
+                                                                                    jenkinsRuleFieldName.get(),
                                                                                     JavaType.buildType(
                                                                                             "org.jvnet.hudson.test.JenkinsRule"),
                                                                                     null),
