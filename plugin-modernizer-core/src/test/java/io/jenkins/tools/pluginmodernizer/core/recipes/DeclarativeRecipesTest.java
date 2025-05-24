@@ -3519,12 +3519,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     public void myTestMethodChild(JenkinsRule j) {
                         j.before();
                     }
-
-                    private static File newFile(File parent, String child) throws IOException {
-                        File result = new File(parent, child);
-                        result.createNewFile();
-                        return result;
-                    }
                 }
                 """));
     }
