@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
@@ -306,9 +307,12 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                     if (methodMatcher.matches(method, enclosingClass)) {
                         JavaType.Method type = method.getMethodType();
 
-                        if (method.getMethodType().getOverride() != null) {
+                        if (!Objects.requireNonNull(method.getMethodType().getOverride())
+                                .toString()
+                                .equals(
+                                        "hudson.security.SecurityRealm{name=loadUserByUsername,return=org.acegisecurity.userdetails.UserDetails,parameters=[java.lang.String]}")) {
                             LOG.info(
-                                    "Don't migrate this one to loadUserByUsername2 {}",
+                                    "Don't migrate this one to loadUserByUsername2 as it doesn't override the method of SecurityRealm, instead overrides of: {}",
                                     method.getMethodType().getOverride().toString());
                             return super.visitMethodDeclaration(method, ctx);
                         }
