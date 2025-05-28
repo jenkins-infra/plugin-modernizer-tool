@@ -87,6 +87,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpg-jdk18on</artifactId>
+        <version>1.80</version>
+      </dependency>
+      <dependency>
         <groupId>com.fasterxml.jackson</groupId>
         <artifactId>jackson-bom</artifactId>
         <version>${jackson.version}</version>
@@ -221,6 +226,12 @@
         <groupId>org.apache.sshd</groupId>
         <artifactId>sshd-git</artifactId>
         <version>${apache.mina.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk18on</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.bouncycastle</groupId>
