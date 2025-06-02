@@ -51,7 +51,7 @@
     <micrometer.version>1.15.0</micrometer.version>
     <slf4j.version>2.0.17</slf4j.version>
     <logback.version>1.5.18</logback.version>
-    <picocli.version>4.7.6</picocli.version>
+    <picocli.version>4.7.7</picocli.version>
     <common.io.version>2.19.0</common.io.version>
     <common.lang3.version>3.17.0</common.lang3.version>
     <jackson.version>2.18.3</jackson.version>
