@@ -240,32 +240,6 @@ public class PluginModernizer {
                 LOG.debug("Metadata already computed for plugin {}. Using cached metadata.", plugin.getName());
             }
 
-            ModernizationMetadata modernizationMetadata = new ModernizationMetadata(cacheManager, plugin);
-            modernizationMetadata.setPluginName(plugin.getMetadata().getPluginName());
-            modernizationMetadata.setRpuBaseline(
-                    plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
-            try {
-                modernizationMetadata.setPluginRepository(
-                        ghService.getRepository(plugin).getHttpTransportUrl());
-            } catch (PluginProcessingException e) {
-                LOG.warn("Skipping GitHub repo fetch in CI test for plugin {}", plugin.getName());
-            }
-            modernizationMetadata.setPluginVersion(pluginService.extractVersion(plugin));
-            modernizationMetadata.setMigrationName(
-                    plugin.getConfig().getRecipe().getDisplayName());
-            modernizationMetadata.setMigrationDescription(
-                    plugin.getConfig().getRecipe().getDescription());
-            modernizationMetadata.setPluginName(plugin.getName());
-            modernizationMetadata.setTags(plugin.getConfig().getRecipe().getTags());
-            modernizationMetadata.setMigrationId(plugin.getConfig().getRecipe().getName());
-            plugin.setModernizationMetadata(modernizationMetadata);
-            modernizationMetadata.save();
-            LOG.info(
-                    "Modernization metadata for plugin {}: {}",
-                    plugin.getName(),
-                    modernizationMetadata.getLocation().toAbsolutePath());
-
-            // Try to remediate precondition errors
             if (plugin.hasPreconditionErrors()) {
                 plugin.getPreconditionErrors().forEach(preconditionError -> {
                     if (preconditionError.remediate(plugin)) {
@@ -340,6 +314,15 @@ public class PluginModernizer {
 
             // Run OpenRewrite
             plugin.runOpenRewrite(mavenInvoker);
+
+            // collect the modernziation metadata and push it to metadata repository
+            if (!config.isFetchMetadataOnly()) {
+                collectModernizationMetadata(plugin);
+                plugin.initializePluginDirectory(ghService);
+                plugin.commitMetadata(ghService);
+                plugin.pushMetadata(ghService);
+                plugin.openMetadataPullRequest(ghService);
+            }
             if (plugin.hasErrors()) {
                 LOG.warn(
                         "Skipping plugin {} due to openrewrite recipes errors. Check logs for more details.",
@@ -441,6 +424,36 @@ public class PluginModernizer {
         plugin.copyMetadata(cacheManager);
         plugin.loadMetadata(cacheManager);
         plugin.enrichMetadata(pluginService);
+    }
+
+    /**
+     * Collect modernization metadata for a plugin
+     * @param plugin The plugin
+     */
+    private void collectModernizationMetadata(Plugin plugin) {
+        ModernizationMetadata modernizationMetadata = new ModernizationMetadata(cacheManager, plugin);
+        modernizationMetadata.setPluginName(plugin.getMetadata().getPluginName());
+        modernizationMetadata.setRpuBaseline(
+                plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+        try {
+            modernizationMetadata.setPluginRepository(
+                    ghService.getRepository(plugin).getHttpTransportUrl());
+        } catch (PluginProcessingException e) {
+            LOG.warn("Skipping GitHub repo fetch in CI test for plugin {}", plugin.getName());
+        }
+        modernizationMetadata.setPluginVersion(pluginService.extractVersion(plugin));
+        modernizationMetadata.setMigrationName(plugin.getConfig().getRecipe().getDisplayName());
+        modernizationMetadata.setMigrationDescription(
+                plugin.getConfig().getRecipe().getDescription());
+        modernizationMetadata.setPluginName(plugin.getName());
+        modernizationMetadata.setTags(plugin.getConfig().getRecipe().getTags());
+        modernizationMetadata.setMigrationId(plugin.getConfig().getRecipe().getName());
+        plugin.setModernizationMetadata(modernizationMetadata);
+        modernizationMetadata.save();
+        LOG.info(
+                "Modernization metadata for plugin {}: {}",
+                plugin.getName(),
+                modernizationMetadata.getLocation().toAbsolutePath());
     }
 
     /**

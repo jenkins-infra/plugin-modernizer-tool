@@ -51,7 +51,10 @@ public class Settings {
     public static final Path SSH_PRIVATE_KEY;
 
     public static final String GITHUB_OWNER;
+
     public static final Path GITHUB_APP_PRIVATE_KEY_FILE;
+
+    public static final String GITHUB_METADATA_REPOSITORY = "metadata-plugin-modernizer-tool";
 
     public static final String ORGANIZATION = getTargetOrganisation();
 

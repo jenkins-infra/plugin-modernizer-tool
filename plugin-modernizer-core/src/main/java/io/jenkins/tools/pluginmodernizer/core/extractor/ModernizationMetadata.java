@@ -33,11 +33,31 @@ public class ModernizationMetadata extends CacheEntry<ModernizationMetadata> {
      */
     private String rpuBaseline;
 
+    /**
+     * Name of the migration
+     */
     private String migrationName;
+
+    /**
+     * Description of the migration
+     */
     private String migrationDescription;
+
+    /**
+     * Tags for the migration
+     */
     private Set<String> tags;
+
+    /**
+     * Unique identifier for the migration
+     */
     private String migrationId;
+
+    /**
+     * Number of deprecated APIs removed by the migration
+     */
     private Integer removedDeprecatedApis;
+
     /**
      * Create a new modernization metadata
      * Store the metadata in the relative target directory of current folder
