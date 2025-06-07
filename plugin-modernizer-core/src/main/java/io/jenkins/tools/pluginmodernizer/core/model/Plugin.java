@@ -96,6 +96,21 @@ public class Plugin {
     private boolean hasPullRequest;
 
     /**
+     * Flag to indicate if the modernization-metadata has any commits to be pushed
+     */
+    private boolean hasMetadataCommits;
+
+    /**
+     * Flag to indicate if the modernization-metadata has any changes pushed and ready to be merged
+     */
+    private boolean hasMetadataChangesPushed;
+
+    /**
+     * Flag to indicate if the modernization-metadata has any pull request open
+     */
+    private boolean hasMetadataPullRequest;
+
+    /**
      * Return if the plugin has any error
      */
     private final List<PluginProcessingException> errors = new LinkedList<>();
@@ -267,6 +282,84 @@ public class Plugin {
      */
     public boolean hasPullRequest() {
         return hasPullRequest;
+    }
+
+    /**
+     * Indicate that the plugin has metadata commits to be pushed
+     * @return Plugin object
+     */
+    public Plugin withMetadataCommits() {
+        this.hasMetadataCommits = true;
+        return this;
+    }
+
+    /**
+     * Indicate that the plugin has no metadata commits to be pushed
+     * @return Plugin object
+     */
+    public Plugin withoutMetadataCommits() {
+        this.hasMetadataCommits = false;
+        return this;
+    }
+
+    /**
+     * Indicate that the plugin has metadata changes pushed and ready to be merged
+     * @return Plugin object
+     */
+    public Plugin withMetadataChangesPushed() {
+        this.hasMetadataChangesPushed = true;
+        return this;
+    }
+
+    /**
+     * Indicate that the plugin has no metadata changes pushed and ready to be merged
+     * @return Plugin object
+     */
+    public Plugin withoutMetadataChangesPushed() {
+        this.hasMetadataChangesPushed = false;
+        return this;
+    }
+
+    /**
+     * Indicate that the plugin has a metadata pull request open
+     * @return Plugin object
+     */
+    public Plugin withMetadataPullRequest() {
+        this.hasMetadataPullRequest = true;
+        return this;
+    }
+
+    /**
+     * Indicate that the plugin has no metadata pull request open
+     * @return Plugin object
+     */
+    public Plugin withoutMetadataPullRequest() {
+        this.hasMetadataPullRequest = false;
+        return this;
+    }
+
+    /**
+     * Return if the plugin has any metadata commits
+     * @return True if the plugin has commits
+     */
+    public boolean hasMetadataCommits() {
+        return hasMetadataCommits;
+    }
+
+    /**
+     * Return if the plugin has any metadata changes pushed and ready to be merged
+     * @return True if the plugin has changes pushed
+     */
+    public boolean hasMetadataChangesPushed() {
+        return hasMetadataChangesPushed;
+    }
+
+    /**
+     * Return if the plugin has any metadata changes pushed and ready to be merged
+     * @return True if the plugin has changes pushed
+     */
+    public boolean hasMetadataPullRequest() {
+        return hasMetadataPullRequest;
     }
 
     /**
@@ -467,6 +560,14 @@ public class Plugin {
      */
     public URI getGitRepositoryURI(String organization) {
         return URI.create("https://github.com/" + organization + "/" + repositoryName + ".git");
+    }
+
+    /**
+     * Initialize the plugin directory on the given service
+     * @param service The GitHub service
+     */
+    public void initializePluginDirectory(GHService service) {
+        service.initializePluginDirectory(this);
     }
 
     /**
@@ -754,6 +855,14 @@ public class Plugin {
     }
 
     /**
+     * Commit the metadata changes to the metadata repository
+     * @param service The GitHub service
+     */
+    public void commitMetadata(GHService service) {
+        service.commitMetadataChanges(this);
+    }
+
+    /**
      * Push the changes to the plugin repository
      * @param service The GitHub service
      */
@@ -762,11 +871,27 @@ public class Plugin {
     }
 
     /**
+     * Push the metadata changes to the metadata repository
+     * @param service The GitHub service
+     */
+    public void pushMetadata(GHService service) {
+        service.pushMetadataChanges(this);
+    }
+
+    /**
      * Open a pull request for the plugin
      * @param service The GitHub service
      */
     public void openPullRequest(GHService service) {
         service.openPullRequest(this);
+    }
+
+    /**
+     * Open a pull request for the metadata changes
+     * @param service The GitHub service
+     */
+    public void openMetadataPullRequest(GHService service) {
+        service.openMetadataPullRequest(this);
     }
 
     /**
