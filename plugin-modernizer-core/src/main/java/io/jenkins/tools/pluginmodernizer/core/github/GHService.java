@@ -248,18 +248,6 @@ public class GHService {
     }
 
     /**
-     * Set the remote URL of the repository
-     *
-     * @param git The git object to interact with the repository
-     * @param remoteUrl The remote URL to set
-     */
-    public void setRemoteURL(Git git, String remoteUrl) throws URISyntaxException, GitAPIException {
-        URIish remoteUri = new URIish(remoteUrl);
-        git.remoteSetUrl().setRemoteName("origin").setRemoteUri(remoteUri).call();
-        LOG.info("Set remote URL to {}", remoteUrl);
-    }
-
-    /**
      * Add files to git staging area
      *
      * @param git The git object to interact with the repository
@@ -416,6 +404,16 @@ public class GHService {
             LOG.debug("Forked repository: {}", fork.getHtmlUrl());
         } catch (IOException | InterruptedException e) {
             plugin.addError("Failed to fork the repository", e);
+            plugin.raiseLastError();
+        }
+        // Ensure to change the remote URL to the forked repository
+        try (Git git = Git.open(plugin.getLocalMetadataRepository().toFile())) {
+            GHRepository fork = getMetadataRepositoryFork(plugin);
+            URIish remoteUri = getRemoteUri(fork);
+            git.remoteSetUrl().setRemoteName("origin").setRemoteUri(remoteUri).call();
+            LOG.debug("Changed remote URL to forked repository {}", fork.getHtmlUrl());
+        } catch (IOException | URISyntaxException | GitAPIException e) {
+            plugin.addError("Failed to change remote URL to forked repository", e);
             plugin.raiseLastError();
         }
     }
@@ -1157,8 +1155,6 @@ public class GHService {
             return;
         }
         try (Git git = Git.open(plugin.getLocalMetadataRepository().toFile())) {
-            // change the remote origin back to fork
-            setRemoteURL(git, "https://github.com/" + getGithubOwner() + "/" + Settings.GITHUB_METADATA_REPOSITORY);
             addFilesToStaging(git, ".");
             Status status = git.status().call();
             // don't commit empty changes
@@ -1175,7 +1171,7 @@ public class GHService {
             } else {
                 LOG.info("No metadata changes to commit for plugin {}", plugin.getName());
             }
-        } catch (IOException | GitAPIException | URISyntaxException e) {
+        } catch (IOException | GitAPIException e) {
             plugin.addError("Failed to commit changes", e);
             plugin.raiseLastError();
         }
