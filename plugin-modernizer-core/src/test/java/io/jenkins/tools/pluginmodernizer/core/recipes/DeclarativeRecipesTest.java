@@ -1182,7 +1182,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <parent>
                         <groupId>org.jenkins-ci.plugins</groupId>
                         <artifactId>plugin</artifactId>
-                        <version>5.17</version>
+                        <version>%s</version>
                         <relativePath />
                       </parent>
                       <artifactId>empty</artifactId>
@@ -1250,6 +1250,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     </project>
                     """
                                 .formatted(
+                                        Settings.getJenkinsParentVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
                                         Settings.getRecommendedBomVersion(),
