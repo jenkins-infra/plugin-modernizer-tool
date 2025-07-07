@@ -56,6 +56,15 @@ targets:
       replacePattern: '$1 {{ source "latestBomVersion" }}'
     sourceid: latestBomVersion
     scmid: default
+  updateRecommendedJenkinsBom: # TODO: To be removed when 2.479 is no longer part of the BOM
+    name: "Update recommended version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(bom.recommended.version =) (.*)"
+      replacePattern: '$1 {{ source "latestBomVersion" }}'
+    sourceid: latestBomVersion
+    scmid: default
   updateJenkinsTestHarness:
     name: "Update jenkins-test-harness version in versions.properties"
     kind: file
