@@ -53,7 +53,7 @@
     <logback.version>1.5.18</logback.version>
     <picocli.version>4.7.6</picocli.version>
     <common.io.version>2.19.0</common.io.version>
-    <common.lang3.version>3.17.0</common.lang3.version>
+    <common.lang3.version>3.18.0</common.lang3.version>
     <jackson.version>2.18.3</jackson.version>
     <common.text.version>1.13.1</common.text.version>
     <asm.version>9.8</asm.version>
