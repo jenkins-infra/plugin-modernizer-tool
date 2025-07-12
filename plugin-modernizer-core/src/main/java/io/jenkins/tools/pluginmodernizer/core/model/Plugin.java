@@ -132,10 +132,26 @@ public class Plugin {
      */
     private final Set<String> tags = new HashSet<>();
 
+    /**
+     * Prefix for the log file names that record modernization failures.
+     */
+    private static final String MODERNIZATION_FAILURES_LOG_PREFIX = "modernization-failures-";
+
+    /**
+     * Prefix for the log file names that record network-related failures.
+     */
+    private static final String NETWORK_FAILURES_LOG_PREFIX = "network-failures-";
+
+    /**
+     * Extension for the log files.
+     */
+    private static final String LOG_FILE_EXTENSION = ".log";
+
     private Plugin() {}
 
     /**
      * Build a minimal plugin object with name
+     *
      * @param name Name of the plugin
      * @return Plugin object
      */
@@ -145,7 +161,8 @@ public class Plugin {
 
     /**
      * Build a local plugin object with name and location
-     * @param name Name of the plugin
+     *
+     * @param name     Name of the plugin
      * @param location Location of the plugin
      * @return Plugin object
      */
@@ -155,6 +172,7 @@ public class Plugin {
 
     /**
      * Set the config of the plugin
+     *
      * @param config The config
      * @return Plugin object
      */
@@ -165,6 +183,7 @@ public class Plugin {
 
     /**
      * Set the name of the plugin
+     *
      * @param name Name of the plugin
      * @return Plugin object
      */
@@ -175,6 +194,7 @@ public class Plugin {
 
     /**
      * Set the local flag of the plugin
+     *
      * @param local Local flag
      * @return Plugin object
      */
@@ -185,6 +205,7 @@ public class Plugin {
 
     /**
      * Set the local repository path of the plugin
+     *
      * @param localRepository Local repository path
      * @return Plugin object
      */
@@ -215,6 +236,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has commits to be pushed
+     *
      * @return Plugin object
      */
     public Plugin withCommits() {
@@ -224,6 +246,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has no commits to be pushed
+     *
      * @return Plugin object
      */
     public Plugin withoutCommits() {
@@ -233,6 +256,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has changes pushed and ready to be merged
+     *
      * @return Plugin object
      */
     public Plugin withChangesPushed() {
@@ -242,6 +266,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has no changes pushed and ready to be merged
+     *
      * @return Plugin object
      */
     public Plugin withoutChangesPushed() {
@@ -251,6 +276,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has a pull request open
+     *
      * @return Plugin object
      */
     public Plugin withPullRequest() {
@@ -260,6 +286,7 @@ public class Plugin {
 
     /**
      * Indicate that the plugin has no pull request open
+     *
      * @return Plugin object
      */
     public Plugin withoutPullRequest() {
@@ -269,6 +296,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any commits
+     *
      * @return True if the plugin has commits
      */
     public boolean hasCommits() {
@@ -277,6 +305,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any changes pushed and ready to be merged
+     *
      * @return True if the plugin has changes pushed
      */
     public boolean hasChangesPushed() {
@@ -285,6 +314,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any changes pushed and ready to be merged
+     *
      * @return True if the plugin has changes pushed
      */
     public boolean hasPullRequest() {
@@ -379,6 +409,7 @@ public class Plugin {
 
     /**
      * Convenience method to check if the plugin is using Spotless
+     *
      * @return True if the plugin is using Spotless
      */
     public boolean isUsingSpotless() {
@@ -389,6 +420,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any errors
+     *
      * @return True if the plugin has errors
      */
     public boolean hasErrors() {
@@ -397,6 +429,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has any precondition errors
+     *
      * @return True if the plugin has precondition errors
      */
     public boolean hasPreconditionErrors() {
@@ -407,6 +440,7 @@ public class Plugin {
 
     /**
      * Get the precondition errors of the plugin
+     *
      * @return Set of precondition errors
      */
     public Set<PreconditionError> getPreconditionErrors() {
@@ -425,6 +459,7 @@ public class Plugin {
 
     /**
      * Remove a precondition error from the metadata errors
+     *
      * @param preconditionError Precondition error to remove
      */
     public void removePreconditionError(PreconditionError preconditionError) {
@@ -438,6 +473,7 @@ public class Plugin {
 
     /**
      * Get the errors of the plugin
+     *
      * @return List of errors
      */
     public List<PluginProcessingException> getErrors() {
@@ -446,8 +482,9 @@ public class Plugin {
 
     /**
      * Add an error to the plugin
+     *
      * @param message The message
-     * @param e The exception
+     * @param e       The exception
      */
     public void addError(String message, Exception e) {
         LOG.error(getMarker(), message, e);
@@ -457,19 +494,241 @@ public class Plugin {
             LOG.error(message);
         }
         errors.add(new PluginProcessingException(message, e, this));
+        logFailure();
     }
 
     /**
      * Add an error to the plugin
+     *
      * @param message The message
      */
     public void addError(String message) {
         LOG.error(message);
         errors.add(new PluginProcessingException(message, this));
+        logFailure();
     }
 
     /**
-     * Raise the last error as exception of the plugin
+     * Create a log file path with the given prefix and current date
+     *
+     * @param prefix The log file prefix
+     * @return Path to the log file
+     */
+    private Path createLogFilePath(String prefix) {
+        String timestamp =
+                java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        return Path.of(
+                System.getProperty("user.home"),
+                ".cache",
+                "jenkins-plugin-modernizer-cli",
+                prefix + "-" + timestamp + LOG_FILE_EXTENSION);
+    }
+
+    /**
+     * Extracts the last part of the recipe name after the last dot.
+     *
+     * @param recipeName The full recipe name
+     * @return The last part of the recipe name
+     */
+    private String getLastPartOfRecipeName(String recipeName) {
+        int lastDotIndex = recipeName.lastIndexOf('.');
+        return lastDotIndex != -1 ? recipeName.substring(lastDotIndex + 1) : recipeName;
+    }
+
+    /**
+     * Logs a failure event to the modernization failures log file.
+     * The log file name includes the last part of the recipe name and a timestamp.
+     */
+    private void logFailure() {
+        String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
+        Path failureLogPath = createLogFilePath(MODERNIZATION_FAILURES_LOG_PREFIX + recipeName);
+
+        ensureLogDirectoryExists(failureLogPath);
+        try {
+            if (!Files.exists(failureLogPath)) {
+                Files.createFile(failureLogPath);
+            }
+            Set<String> existingEntries = new HashSet<>(Files.readAllLines(failureLogPath));
+            // Try to get the version from metadata or directly from pom.xml
+            String version = "unknown";
+            if (this.metadata != null && this.metadata.getVersion() != null) {
+                version = this.metadata.getVersion();
+            } else {
+                // Try to extract version directly from pom.xml
+                try {
+                    Path pomPath = getLocalRepository().resolve("pom.xml");
+                    if (Files.exists(pomPath)) {
+                        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                        dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+                        dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+                        dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+                        dbFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+                        dbFactory.setXIncludeAware(false);
+                        dbFactory.setExpandEntityReferences(false);
+                        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                        Document doc = dBuilder.parse(pomPath.toFile());
+                        doc.getDocumentElement().normalize();
+
+                        XPathFactory xPathFactory = XPathFactory.newInstance();
+                        XPath xpath = xPathFactory.newXPath();
+                        String extractedVersion;
+                        try {
+                            extractedVersion = xpath.compile("/project/version").evaluate(doc);
+                        } catch (javax.xml.xpath.XPathExpressionException e) {
+                            LOG.debug("Error evaluating XPath for version: {}", e.getMessage());
+                            extractedVersion = ""; // Set to empty string on error
+                        }
+                        if (extractedVersion != null && !extractedVersion.isEmpty()) {
+                            // Check if the version contains property placeholders like ${changelist}
+                            if (extractedVersion.contains("${")) {
+                                try {
+                                    // Find all property placeholders in the format ${property}
+                                    java.util.regex.Pattern pattern =
+                                            java.util.regex.Pattern.compile("\\$\\{([^}]+)\\}");
+                                    java.util.regex.Matcher matcher = pattern.matcher(extractedVersion);
+
+                                    StringBuffer result = new StringBuffer();
+                                    while (matcher.find()) {
+                                        String propertyName = matcher.group(1);
+                                        String propertyValue = null;
+
+                                        // Try to find the property in the POM
+                                        // Validate property name to prevent XPath injection
+                                        if (!isValidMavenPropertyName(propertyName)) {
+                                            LOG.debug("Invalid property name: {}", propertyName);
+                                            continue;
+                                        }
+
+                                        try {
+                                            // Use a completely safe approach with predefined XPath expressions
+                                            // Instead of dynamically constructing XPath expressions, use a fixed set
+                                            // This approach is immune to XPath injection
+                                            switch (propertyName) {
+                                                case "changelist":
+                                                    propertyValue = xpath.compile("/project/properties/changelist")
+                                                            .evaluate(doc);
+                                                    break;
+                                                case "sha1":
+                                                    propertyValue = xpath.compile("/project/properties/sha1")
+                                                            .evaluate(doc);
+                                                    break;
+                                                case "revision":
+                                                    propertyValue = xpath.compile("/project/properties/revision")
+                                                            .evaluate(doc);
+                                                    break;
+                                                case "jenkins.version":
+                                                    propertyValue = xpath.compile("/project/properties/jenkins.version")
+                                                            .evaluate(doc);
+                                                    break;
+                                                case "java.level":
+                                                    propertyValue = xpath.compile("/project/properties/java.level")
+                                                            .evaluate(doc);
+                                                    break;
+                                                default:
+                                                    // For security reasons, we only support a whitelist of property
+                                                    // names
+                                                    LOG.debug("Unsupported property name: {}", propertyName);
+                                                    propertyValue = "";
+                                                    break;
+                                            }
+
+                                            // If not found, check if it's a project property
+                                            if (propertyValue == null || propertyValue.isEmpty()) {
+                                                // Use predefined XPath expressions to avoid injection
+                                                if ("project.version".equals(propertyName)) {
+                                                    propertyValue = xpath.compile("/project/version")
+                                                            .evaluate(doc);
+                                                } else if ("project.groupId".equals(propertyName)) {
+                                                    propertyValue = xpath.compile("/project/groupId")
+                                                            .evaluate(doc);
+                                                } else if ("project.artifactId".equals(propertyName)) {
+                                                    propertyValue = xpath.compile("/project/artifactId")
+                                                            .evaluate(doc);
+                                                }
+                                            }
+
+                                            // If still not found, check for common values
+                                            if (propertyValue == null || propertyValue.isEmpty()) {
+                                                if ("changelist".equals(propertyName)) {
+                                                    propertyValue = "-SNAPSHOT"; // Common convention
+                                                } else if ("sha1".equals(propertyName)) {
+                                                    propertyValue = ""; // Often empty in local builds
+                                                }
+                                            }
+                                        } catch (javax.xml.xpath.XPathExpressionException e) {
+                                            LOG.debug("Error resolving property {}: {}", propertyName, e.getMessage());
+                                        }
+
+                                        // Replace the property placeholder with its value or keep it if not found
+                                        matcher.appendReplacement(
+                                                result, propertyValue != null ? propertyValue : matcher.group(0));
+                                    }
+                                    matcher.appendTail(result);
+
+                                    version = result.toString();
+                                } catch (java.util.regex.PatternSyntaxException e) {
+                                    LOG.debug("Failed to resolve version properties: {}", e.getMessage());
+                                    version = extractedVersion; // Use the original version if resolution fails
+
+                                } catch (IllegalArgumentException e) {
+                                    LOG.debug("Failed to resolve version properties: {}", e.getMessage());
+                                    version = extractedVersion; // Use the original version if resolution fails
+                                }
+                            } else {
+                                version = extractedVersion;
+                            }
+
+                            // Also update the metadata if it exists
+                            if (this.metadata != null) {
+                                this.metadata.setVersion(version);
+                            }
+                        }
+                    }
+                } catch (javax.xml.parsers.ParserConfigurationException
+                        | org.xml.sax.SAXException
+                        | java.io.IOException e) {
+                    LOG.debug("Failed to extract version from pom.xml", e);
+                }
+            }
+
+            String entry = name + ":" + version;
+            if (!existingEntries.contains(entry)) {
+                Files.writeString(
+                        failureLogPath,
+                        entry + "\n",
+                        java.nio.file.StandardOpenOption.CREATE,
+                        java.nio.file.StandardOpenOption.APPEND);
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to write to failure log file: " + failureLogPath, e);
+        }
+    }
+
+    /**
+     * Logs a network failure event to the network failures log file.
+     * The log file name includes the last part of the recipe name and a timestamp.
+     *
+     * @param message The network failure message
+     */
+    public void logNetworkFailure(String message) {
+        String recipeName = getLastPartOfRecipeName(getConfig().getRecipe().getName());
+        Path networkFailureLogPath = createLogFilePath(NETWORK_FAILURES_LOG_PREFIX + recipeName);
+
+        ensureLogDirectoryExists(networkFailureLogPath);
+        try {
+            // Network failures are logged without duplicate checking, as we want to track each occurrence
+            Files.writeString(
+                    networkFailureLogPath,
+                    name + ": " + message + "\n",
+                    java.nio.file.StandardOpenOption.CREATE,
+                    java.nio.file.StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            LOG.error("Failed to write to network failure log file: " + networkFailureLogPath, e);
+        }
+    }
+
+    /**
+     * Raise the last error as exception to the plugin
      * Do nothing if no errors
      */
     public void raiseLastError() throws PluginProcessingException {
@@ -488,6 +747,7 @@ public class Plugin {
 
     /**
      * Add a tag to the plugin
+     *
      * @param tag Tag to add
      * @return Plugin object
      */
@@ -498,6 +758,7 @@ public class Plugin {
 
     /**
      * Add tags to the plugin
+     *
      * @param tags Tags to add
      * @return Plugin object
      */
@@ -508,6 +769,7 @@ public class Plugin {
 
     /**
      * Remove tags from the plugin
+     *
      * @return Plugin object
      */
     public Plugin withoutTags() {
@@ -517,6 +779,7 @@ public class Plugin {
 
     /**
      * Remove errors from the plugin
+     *
      * @return Plugin object
      */
     public Plugin withoutErrors() {
@@ -526,6 +789,7 @@ public class Plugin {
 
     /**
      * Get the configuration of the plugin
+     *
      * @return Configuration
      */
     public Config getConfig() {
@@ -534,6 +798,7 @@ public class Plugin {
 
     /**
      * Get the name of the plugin
+     *
      * @return Name of the plugin
      */
     public String getName() {
@@ -542,6 +807,7 @@ public class Plugin {
 
     /**
      * Get the repository name of the plugin
+     *
      * @return Repository name of the plugin
      */
     public String getRepositoryName() {
@@ -550,6 +816,7 @@ public class Plugin {
 
     /**
      * Return if the plugin is local to the system
+     *
      * @return True if the plugin is local
      */
     public boolean isLocal() {
@@ -558,6 +825,7 @@ public class Plugin {
 
     /**
      * Get the local repository path
+     *
      * @return Local repository path
      */
     public Path getLocalRepository() {
@@ -578,6 +846,7 @@ public class Plugin {
 
     /**
      * Get the URI of the repository on the given organization
+     *
      * @param organization Organization name (e.g. jenkinsci)
      * @return URI of the repository
      */
@@ -597,6 +866,7 @@ public class Plugin {
 
     /**
      * Get the path of the JDK directory
+     *
      * @return Path of the JDK directory
      */
     public JDK getJDK() {
@@ -605,6 +875,7 @@ public class Plugin {
 
     /**
      * Get the path of the log file for the plugin
+     *
      * @return Path of the log file
      */
     public Path getLogFile() {
@@ -613,6 +884,7 @@ public class Plugin {
 
     /**
      * Get the login marker for the plugin
+     *
      * @return Marker object
      */
     public Marker getMarker() {
@@ -621,18 +893,25 @@ public class Plugin {
 
     /**
      * Ensures that the directories exist to store the logs.
+     *
      * @param logPath The path to check for the missing directories
      */
     private void ensureLogDirectoryExists(Path logPath) {
-        try {
-            Files.createDirectories(logPath.getParent());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create log directory: " + logPath.getParent(), e);
+        Path parentPath = logPath.getParent();
+        if (parentPath != null) {
+            try {
+                Files.createDirectories(parentPath);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create log directory: " + parentPath, e);
+            }
+        } else {
+            throw new RuntimeException("Parent path is null for log path: " + logPath);
         }
     }
 
     /**
      * Get the list of tags for the plugin
+     *
      * @return List of tags
      */
     public Set<String> getTags() {
@@ -641,6 +920,7 @@ public class Plugin {
 
     /**
      * Execute maven clean on this plugin
+     *
      * @param maven The maven invoker instance
      */
     public void clean(MavenInvoker maven) {
@@ -649,6 +929,7 @@ public class Plugin {
 
     /**
      * Execute maven compile on this plugin. Compile is skipped if only metadata is required
+     *
      * @param maven The maven invoker instance
      */
     public void compile(MavenInvoker maven) {
@@ -669,8 +950,9 @@ public class Plugin {
     /**
      * Verify the plugin without tests and quick build using the given maven invoker and JDK.
      * This is useful to run recipes on very outdated plugin
+     *
      * @param maven The maven invoker instance
-     * @param jdk The JDK to use
+     * @param jdk   The JDK to use
      */
     public void verifyQuickBuild(MavenInvoker maven, JDK jdk) {
         LOG.info("Quick build without tests {} using with JDK {} ... Please be patient", name, jdk.getMajor());
@@ -683,6 +965,7 @@ public class Plugin {
 
     /**
      * Execute maven verify on this plugin
+     *
      * @param maven The maven invoker instance
      */
     public void verify(MavenInvoker maven) {
@@ -700,6 +983,7 @@ public class Plugin {
 
     /**
      * Format the plugin using spotless
+     *
      * @param maven The maven invoker instance
      */
     public void format(MavenInvoker maven) {
@@ -721,6 +1005,7 @@ public class Plugin {
 
     /**
      * Enrich the metadata of the plugin and save it
+     *
      * @param pluginService The update center service
      */
     public void enrichMetadata(PluginService pluginService) {
@@ -736,6 +1021,7 @@ public class Plugin {
 
     /**
      * Collect plugin metadata
+     *
      * @param maven The maven invoker instance
      */
     public void collectMetadata(MavenInvoker maven) {
@@ -769,6 +1055,7 @@ public class Plugin {
 
     /**
      * Run the openrewrite plugin on this plugin
+     *
      * @param maven The maven invoker instance
      */
     public void runOpenRewrite(MavenInvoker maven) {
@@ -782,6 +1069,7 @@ public class Plugin {
 
     /**
      * Fork this plugin
+     *
      * @param service The GitHub service
      */
     public void fork(GHService service) {
@@ -806,6 +1094,7 @@ public class Plugin {
 
     /**
      * Fork sync this plugin
+     *
      * @param service The GitHub service
      */
     public void sync(GHService service) {
@@ -830,6 +1119,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is forked
+     *
      * @param service The GitHub service
      */
     public boolean isForked(GHService service) {
@@ -846,6 +1136,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is archived
+     *
      * @param service The GitHub service
      * @return True if the plugin is archived
      */
@@ -855,6 +1146,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is deprecated in the update center
+     *
      * @param pluginService The update center service
      * @return True if the plugin is deprecated
      */
@@ -864,6 +1156,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is deprecated in the update center
+     *
      * @return True if the plugin is deprecated
      */
     public boolean isDeprecated() {
@@ -872,6 +1165,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is an API plugin
+     *
      * @param pluginService The update center service
      * @return True if the plugin is an API plugin
      */
@@ -881,6 +1175,7 @@ public class Plugin {
 
     /**
      * Return if this plugin is an API plugin
+     *
      * @return True if the plugin is an API plugin
      */
     public boolean isApiPlugin() {
@@ -889,7 +1184,8 @@ public class Plugin {
 
     /**
      * Delete the plugin fork
-     * @param service  The GitHub service
+     *
+     * @param service The GitHub service
      */
     public void deleteFork(GHService service) {
         service.deleteFork(this);
@@ -897,6 +1193,7 @@ public class Plugin {
 
     /**
      * Checkout the plugin branch
+     *
      * @param service The GitHub service
      */
     public void checkoutBranch(GHService service) {
@@ -913,6 +1210,7 @@ public class Plugin {
 
     /**
      * Commit the changes to the plugin repository
+     *
      * @param service The GitHub service
      */
     public void commit(GHService service) {
@@ -929,6 +1227,7 @@ public class Plugin {
 
     /**
      * Push the changes to the plugin repository
+     *
      * @param service The GitHub service
      */
     public void push(GHService service) {
@@ -945,6 +1244,7 @@ public class Plugin {
 
     /**
      * Open a pull request for the plugin
+     *
      * @param service The GitHub service
      */
     public void openPullRequest(GHService service) {
@@ -961,6 +1261,7 @@ public class Plugin {
 
     /**
      * Fetch the plugin code into local directory
+     *
      * @param service The GitHub service
      */
     public void fetch(GHService service) {
@@ -977,6 +1278,7 @@ public class Plugin {
 
     /**
      * Get the associated repository for this plugin
+     *
      * @param service The GitHub service
      * @return The repository object
      */
@@ -995,6 +1297,7 @@ public class Plugin {
 
     /**
      * Get the associated fork repository for this plugin
+     *
      * @param service The GitHub service
      * @return The repository object
      */
@@ -1013,6 +1316,7 @@ public class Plugin {
 
     /**
      * Get the metadata of the plugin
+     *
      * @return Plugin metadata
      */
     public PluginMetadata getMetadata() {
@@ -1021,6 +1325,7 @@ public class Plugin {
 
     /**
      * Return if the plugin has metadata loaded in memory
+     *
      * @return True if the plugin has metadata loaded
      */
     public boolean hasMetadata() {
@@ -1029,6 +1334,7 @@ public class Plugin {
 
     /**
      * Set the metadata of the plugin
+     *
      * @param metadata Plugin metadata
      */
     public void setMetadata(PluginMetadata metadata) {
@@ -1037,6 +1343,7 @@ public class Plugin {
 
     /**
      * Load metadata from cache
+     *
      * @param cacheManager The cache manager
      */
     public void loadMetadata(CacheManager cacheManager) {
@@ -1061,6 +1368,7 @@ public class Plugin {
 
     /**
      * Copy metadata from plugin target directory to cache
+     *
      * @param cacheManager The cache manager
      */
     public void copyMetadata(CacheManager cacheManager) {
@@ -1104,6 +1412,7 @@ public class Plugin {
 
     /**
      * Add a modified file to the plugin
+     *
      * @param files The files to add
      */
     public void addModifiedFiles(Collection<String> files) {
@@ -1112,6 +1421,7 @@ public class Plugin {
 
     /**
      * Return a set of modified files in the plugin
+     *
      * @return Set of modified files
      */
     public Set<String> getModifiedFiles() {
@@ -1120,6 +1430,7 @@ public class Plugin {
 
     /**
      * Build cache manager for this plugin
+     *
      * @return Cache manager
      */
     private CacheManager buildPluginTargetDirectoryCacheManager() {
@@ -1143,6 +1454,7 @@ public class Plugin {
 
     /**
      * Static parse of the pom file to a XML document
+     *
      * @param pom The path to the pom file
      * @return The XML document
      */
@@ -1176,6 +1488,43 @@ public class Plugin {
         if (o == null || getClass() != o.getClass()) return false;
         Plugin plugin = (Plugin) o;
         return Objects.equals(name, plugin.name);
+    }
+
+    /**
+     * Validates if a string is a valid Maven property name to prevent XPath injection.
+     * Maven property names should only contain alphanumeric characters, dots, hyphens, and underscores.
+     *
+     * @param propertyName The property name to validate
+     * @return True if the property name is valid, false otherwise
+     */
+    private boolean isValidMavenPropertyName(String propertyName) {
+        // Maven property names should only contain alphanumeric characters, dots, hyphens, and underscores
+        // Use a very strict pattern to prevent any XPath injection
+        if (propertyName == null) {
+            return false;
+        }
+
+        // Check for common Maven property names first
+        if ("changelist".equals(propertyName)
+                || "sha1".equals(propertyName)
+                || "revision".equals(propertyName)
+                || "project.version".equals(propertyName)
+                || "project.groupId".equals(propertyName)
+                || "project.artifactId".equals(propertyName)) {
+            return true;
+        }
+
+        // Otherwise, use a very strict pattern
+        return propertyName.matches("^[a-zA-Z0-9][-_.a-zA-Z0-9]*$")
+                && !propertyName.contains("..")
+                && // Prevent path traversal
+                !propertyName.contains("/")
+                && // Prevent XPath manipulation
+                !propertyName.contains("\\")
+                && // Prevent escaping
+                !propertyName.contains("'")
+                && // Prevent quote injection
+                !propertyName.contains("\""); // Prevent quote injection
     }
 
     @Override
