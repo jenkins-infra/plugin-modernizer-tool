@@ -41,6 +41,11 @@ public class GlobalOptions implements IOption {
     private boolean debug;
 
     @CommandLine.Option(
+            names = {"--allow-deprecated-plugins"},
+            description = "Allow modernization of deprecated plugins (use with caution).")
+    private boolean allowDeprecatedPlugins = false;
+
+    @CommandLine.Option(
             names = {"--cache-path"},
             description = "Path to the cache directory.")
     private Path cachePath = Settings.DEFAULT_CACHE_PATH;
@@ -67,7 +72,8 @@ public class GlobalOptions implements IOption {
                                 ? cachePath.resolve(Settings.CACHE_SUBDIR)
                                 : cachePath)
                 .withMavenHome(mavenHome)
-                .withMavenLocalRepo(mavenLocalRepo);
+                .withMavenLocalRepo(mavenLocalRepo)
+                .withAllowDeprecatedPlugins(allowDeprecatedPlugins);
     }
 
     /**

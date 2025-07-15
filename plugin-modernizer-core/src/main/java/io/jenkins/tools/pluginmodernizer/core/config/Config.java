@@ -9,6 +9,7 @@ import java.util.List;
 public class Config {
 
     private static boolean DEBUG = false;
+    private final boolean allowDeprecatedPlugins;
 
     public static void setDebug(boolean debug) {
         DEBUG = debug;
@@ -55,7 +56,8 @@ public class Config {
             boolean skipMetadata,
             boolean dryRun,
             boolean draft,
-            boolean removeForks) {
+            boolean removeForks,
+            boolean allowDeprecatedPlugins) {
         this.version = version;
         this.githubOwner = githubOwner;
         this.githubAppId = githubAppId;
@@ -76,6 +78,7 @@ public class Config {
         this.dryRun = dryRun;
         this.draft = draft;
         this.removeForks = removeForks;
+        this.allowDeprecatedPlugins = allowDeprecatedPlugins;
     }
 
     public String getVersion() {
@@ -184,6 +187,10 @@ public class Config {
         return removeForks;
     }
 
+    public boolean isAllowDeprecatedPlugins() {
+        return allowDeprecatedPlugins;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -209,6 +216,7 @@ public class Config {
         private boolean dryRun = false;
         private boolean draft = false;
         public boolean removeForks = false;
+        private boolean allowDeprecatedPlugins = false;
 
         public Builder withVersion(String version) {
             this.version = version;
@@ -326,6 +334,11 @@ public class Config {
             return this;
         }
 
+        public Builder withAllowDeprecatedPlugins(boolean allowDeprecatedPlugins) {
+            this.allowDeprecatedPlugins = allowDeprecatedPlugins;
+            return this;
+        }
+
         public Config build() {
             return new Config(
                     version,
@@ -347,7 +360,8 @@ public class Config {
                     skipMetadata,
                     dryRun,
                     draft,
-                    removeForks);
+                    removeForks,
+                    allowDeprecatedPlugins);
         }
     }
 }

@@ -193,6 +193,8 @@ source <(plugin-modernizer generate-completion)
 
 - `--debug`: (optional) Enables debug mode. Defaults to false.
 
+- `--allow-deprecated-plugins`: (optional) **Allow modernization of deprecated plugins.**  
+  _Use with caution: This flag enables modernization and metadata collection for plugins that are marked as deprecated. Intended for new maintainers or development environments only. By default, deprecated plugins are blocked from modernization for safety._
 
 - `--cache-path`: (optional) Custom path to the cache directory. Defaults to `${user.home}/.cache/jenkins-plugin-modernizer-cli`.
 
@@ -296,6 +298,14 @@ plugin-modernizer run --plugin-file path/to/plugin-file --recipe AddPluginsBom
 plugin-modernizer run --plugins git,git-client,jobcacher --recipe AddPluginsBom
 ```
 The above command creates pull requests in the respective remote repositories after applying the changes.
+
+### modernizing a deprecated plugin (for new maintainers)
+
+```shell
+plugin-modernizer run --plugins bmc-change-manager-imstm --recipe AddPluginsBom --allow-deprecated-plugins
+```
+This command will allow modernization and metadata collection for the deprecated plugin `bmc-change-manager-imstm`.  
+**Warning:** Only use `--allow-deprecated-plugins` if you are a maintainer or have a valid reason to modernize a deprecated plugin.
 
 ### with dry-run
 

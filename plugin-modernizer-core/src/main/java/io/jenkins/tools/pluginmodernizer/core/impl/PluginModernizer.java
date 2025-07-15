@@ -189,9 +189,14 @@ public class PluginModernizer {
             LOG.debug("Plugin {} health score: {}", plugin.getName(), pluginService.extractScore(plugin));
             LOG.debug("Plugin {} installations: {}", plugin.getName(), pluginService.extractInstallationStats(plugin));
             LOG.debug("Is API plugin {} : {}", plugin.getName(), plugin.isApiPlugin(pluginService));
-            if (plugin.isDeprecated(pluginService)) {
+            if (plugin.isDeprecated(pluginService) && !config.isAllowDeprecatedPlugins()) {
                 LOG.info("Plugin {} is deprecated. Skipping.", plugin.getName());
-                plugin.addError("Plugin is deprecated");
+                plugin.addError("Plugin is deprecated. Modernization is blocked by default for deprecated plugins.\n"
+                    + "If you are a maintainer or understand the risks, you can bypass this restriction by adding:\n"
+                    + "  --allow-deprecated-plugins\n"
+                    + "Example:\n"
+                    + "  java -jar ./plugin-modernizer-cli/target/jenkins-plugin-modernizer-999999-SNAPSHOT.jar run --plugins=" + plugin.getName() + " --recipe=<your-recipe> --allow-deprecated-plugins"
+                );
                 return;
             }
             if (plugin.isArchived(ghService)) {
