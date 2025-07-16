@@ -1069,6 +1069,11 @@ public class GHService {
             LOG.info("Plugin {} is local. Not checking out metadata branch", plugin);
             return;
         }
+        if (config.isDryRun()) {
+            LOG.info("Skipping checkout metadata branch for plugin {} in dry-run mode", plugin);
+            return;
+        }
+
         String branchName = plugin.getName() + "-" + "modernization-metadata";
         try (Git git = Git.open(plugin.getLocalMetadataRepository().toFile())) {
             try {

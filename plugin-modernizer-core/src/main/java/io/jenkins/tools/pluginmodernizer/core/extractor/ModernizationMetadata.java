@@ -36,9 +36,25 @@ public class ModernizationMetadata extends CacheEntry<ModernizationMetadata> {
     private String pluginVersion;
 
     /**
-     * Baseline for the RPU
+     * Current jenkins baseline
      */
-    private String rpuBaseline;
+    private String jenkinsBaseline = "";
+
+    /**
+     * Target jenkins baseline after migration
+     */
+    private String targetBaseline = "";
+
+    /**
+     * Actual Jenkins core version the plugin is built against,
+     * even if it wasn’t explicitly set via <jenkins.baseline>
+     */
+    private String effectiveBaseline = "";
+
+    /**
+     * Current jenkins version
+     */
+    private String jenkinsVersion = "";
 
     /**
      * Name of the migration
@@ -155,7 +171,9 @@ public class ModernizationMetadata extends CacheEntry<ModernizationMetadata> {
         requiredFields.put("pluginName", pluginName);
         requiredFields.put("pluginRepository", pluginRepository);
         requiredFields.put("pluginVersion", pluginVersion);
-        requiredFields.put("rpuBaseline", rpuBaseline);
+        requiredFields.put("effectiveBaseline", effectiveBaseline);
+        requiredFields.put("targetBaseline", targetBaseline);
+        requiredFields.put("jenkinsVersion", jenkinsVersion);
         requiredFields.put("migrationName", migrationName);
         requiredFields.put("migrationDescription", migrationDescription);
         requiredFields.put("migrationStatus", migrationStatus);
@@ -243,12 +261,36 @@ public class ModernizationMetadata extends CacheEntry<ModernizationMetadata> {
         this.migrationStatus = migrationStatus;
     }
 
-    public String getRpuBaseline() {
-        return rpuBaseline;
+    public String getJenkinsBaseline() {
+        return jenkinsBaseline;
     }
 
-    public void setRpuBaseline(String rpuBaseline) {
-        this.rpuBaseline = rpuBaseline;
+    public void setJenkinsBaseline(String jenkinsBaseline) {
+        this.jenkinsBaseline = jenkinsBaseline;
+    }
+
+    public String getTargetBaseline() {
+        return targetBaseline;
+    }
+
+    public void setTargetBaseline(String targetBaseline) {
+        this.targetBaseline = targetBaseline;
+    }
+
+    public String getEffectiveBaseline() {
+        return effectiveBaseline;
+    }
+
+    public void setEffectiveBaseline(String effectiveBaseline) {
+        this.effectiveBaseline = effectiveBaseline;
+    }
+
+    public String getJenkinsVersion() {
+        return jenkinsVersion;
+    }
+
+    public void setJenkinsVersion(String jenkinsVersion) {
+        this.jenkinsVersion = jenkinsVersion;
     }
 
     public String getPluginVersion() {

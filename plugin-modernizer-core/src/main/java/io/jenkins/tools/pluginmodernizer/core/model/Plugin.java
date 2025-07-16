@@ -86,6 +86,22 @@ public class Plugin {
     private ModernizationMetadata modernizationMetadata;
 
     /**
+     * Current jenkins baseline
+     */
+    private String jenkinsBaseline;
+
+    /**
+     * Actual Jenkins core version the plugin is built against,
+     * even if it wasn’t explicitly set via <jenkins.baseline>
+     */
+    private String effectiveBaseline;
+
+    /**
+     * Current jenkins version
+     */
+    private String jenkinsVersion;
+
+    /**
      * Flag to indicate if the plugin has any commits to be pushed
      */
     private boolean hasCommits;
@@ -573,7 +589,7 @@ public class Plugin {
      * @return Local metadata repository path
      */
     public Path getLocalMetadataRepository() {
-        return Settings.DEFAULT_CACHE_PATH.resolve(Settings.GITHUB_METADATA_REPOSITORY);
+        return config.getCachePath().resolve(Settings.GITHUB_METADATA_REPOSITORY);
     }
 
     /**
@@ -1089,7 +1105,7 @@ public class Plugin {
 
         // Ensure the directory exists
         try {
-            Files.createDirectories(targetDir);
+            Files.createDirectories(this.getLocalMetadataRepository().resolve(targetDir));
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to create directory for metadata copy: " + targetDir, e);
         }
@@ -1100,6 +1116,54 @@ public class Plugin {
                 "Copied plugin {} modernization metadata to cache: {}",
                 getName(),
                 getModernizationMetadata().getLocation().toAbsolutePath());
+    }
+
+    /**
+     * Get the current jenkins baseline of the plugin
+     * @return jenkins baseline
+     */
+    public String getJenkinsBaseline() {
+        return jenkinsBaseline;
+    }
+
+    /**
+     * Set the current jenkins baseline of the plugin
+     * @param jenkinsBaseline jenkins baseline
+     */
+    public void setJenkinsBaseline(String jenkinsBaseline) {
+        this.jenkinsBaseline = jenkinsBaseline;
+    }
+
+    /**
+     * Get the effective jenkins baseline of the plugin
+     * @return effective jenkins baseline
+     */
+    public String getEffectiveBaseline() {
+        return effectiveBaseline;
+    }
+
+    /**
+     * Set the effective jenkins baseline of the plugin
+     * @param effectiveBaseline effective jenkins baseline
+     */
+    public void setEffectiveBaseline(String effectiveBaseline) {
+        this.effectiveBaseline = effectiveBaseline;
+    }
+
+    /**
+     * Get the current jenkins version of the plugin
+     * @return jenkins version
+     */
+    public String getJenkinsVersion() {
+        return jenkinsVersion;
+    }
+
+    /**
+     * Set the current jenkins version of the plugin
+     * @param jenkinsVersion jenkins version
+     */
+    public void setJenkinsVersion(String jenkinsVersion) {
+        this.jenkinsVersion = jenkinsVersion;
     }
 
     /**

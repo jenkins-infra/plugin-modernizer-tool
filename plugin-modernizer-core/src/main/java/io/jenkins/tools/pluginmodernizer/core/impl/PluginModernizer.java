@@ -318,6 +318,11 @@ public class PluginModernizer {
                 }
             }
 
+            plugin.setJenkinsBaseline(plugin.getMetadata().getProperties().get("jenkins.baseline"));
+            plugin.setJenkinsVersion(plugin.getMetadata().getJenkinsVersion());
+            plugin.setEffectiveBaseline(
+                    plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+
             // Run OpenRewrite
             plugin.runOpenRewrite(mavenInvoker);
             if (plugin.hasErrors()) {
@@ -448,7 +453,10 @@ public class PluginModernizer {
     private void collectModernizationMetadata(Plugin plugin) {
         ModernizationMetadata modernizationMetadata = new ModernizationMetadata(cacheManager, plugin);
         modernizationMetadata.setPluginName(plugin.getMetadata().getPluginName());
-        modernizationMetadata.setRpuBaseline(
+        modernizationMetadata.setJenkinsBaseline(plugin.getJenkinsBaseline());
+        modernizationMetadata.setJenkinsVersion(plugin.getJenkinsVersion());
+        modernizationMetadata.setEffectiveBaseline(plugin.getEffectiveBaseline());
+        modernizationMetadata.setTargetBaseline(
                 plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
         try {
             modernizationMetadata.setPluginRepository(
