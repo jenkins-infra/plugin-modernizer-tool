@@ -2,7 +2,7 @@
 ARG VERSION=999999-SNAPSHOT
 
 # Create the image using Maven and Eclipse Temurin JDK 21
-FROM maven:3.9.10-eclipse-temurin-21-jammy AS result-image
+FROM maven:3.9.11-eclipse-temurin-21-jammy AS result-image
 
 LABEL org.opencontainers.image.description="Using OpenRewrite Recipes for Plugin Modernization or Automation Plugin Build Metadata Updates"
 
