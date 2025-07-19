@@ -92,6 +92,11 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
     private Map<String, String> properties;
 
     /**
+     * The version of the plugin.
+     */
+    private String version;
+
+    /**
      * Create a new plugin metadata
      * Store the metadata in the relative target directory of current folder
      */
@@ -348,5 +353,13 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
             properties = new HashMap<>();
         }
         properties.put(key, value);
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getVersion() {
+        return version;
     }
 }

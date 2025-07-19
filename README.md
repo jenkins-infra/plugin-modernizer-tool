@@ -51,6 +51,7 @@ Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/proj
 - [Reproducibility](#reproducibility)
 - [Contributing](#contributing)
 - [Debugging recipes](#how-to-debug-recipes)
+- [Logging](#logging)
 
 ## Getting Started
 
@@ -416,6 +417,33 @@ If you want to test with recipes from modernizer core
 ```
 mvn org.openrewrite.maven:rewrite-maven-plugin:dryRun -Drewrite.recipeArtifactCoordinates=io.jenkins.plugin-modernizer:plugin-modernizer-core:999999-SNAPSHOT -Drewrite.activeRecipes=io.jenkins.tools.pluginmodernizer.Debug
 
+```
+
+## Logging
+
+The Plugin Modernizer Tool uses Logback for logging. The logs are categorized into different files based on their type and severity.
+
+### Log Files
+
+- `modernization-failures.log`: This file records general modernization failures.
+- `modernization-failures-<recipe-name><timestamp>.log`: This file records detailed modernization failures with a timestamp.
+- `network-failures-<timestamp>.log`: This file records network-related failures with a timestamp.
+
+### Purpose of Logging Failures
+
+Logging failures for each applied recipe provides the following benefits:
+- **Traceability**: Keeps a record of which recipes were applied and their outcomes.
+- **Debugging**: Helps identify and resolve issues in the modernization process.
+- **Improvement**: Provides insights into common failure points, guiding future enhancements.
+
+### Example
+
+When a recipe fails, the tool logs the failure with details such as the recipe name and the timestamp, making it easier to track and address issues.
+`modernization-failures-_UpgradeNextMajorParentVersion20250328.log` would for example contain:
+```aiexclude
+Matrix-sorter-plugin:1.0
+abap-ci:2.3
+adaptive-disconnector:1.98
 ```
 
 ## References
