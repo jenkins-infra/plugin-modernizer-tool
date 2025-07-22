@@ -385,7 +385,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("feat(ci): Builds on the Jenkins Infrastructure", result);
+        assertEquals("Add Jenkinsfile to build plugin on the Jenkins Infrastructure", result);
     }
 
     @Test
