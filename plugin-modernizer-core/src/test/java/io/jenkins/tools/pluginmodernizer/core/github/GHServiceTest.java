@@ -25,6 +25,7 @@ import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
+import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.utils.TemplateUtils;
 import java.io.File;
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class GHServiceTest {
         doReturn(mock).when(github).getRepository(eq("jenkinsci/fake-repo"));
 
         // Test
-        GHRepository repository = service.getRepository(plugin);
+        GHRepository repository = service.getRepository(plugin, RepoType.PLUGIN);
 
         // Verify
         assertSame(mock, repository);
@@ -122,7 +123,7 @@ public class GHServiceTest {
         doReturn(mock).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
 
         // Test
-        GHRepository repository = service.getMetadataRepository(plugin);
+        GHRepository repository = service.getRepository(plugin, RepoType.METADATA);
 
         // Verify
         assertSame(mock, repository);
@@ -137,7 +138,7 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.getRepository(plugin);
+            service.getRepository(plugin, RepoType.PLUGIN);
         });
     }
 
@@ -149,7 +150,7 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.getMetadataRepository(plugin);
+            service.getRepository(plugin, RepoType.METADATA);
         });
     }
 
@@ -163,7 +164,7 @@ public class GHServiceTest {
         doReturn(mock).when(github).getRepository(eq("fake-owner/fake-repo"));
 
         // Test
-        GHRepository repository = service.getRepositoryFork(plugin);
+        GHRepository repository = service.getRepositoryFork(plugin, RepoType.PLUGIN);
 
         // Verify
         assertSame(mock, repository);
@@ -177,7 +178,7 @@ public class GHServiceTest {
         doReturn(mock).when(github).getRepository(eq("fake-owner/metadata-plugin-modernizer"));
 
         // Test
-        GHRepository repository = service.getMetadataRepositoryFork(plugin);
+        GHRepository repository = service.getRepositoryFork(plugin, RepoType.METADATA);
 
         // Verify
         assertSame(mock, repository);
@@ -193,7 +194,7 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.getRepositoryFork(plugin);
+            service.getRepositoryFork(plugin, RepoType.PLUGIN);
         });
     }
 
@@ -206,7 +207,7 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.getMetadataRepositoryFork(plugin);
+            service.getRepositoryFork(plugin, RepoType.METADATA);
         });
     }
 
@@ -233,7 +234,19 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.getRepositoryFork(plugin);
+            service.getRepositoryFork(plugin, RepoType.PLUGIN);
+        });
+    }
+
+    @Test
+    public void shouldFailToGetForkMetadataRepositoryInDryRunMode() throws Exception {
+
+        // Mock
+        doReturn(true).when(config).isDryRun();
+
+        // Test
+        assertThrows(PluginProcessingException.class, () -> {
+            service.getRepositoryFork(plugin, RepoType.METADATA);
         });
     }
 
@@ -251,7 +264,7 @@ public class GHServiceTest {
         doReturn(fork).when(myself).getRepository(eq("fake-repo"));
 
         // Test and verify
-        assertTrue(service.isForked(plugin));
+        assertTrue(service.isForked(plugin, RepoType.PLUGIN));
     }
 
     @Test
@@ -267,7 +280,7 @@ public class GHServiceTest {
         doReturn(fork).when(myself).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test and verify
-        assertTrue(service.isForkedMetadata(plugin));
+        assertTrue(service.isForked(plugin, RepoType.METADATA));
     }
 
     @Test
@@ -283,7 +296,7 @@ public class GHServiceTest {
         doReturn(null).when(myself).getRepository(eq("fake-repo"));
 
         // Test and verify
-        assertFalse(service.isForked(plugin));
+        assertFalse(service.isForked(plugin, RepoType.PLUGIN));
     }
 
     @Test
@@ -298,7 +311,7 @@ public class GHServiceTest {
         doReturn(null).when(myself).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test and verify
-        assertFalse(service.isForkedMetadata(plugin));
+        assertFalse(service.isForked(plugin, RepoType.METADATA));
     }
 
     @Test
@@ -314,7 +327,7 @@ public class GHServiceTest {
         doReturn(fork).when(org).getRepository(eq("fake-repo"));
 
         // Test and verify
-        assertTrue(service.isForked(plugin));
+        assertTrue(service.isForked(plugin, RepoType.PLUGIN));
     }
 
     @Test
@@ -329,7 +342,7 @@ public class GHServiceTest {
         doReturn(fork).when(org).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test and verify
-        assertTrue(service.isForkedMetadata(plugin));
+        assertTrue(service.isForked(plugin, RepoType.METADATA));
     }
 
     @Test
@@ -339,7 +352,18 @@ public class GHServiceTest {
         doReturn(true).when(config).isDryRun();
 
         // Test
-        service.fork(plugin);
+        service.fork(plugin, RepoType.PLUGIN);
+        verifyNoInteractions(github);
+    }
+
+    @Test
+    public void shouldNotForkMetadataInDryRunMode() throws Exception {
+
+        // Mock
+        doReturn(true).when(config).isDryRun();
+
+        // Test
+        service.fork(plugin, RepoType.METADATA);
         verifyNoInteractions(github);
     }
 
@@ -352,7 +376,7 @@ public class GHServiceTest {
         doReturn(true).when(plugin).isArchived(eq(service));
 
         // Test
-        service.fork(plugin);
+        service.fork(plugin, RepoType.PLUGIN);
         verifyNoInteractions(github);
     }
 
@@ -381,7 +405,7 @@ public class GHServiceTest {
         doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
 
         // Test
-        service.fork(plugin);
+        service.fork(plugin, RepoType.PLUGIN);
 
         // Verify
         verify(repository, times(1)).createFork();
@@ -412,7 +436,7 @@ public class GHServiceTest {
         doReturn(null).when(myself).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test
-        service.forkMetadata(plugin);
+        service.fork(plugin, RepoType.METADATA);
 
         // Verify
         verify(repository, times(1)).createFork();
@@ -442,7 +466,7 @@ public class GHServiceTest {
         doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
 
         // Test
-        service.fork(plugin);
+        service.fork(plugin, RepoType.PLUGIN);
 
         // Verify
         verify(repository, times(0)).createFork();
@@ -473,7 +497,7 @@ public class GHServiceTest {
         doReturn(fork).when(myself).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test
-        service.forkMetadata(plugin);
+        service.fork(plugin, RepoType.METADATA);
 
         // Verify
         verify(repository, times(0)).createFork();
@@ -500,7 +524,7 @@ public class GHServiceTest {
         doReturn(fork).when(myself).getRepository(eq("fake-repo"));
 
         assertThrows(PluginProcessingException.class, () -> {
-            service.fork(plugin);
+            service.fork(plugin, RepoType.PLUGIN);
         });
     }
 
@@ -524,7 +548,7 @@ public class GHServiceTest {
         doReturn(fork).when(myself).getRepository(eq("metadata-plugin-modernizer"));
 
         assertThrows(PluginProcessingException.class, () -> {
-            service.forkMetadata(plugin);
+            service.fork(plugin, RepoType.METADATA);
         });
     }
 
@@ -553,7 +577,7 @@ public class GHServiceTest {
         doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
 
         // Test
-        service.fork(plugin);
+        service.fork(plugin, RepoType.PLUGIN);
 
         // Verify
         verify(repository, times(1)).createFork();
@@ -584,7 +608,7 @@ public class GHServiceTest {
         doReturn(null).when(org).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test
-        service.forkMetadata(plugin);
+        service.fork(plugin, RepoType.METADATA);
 
         // Verify
         verify(repository, times(1)).createFork();
@@ -612,7 +636,7 @@ public class GHServiceTest {
         doReturn(Path.of("not-existing-dir")).when(plugin).getLocalRepository();
 
         // Test
-        service.fork(plugin);
+        service.fork(plugin, RepoType.PLUGIN);
 
         // Verify
         verify(repository, times(0)).createFork();
@@ -641,7 +665,7 @@ public class GHServiceTest {
         doReturn(fork).when(org).getRepository(eq("metadata-plugin-modernizer"));
 
         // Test
-        service.forkMetadata(plugin);
+        service.fork(plugin, RepoType.METADATA);
 
         // Verify
         verify(repository, times(0)).createFork();
@@ -668,7 +692,7 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.fork(plugin);
+            service.fork(plugin, RepoType.PLUGIN);
         });
     }
 
@@ -692,7 +716,7 @@ public class GHServiceTest {
 
         // Test
         assertThrows(PluginProcessingException.class, () -> {
-            service.forkMetadata(plugin);
+            service.fork(plugin, RepoType.METADATA);
         });
     }
 
@@ -899,8 +923,7 @@ public class GHServiceTest {
         field.setAccessible(true);
         field.set(service, true);
 
-        doReturn("fake-repo").when(plugin).getRepositoryName();
-        doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
+        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getSshUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -914,7 +937,7 @@ public class GHServiceTest {
         // Test
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
-            service.fetch(plugin);
+            service.fetch(plugin, RepoType.PLUGIN);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -937,7 +960,7 @@ public class GHServiceTest {
         field.setAccessible(true);
         field.set(service, true);
 
-        doReturn(repository).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getSshUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -951,7 +974,7 @@ public class GHServiceTest {
         // Test
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
-            service.fetchMetadata(plugin);
+            service.fetch(plugin, RepoType.METADATA);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -965,8 +988,7 @@ public class GHServiceTest {
         Git git = Mockito.mock(Git.class);
         CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
 
-        doReturn("fake-repo").when(plugin).getRepositoryName();
-        doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
+        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getHttpTransportUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -980,7 +1002,7 @@ public class GHServiceTest {
         // Test
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
-            service.fetch(plugin);
+            service.fetch(plugin, RepoType.PLUGIN);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -994,7 +1016,7 @@ public class GHServiceTest {
         Git git = Mockito.mock(Git.class);
         CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
 
-        doReturn(repository).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getHttpTransportUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -1008,7 +1030,7 @@ public class GHServiceTest {
         // Test
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
-            service.fetchMetadata(plugin);
+            service.fetch(plugin, RepoType.METADATA);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -1031,8 +1053,8 @@ public class GHServiceTest {
         field.setAccessible(true);
         field.set(service, true);
 
-        doReturn("fake-repo").when(plugin).getRepositoryName();
-        doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
+        //        doReturn("fake-repo").when(plugin).getRepositoryName();
+        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getSshUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -1046,7 +1068,7 @@ public class GHServiceTest {
         // Test
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
-            service.fetch(plugin);
+            service.fetch(plugin, RepoType.PLUGIN);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -1060,8 +1082,8 @@ public class GHServiceTest {
         Git git = Mockito.mock(Git.class);
         CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
 
-        doReturn("fake-repo").when(plugin).getRepositoryName();
-        doReturn(repository).when(github).getRepository(eq("jenkinsci/fake-repo"));
+        //        doReturn("fake-repo").when(plugin).getRepositoryName();
+        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getHttpTransportUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -1075,7 +1097,7 @@ public class GHServiceTest {
         // Test
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
-            service.fetch(plugin);
+            service.fetch(plugin, RepoType.PLUGIN);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -1121,7 +1143,7 @@ public class GHServiceTest {
         doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
-        service.openPullRequest(plugin);
+        service.openPullRequest(plugin, RepoType.PLUGIN);
 
         verify(pr, times(1)).addLabels(List.of("dependencies", "developer").toArray(String[]::new));
 
@@ -1142,6 +1164,7 @@ public class GHServiceTest {
         doReturn("test").when(config).getGithubOwner();
         doReturn("example").when(plugin).getName();
         doReturn(null).when(config).getGithubAppTargetInstallationId();
+        doReturn(false).when(config).isDraft();
         doReturn(true).when(plugin).hasMetadataChangesPushed();
         doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
 
@@ -1150,12 +1173,14 @@ public class GHServiceTest {
         doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
         doReturn(prQueryList).when(prQuery).list();
 
-        doReturn(pr).when(repository).createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true));
+        doReturn(pr)
+                .when(repository)
+                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
         doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
-        service.openMetadataPullRequest(plugin);
-        verify(repository).createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true));
+        service.openPullRequest(plugin, RepoType.METADATA);
+        verify(repository).createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
     }
 
     @Test
@@ -1195,7 +1220,7 @@ public class GHServiceTest {
                 .getHtmlUrl();
 
         // Test
-        service.openPullRequest(plugin);
+        service.openPullRequest(plugin, RepoType.PLUGIN);
 
         // We update a PR
         verify(existingPr, times(1)).setTitle(anyString());
@@ -1240,7 +1265,7 @@ public class GHServiceTest {
                 .getHtmlUrl();
 
         // Test
-        service.openMetadataPullRequest(plugin);
+        service.openPullRequest(plugin, RepoType.METADATA);
 
         // We update a PR
         verify(existingPr, times(1)).setTitle(anyString());
@@ -1281,6 +1306,6 @@ public class GHServiceTest {
         doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
-        service.openPullRequest(plugin);
+        service.openPullRequest(plugin, RepoType.PLUGIN);
     }
 }
