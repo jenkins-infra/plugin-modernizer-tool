@@ -805,7 +805,7 @@ public class Plugin {
             LOG.debug("Skipping fork for plugin {} as only metadata is required", name);
             return;
         }
-        service.fork(this);
+        service.fork(this, RepoType.PLUGIN);
     }
 
     /**
@@ -814,10 +814,10 @@ public class Plugin {
      */
     public void forkMetadata(GHService service) {
         if (config.isFetchMetadataOnly()) {
-            LOG.debug("Skipping fork for plugin {} as only metadata is required", name);
+            LOG.debug("Skipping fork for modernization-metadata {} as only metadata is required", name);
             return;
         }
-        service.forkMetadata(this);
+        service.fork(this, RepoType.METADATA);
     }
 
     /**
@@ -829,7 +829,7 @@ public class Plugin {
             LOG.debug("Skipping sync for plugin {} as only metadata is required", name);
             return;
         }
-        service.sync(this);
+        service.sync(this, RepoType.PLUGIN);
     }
 
     /**
@@ -838,10 +838,10 @@ public class Plugin {
      */
     public void syncMetadata(GHService service) {
         if (config.isFetchMetadataOnly()) {
-            LOG.debug("Skipping sync for plugin {} as only metadata is required", name);
+            LOG.debug("Skipping sync for modernization-metadata {} as only metadata is required", name);
             return;
         }
-        service.syncMetadata(this);
+        service.sync(this, RepoType.METADATA);
     }
 
     /**
@@ -849,7 +849,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public boolean isForked(GHService service) {
-        return service.isForked(this);
+        return service.isForked(this, RepoType.PLUGIN);
     }
 
     /**
@@ -857,7 +857,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public boolean isForkedMetadata(GHService service) {
-        return service.isForkedMetadata(this);
+        return service.isForked(this, RepoType.METADATA);
     }
 
     /**
@@ -916,7 +916,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void checkoutBranch(GHService service) {
-        service.checkoutBranch(this);
+        service.checkoutBranch(this, RepoType.PLUGIN);
     }
 
     /**
@@ -924,7 +924,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void checkoutMetadataBranch(GHService service) {
-        service.checkoutMetadataBranch(this);
+        service.checkoutBranch(this, RepoType.METADATA);
     }
 
     /**
@@ -932,7 +932,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void commit(GHService service) {
-        service.commitChanges(this);
+        service.commitChanges(this, RepoType.PLUGIN);
     }
 
     /**
@@ -940,7 +940,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void commitMetadata(GHService service) {
-        service.commitMetadataChanges(this);
+        service.commitChanges(this, RepoType.METADATA);
     }
 
     /**
@@ -948,7 +948,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void push(GHService service) {
-        service.pushChanges(this);
+        service.pushChanges(this, RepoType.PLUGIN);
     }
 
     /**
@@ -956,7 +956,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void pushMetadata(GHService service) {
-        service.pushMetadataChanges(this);
+        service.pushChanges(this, RepoType.METADATA);
     }
 
     /**
@@ -964,7 +964,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void openPullRequest(GHService service) {
-        service.openPullRequest(this);
+        service.openPullRequest(this, RepoType.PLUGIN);
     }
 
     /**
@@ -972,7 +972,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void openMetadataPullRequest(GHService service) {
-        service.openMetadataPullRequest(this);
+        service.openPullRequest(this, RepoType.METADATA);
     }
 
     /**
@@ -980,7 +980,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void fetch(GHService service) {
-        service.fetch(this);
+        service.fetch(this, RepoType.PLUGIN);
     }
 
     /**
@@ -988,7 +988,7 @@ public class Plugin {
      * @param service The GitHub service
      */
     public void fetchMetadata(GHService service) {
-        service.fetchMetadata(this);
+        service.fetch(this, RepoType.METADATA);
     }
 
     /**
@@ -997,7 +997,7 @@ public class Plugin {
      * @return The repository object
      */
     public GHRepository getRemoteRepository(GHService service) {
-        return service.getRepository(this);
+        return service.getRepository(this, RepoType.PLUGIN);
     }
 
     /**
@@ -1006,7 +1006,7 @@ public class Plugin {
      * @return The repository object
      */
     public GHRepository getRemoteMetadataRepository(GHService service) {
-        return service.getMetadataRepository(this);
+        return service.getRepository(this, RepoType.METADATA);
     }
 
     /**
@@ -1015,7 +1015,7 @@ public class Plugin {
      * @return The repository object
      */
     public GHRepository getRemoteForkRepository(GHService service) {
-        return service.getRepositoryFork(this);
+        return service.getRepositoryFork(this, RepoType.PLUGIN);
     }
 
     /**
@@ -1024,7 +1024,7 @@ public class Plugin {
      * @return The repository object
      */
     public GHRepository getRemoteMetadataForkRepository(GHService service) {
-        return service.getMetadataRepositoryFork(this);
+        return service.getRepositoryFork(this, RepoType.METADATA);
     }
 
     /**

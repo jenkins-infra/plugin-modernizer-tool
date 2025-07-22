@@ -11,6 +11,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
+import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
@@ -460,7 +461,7 @@ public class PluginModernizer {
                 plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
         try {
             modernizationMetadata.setPluginRepository(
-                    ghService.getRepository(plugin).getHttpTransportUrl());
+                    ghService.getRepository(plugin, RepoType.PLUGIN).getHttpTransportUrl());
         } catch (PluginProcessingException e) {
             LOG.warn("Skipping GitHub repo fetch in CI test for plugin {}", plugin.getName());
         }
