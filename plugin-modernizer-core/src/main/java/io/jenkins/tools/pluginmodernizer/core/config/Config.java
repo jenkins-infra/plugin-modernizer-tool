@@ -9,6 +9,7 @@ import java.util.List;
 public class Config {
 
     private static boolean DEBUG = false;
+    private final boolean allowDeprecatedPlugins;
 
     public static void setDebug(boolean debug) {
         DEBUG = debug;
@@ -25,6 +26,7 @@ public class Config {
     private final Path cachePath;
     private final Path mavenHome;
     private final Path mavenLocalRepo;
+    private final boolean skipMetadata;
     private final boolean dryRun;
     private final boolean draft;
     private final boolean removeForks;
@@ -51,9 +53,11 @@ public class Config {
             Path cachePath,
             Path mavenHome,
             Path mavenLocalRepo,
+            boolean skipMetadata,
             boolean dryRun,
             boolean draft,
-            boolean removeForks) {
+            boolean removeForks,
+            boolean allowDeprecatedPlugins) {
         this.version = version;
         this.githubOwner = githubOwner;
         this.githubAppId = githubAppId;
@@ -70,9 +74,11 @@ public class Config {
         this.cachePath = cachePath;
         this.mavenHome = mavenHome;
         this.mavenLocalRepo = mavenLocalRepo;
+        this.skipMetadata = skipMetadata;
         this.dryRun = dryRun;
         this.draft = draft;
         this.removeForks = removeForks;
+        this.allowDeprecatedPlugins = allowDeprecatedPlugins;
     }
 
     public String getVersion() {
@@ -161,6 +167,10 @@ public class Config {
         return mavenLocalRepo.toAbsolutePath();
     }
 
+    public boolean isSkipMetadata() {
+        return skipMetadata;
+    }
+
     public boolean isDryRun() {
         return dryRun;
     }
@@ -175,6 +185,10 @@ public class Config {
 
     public boolean isRemoveForks() {
         return removeForks;
+    }
+
+    public boolean isAllowDeprecatedPlugins() {
+        return allowDeprecatedPlugins;
     }
 
     public static Builder builder() {
@@ -198,9 +212,11 @@ public class Config {
         private Path cachePath = Settings.DEFAULT_CACHE_PATH;
         private Path mavenHome = Settings.DEFAULT_MAVEN_HOME;
         private Path mavenLocalRepo = Settings.DEFAULT_MAVEN_LOCAL_REPO;
+        private boolean skipMetadata = false;
         private boolean dryRun = false;
         private boolean draft = false;
         public boolean removeForks = false;
+        private boolean allowDeprecatedPlugins = false;
 
         public Builder withVersion(String version) {
             this.version = version;
@@ -298,6 +314,11 @@ public class Config {
             return this;
         }
 
+        public Builder withSkipMetadata(boolean skipMetadata) {
+            this.skipMetadata = skipMetadata;
+            return this;
+        }
+
         public Builder withDryRun(boolean dryRun) {
             this.dryRun = dryRun;
             return this;
@@ -310,6 +331,11 @@ public class Config {
 
         public Builder withRemoveForks(boolean removeForks) {
             this.removeForks = removeForks;
+            return this;
+        }
+
+        public Builder withAllowDeprecatedPlugins(boolean allowDeprecatedPlugins) {
+            this.allowDeprecatedPlugins = allowDeprecatedPlugins;
             return this;
         }
 
@@ -331,9 +357,11 @@ public class Config {
                     cachePath,
                     mavenHome,
                     mavenLocalRepo,
+                    skipMetadata,
                     dryRun,
                     draft,
-                    removeForks);
+                    removeForks,
+                    allowDeprecatedPlugins);
         }
     }
 }

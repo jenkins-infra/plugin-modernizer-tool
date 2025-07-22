@@ -71,7 +71,6 @@ public class UpgradeJenkinsTestHarnessVersion extends Recipe {
                 document = (Xml.Document) new RemoveRedundantDependencyVersions(
                                 "org.jenkins-ci.main",
                                 "jenkins-test-harness",
-                                false,
                                 RemoveRedundantDependencyVersions.Comparator.ANY,
                                 null)
                         .getVisitor()

@@ -1,4 +1,4 @@
-name: Update jenkins-test-harness plugin version
+name: Update wiremock version
 
 scms:
   default:
@@ -13,11 +13,11 @@ scms:
       branch: "{{ .github.branch }}"
 
 sources:
-  latestJenkinsTestHarnessVersion:
+  wiremockVersion:
     kind: githubrelease
     spec:
-      owner: "jenkinsci"
-      repository: "jenkins-test-harness"
+      owner: "wiremock"
+      repository: "wiremock"
       token: "{{ requiredEnv .github.token }}"
       username: "{{ .github.username }}"
       versioning:
@@ -25,21 +25,22 @@ sources:
         pattern: "latest"
 
 targets:
-  updateVersions:
-    name: "Update jenkins-test-harness version in versions.properties"
+  updateWiremockVersion:
+    name: Update wiremock.version in versions.properties
     kind: file
     spec:
-      file: ./plugin-modernizer-core/src/main/resources/versions.properties
-      matchPattern: "(?m)^(jenkins-test-harness.version =) (.*)"
-      replacePattern: '$1 {{ source "latestJenkinsTestHarnessVersion" }}'
-    sourceid: latestJenkinsTestHarnessVersion
-    scmid: default
+      file: plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: >-
+        wiremock\.version\s*=\s*.*
+      replacePattern: >-
+        wiremock.version = {{ source "wiremockVersion" }}
+
 
 actions:
   createPullRequest:
     kind: github/pullrequest
     scmid: default
-    title: 'Update jenkins-test-harness version to {{ source "latestJenkinsTestHarnessVersion" }}'
+    title: 'Update wiremock version to {{ source "wiremockVersion" }}'
     spec:
       labels:
         - dependencies

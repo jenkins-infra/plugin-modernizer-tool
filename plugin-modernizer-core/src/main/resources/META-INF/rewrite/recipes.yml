@@ -135,6 +135,7 @@ recipeList:
       methodPattern: org.junit.jupiter.api.Assertions *(..)
   - org.openrewrite.java.testing.junit5.AddMissingTestBeforeAfterAnnotations
   - org.openrewrite.java.testing.cleanup.TestsShouldNotBePublic
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddThrowsExceptionWhereAssertThrows
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
@@ -155,7 +156,7 @@ recipeList:
   - org.openrewrite.jenkins.github.AddTeamToCodeowners
 ---
 type: specs.openrewrite.org/v1beta/recipe
-name: io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
+name: io.jenkins.tools.pluginmodernizer.UpgradeParent4Version
 displayName: Upgrade parent version to latest available in the 4.x line
 description: Upgrade the parent version to latest available in the 4.x line.
 tags: ['dependencies']
@@ -167,28 +168,39 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UpgradeParent5Version
+displayName: Upgrade parent version to latest available in the 5.x line
+description: Upgrade the parent version to latest available in the 5.x line.
+tags: ['dependencies']
+recipeList:
+  - org.openrewrite.maven.UpgradeParentVersion:
+      groupId: org.jenkins-ci.plugins
+      artifactId: plugin
+      newVersion: 5.X
+  - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeNextMajorParentVersion
-displayName: Upgrade to the next major parent version (5.X) requiring Jenkins 2.479 and Java 17
-description: Upgrade to the next major parent version (5.X) requiring Jenkins 2.479 and Java 17.
+displayName: Upgrade to the next major parent version (5.X) requiring Jenkins 2.492 and Java 17
+description: Upgrade to the next major parent version (5.X) requiring Jenkins 2.492 and Java 17.
 tags: ['dependencies']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
   - io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
-  - org.openrewrite.maven.UpgradeParentVersion:
-      groupId: org.jenkins-ci.plugins
-      artifactId: plugin
-      newVersion: 5.X
+  - io.jenkins.tools.pluginmodernizer.UpgradeParent5Version
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.479.3
+      minimumVersion: 2.492.3
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
-      jenkinsVersion: 2.479.3
+      jenkinsVersion: 2.492.3
   - org.openrewrite.java.ChangePackage:  #deprecating
       oldPackageName: com.gargoylesoftware.htmlunit
       newPackageName: org.htmlunit
       recursive: true
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateStaplerAndJavaxToJakarta
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateAcegiSecurityToSpringSecurity
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock
+  - io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
   - io.jenkins.tools.pluginmodernizer.RemoveDevelopersTag
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
@@ -245,6 +257,16 @@ recipeList:
       propertyName: maven.compiler.target
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
+displayName: Replace IOException2 With IOException
+tags: ['developer']
+description: Replace hudson.util.IOException2 With java.io.IOException.
+recipeList:
+    - org.openrewrite.java.ChangeType:
+        oldFullyQualifiedTypeName: hudson.util.IOException2
+        newFullyQualifiedTypeName: java.io.IOException
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.ReplaceLibrariesWithApiPlugin
 displayName: Use API plugin instead of direct dependency
 tags: ['developer']
@@ -272,7 +294,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: json-api
-      pluginVersion: 20250107-125.v28b_a_ffa_eb_f01
+      pluginVersion: 20250517-153.vc8a_a_d87c0ce3
       replaces:
         - groupId: org.json
           artifactId: json
@@ -344,7 +366,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: gson-api
-      pluginVersion: 2.13.0-133.v5a_e3236a_8251
+      pluginVersion: 2.13.1-139.v4569c2ef303f
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson
@@ -360,7 +382,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: org.jenkins-ci.plugins
       pluginArtifactId: jsoup
-      pluginVersion: 1.19.1-38.v216a_f3721b_3c
+      pluginVersion: 1.21.1-52.v96e4041b_60fd
       replaces:
         - groupId: org.jsoup
           artifactId: jsoup
@@ -395,7 +417,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-lang3-api
-      pluginVersion: 3.17.0-87.v5cf526e63b_8b_
+      pluginVersion: 3.18.0-98.v3a_674c06072d
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-lang3
@@ -411,7 +433,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: byte-buddy-api
-      pluginVersion: 1.17.5-147.v9ce9318b_4ce8
+      pluginVersion: 1.17.6-165.vcd5ee8d19447
       replaces:
         - groupId: net.bytebuddy
           artifactId: byte-buddy
@@ -427,7 +449,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-text-api
-      pluginVersion: 1.13.0-153.v91dcd89e2a_22
+      pluginVersion: 1.13.1-176.v74d88f22034b_
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-text
@@ -449,16 +471,23 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
   - io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
-  - io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
+  - io.jenkins.tools.pluginmodernizer.UpgradeParent5Version
   - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: ${jenkins.core.minimum.version}
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
       jenkinsVersion: ${jenkins.core.minimum.version}
+  - org.openrewrite.java.ChangePackage:  #deprecating
+      oldPackageName: com.gargoylesoftware.htmlunit
+      newPackageName: org.htmlunit
+      recursive: true
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateStaplerAndJavaxToJakarta
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateAcegiSecurityToSpringSecurity
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock
+  - io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
   - io.jenkins.tools.pluginmodernizer.RemoveDevelopersTag
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
-  - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
@@ -471,7 +500,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
   - io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
-  - io.jenkins.tools.pluginmodernizer.UpgradeParentVersion
+  - io.jenkins.tools.pluginmodernizer.UpgradeParent4Version
   - io.jenkins.tools.pluginmodernizer.AddPluginsBom
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
       minimumVersion: 2.462.3
@@ -480,8 +509,10 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveDevelopersTag
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
+  - io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock
   - org.openrewrite.maven.UpgradeDependencyVersion: # Latest using Java 11 support
       groupId: org.jenkins-ci.test
       artifactId: docker-fixtures
@@ -513,6 +544,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
   - io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructor
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
+  - io.jenkins.tools.pluginmodernizer.ReplaceIOException2WithIOException
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - org.openrewrite.java.RemoveUnusedImports
@@ -573,7 +605,7 @@ description: Check if the plugin using using a version with commons-compress rem
 tags: ['condition']
 recipeList:
   - org.openrewrite.jenkins.IsJenkinsPlugin:
-      version: "[2.489,)" # Adapt when LTS
+      version: "[2.492.1,)"
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.EnsureIndexJelly
@@ -582,3 +614,11 @@ description: Jenkins tooling [requires](https://github.com/jenkinsci/maven-hpi-p
 tags: ['chore']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureIndexJelly
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.MigrateTomakehurstToWiremock
+displayName: Migrate from `com.github.tomakehurst` to `org.wiremock`
+description: This PR migrates the groupId and artifactId to the new artifact and also updates to the latest version.
+tags: ['chore']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateTomakehurstToWiremock

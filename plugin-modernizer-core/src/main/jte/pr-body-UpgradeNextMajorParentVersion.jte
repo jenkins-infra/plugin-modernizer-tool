@@ -11,11 +11,11 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-#### Why Upgrade to Java 17 and Jenkins 2.479.x?
+#### Why Upgrade to Java 17 and Jenkins 2.492.x?
 
 - **Embrace Java 17 LTS Stability:** Benefit from long-term support with modern language features that improve development practice and plugin performance.
 
-- **Harness Jenkins 2.479.x Innovations:** Stay aligned with the latest features and stability improvements, ensuring smooth integration and future-proofing.
+- **Harness Jenkins 2.492.x Innovations:** Stay aligned with the latest features and stability improvements, ensuring smooth integration and future-proofing.
 
 - **Enhance Security:** Protect your plugin with up-to-date security fixes from both Java 17 and Jenkins core improvements.
 

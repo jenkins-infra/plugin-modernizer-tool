@@ -1,4 +1,3 @@
----
 # This pipeline is used to bump the recommended Jenkins core version in the properties file.
 name: Bump the recommended Jenkins core version in the pom.xml file
 # SCM configuration for GitHub repository
@@ -21,6 +20,16 @@ sources:
     kind: shell
     spec:
       command: bash ./updatecli/scripts/jenkins-lts.sh 2 # Shell command to retrieve the previous Jenkins LTS version
+  JenkinsRecommendedLTS:
+    name: Get the recommended Jenkins LTS version
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/jenkins-lts.sh 1
+  JenkinsRecommendedLTSMajorMinor:
+    name: Get the recommended Jenkins LTS version (major.minor only)
+    kind: shell
+    spec:
+      command: bash ./updatecli/scripts/jenkins-lts.sh 1 | awk -F. '{print $1"."$2}'
 
 # Condition to test that the previous LTS Jenkins version exists
 conditions:
@@ -40,12 +49,22 @@ targets:
     sourceid: JenkinsMinimalLTS
     scmid: default
 
+  update-jenkins-lts-version-in-pr-template:
+    name: "Update Jenkins LTS version in PR body template"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/jte/pr-body-UpgradeNextMajorParentVersion.jte # Path to the JTE file
+      matchPattern: "Jenkins [0-9]+\\.[0-9]+\\.x" # Pattern to match any Jenkins version (e.g., 2.479.x, 2.500.x, etc.)
+      replacePattern: 'Jenkins {{ source "JenkinsRecommendedLTSMajorMinor" }}.x' # Replacement pattern with the new version
+    sourceid: JenkinsRecommendedLTSMajorMinor
+    scmid: default
+
 # Action to create a GitHub pull request with the changes
 actions:
   default:
     kind: github/pullrequest
     scmid: default
-    title: 'chore(properties): Bump the recommended Jenkins core version to {{ source "JenkinsMinimalLTS" }} in the `pom.xml` file' # Title of the pull request
+    title: 'chore(properties): Bump the recommended Jenkins core version to {{ source "JenkinsRecommendedLTS" }}'
     spec:
       labels:
         - dependencies

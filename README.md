@@ -57,7 +57,7 @@ Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/proj
 
 ### Requirements
 - Maven version 3.9.7 or later, or mvnd
-- Java 17 or Java 21
+- Java 17 or Java 21 ([Eclipse Temurin](https://adoptium.net/temurin/releases) recommended)
 
 ### Build
 
@@ -194,6 +194,8 @@ source <(plugin-modernizer generate-completion)
 
 - `--debug`: (optional) Enables debug mode. Defaults to false.
 
+- `--allow-deprecated-plugins`: (optional) **Allow modernization of deprecated plugins.**  
+  _Use with caution: This flag enables modernization and metadata collection for plugins that are marked as deprecated. Intended for new maintainers or development environments only. By default, deprecated plugins are blocked from modernization for safety._
 
 - `--cache-path`: (optional) Custom path to the cache directory. Defaults to `${user.home}/.cache/jenkins-plugin-modernizer-cli`.
 
@@ -234,6 +236,9 @@ source <(plugin-modernizer generate-completion)
 
 
 - `--recipe` or `-r`: (required) Name of recipe to apply to the plugins.
+
+
+- `--skip-metadata` (optional) Skip collection and pushing the modernization metadata (i.e metadata after applying the recipes) to the metadata repository. Beneficial for testing or development purpose when we don't need to unnecessary add another step of collecting the metadata.
 
 
 - `--clean-forks` (optional) Remove forked repositories before and after the modernization process. Might cause data loss if you have other changes pushed on those forks. Forks with open pull request targeting original repo are not removed to prevent closing unmerged pull requests.
@@ -294,6 +299,14 @@ plugin-modernizer run --plugin-file path/to/plugin-file --recipe AddPluginsBom
 plugin-modernizer run --plugins git,git-client,jobcacher --recipe AddPluginsBom
 ```
 The above command creates pull requests in the respective remote repositories after applying the changes.
+
+### modernizing a deprecated plugin (for new maintainers)
+
+```shell
+plugin-modernizer run --plugins bmc-change-manager-imstm --recipe AddPluginsBom --allow-deprecated-plugins
+```
+This command will allow modernization and metadata collection for the deprecated plugin `bmc-change-manager-imstm`.  
+**Warning:** Only use `--allow-deprecated-plugins` if you are a maintainer or have a valid reason to modernize a deprecated plugin.
 
 ### with dry-run
 

@@ -15,6 +15,7 @@
         <appender-ref ref="CONSOLE" />
     </root>
     <logger name="io.micrometer.common.util.internal.logging" level="INFO" />
+    <logger name="io.micrometer.core.instrument" level="INFO" />
     <logger name="io.jenkins.tools.pluginmodernizer" level="TRACE" />
     <logger name="io.jenkins.tools.pluginmodernizer.cli.utils" level="INFO" />
     <logger name="org.apache.sshd.common.util" level="WARN" />

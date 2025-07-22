@@ -1,0 +1,14 @@
+name: Auto-Merge PR After Checks
+
+on:
+  workflow_call:
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enable GitHub Auto-Merge
+        run: gh pr merge ${{ github.event.pull_request.html_url }} --merge --auto --delete-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

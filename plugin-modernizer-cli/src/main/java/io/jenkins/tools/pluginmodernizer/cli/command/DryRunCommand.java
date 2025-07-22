@@ -42,6 +42,14 @@ public class DryRunCommand implements ICommand {
     private Recipe recipe;
 
     /**
+     * Skip modernization metadata
+     */
+    @CommandLine.Option(
+            names = {"--skip-metadata"},
+            description = "Disable collection and pushing of modernization metadata")
+    private boolean skipMetadata;
+
+    /**
      * Environment options
      */
     @CommandLine.Mixin
@@ -68,7 +76,10 @@ public class DryRunCommand implements ICommand {
         pluginOptions.config(builder);
         githubOptions.config(builder);
         envOptions.config(builder);
-        return builder.withDryRun(true).withRecipe(recipe).build();
+        return builder.withDryRun(true)
+                .withRecipe(recipe)
+                .withSkipMetadata(skipMetadata)
+                .build();
     }
 
     @Override

@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
 import java.io.IOException;
@@ -136,7 +139,8 @@ public class JsonUtils {
     public static void toJsonFile(Object object, Path path) {
         try {
             LOG.debug("Writing JSON file to {}", path);
-            FileUtils.writeStringToFile(path.toFile(), gson.toJson(object), StandardCharsets.UTF_8);
+            String prettyJson = JsonUtils.prettyPrint(gson.toJson(object));
+            FileUtils.writeStringToFile(path.toFile(), prettyJson, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new ModernizerException("Unable to write JSON file due to IO error", e);
         }
@@ -253,5 +257,11 @@ public class JsonUtils {
         array1.forEach(set1::add);
         array2.forEach(set2::add);
         return set1.equals(set2);
+    }
+
+    private static String prettyPrint(String uglyJson) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonElement jsonElement = JsonParser.parseString(uglyJson);
+        return gson.toJson(jsonElement);
     }
 }

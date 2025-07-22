@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.jenkins.tools.pluginmodernizer.cli.utils.GitHubServerContainer;
 import io.jenkins.tools.pluginmodernizer.cli.utils.ModernizerTestWatcher;
+import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
 import io.jenkins.tools.pluginmodernizer.core.impl.CacheManager;
@@ -157,7 +158,7 @@ public class CommandLineITCase {
     }
 
     @Test
-    @Tag("Always")
+    @Tag("Slow")
     @Execution(ExecutionMode.CONCURRENT)
     public void testHelp() throws Exception {
         Path logFile = setupLogs("testHelp");
@@ -555,7 +556,7 @@ public class CommandLineITCase {
     }
 
     @Test
-    @Tag("Slow")
+    @Tag("CI")
     public void testComplexRecipeOnLocalPlugin(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
         Path logFile = setupLogs("testComplexRecipeOnLocalPlugin");
@@ -652,7 +653,7 @@ public class CommandLineITCase {
         String mavenHomeEnv = System.getenv("MAVEN_HOME");
         assertNotNull(mavenHomeEnv, "MAVEN_HOME is not set");
         Path mavenHome = Path.of(mavenHomeEnv);
-        assertTrue(Files.exists(mavenHome), "MAVEN_HOME does not exist");
+        assertTrue(Files.exists(mavenHome), "MAVEN_HOME does not exist at %s".formatted(mavenHome));
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(mavenHome.toFile());
         return invoker;
@@ -726,10 +727,12 @@ public class CommandLineITCase {
 
     /**
      * Get the modernizer maven home
+     * Keep in sync  with maven.version from the pom.xml
      * @return Use version from the target directory
      */
     private Path getModernizerMavenHome() {
-        return Path.of("target/apache-maven-3.9.9").toAbsolutePath();
+        return Path.of("target/apache-maven-%s".formatted(Settings.getMavenVersion()))
+                .toAbsolutePath();
     }
 
     /**

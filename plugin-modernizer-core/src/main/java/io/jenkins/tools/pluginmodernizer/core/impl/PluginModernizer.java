@@ -3,8 +3,10 @@ package io.jenkins.tools.pluginmodernizer.core.impl;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
+import io.jenkins.tools.pluginmodernizer.core.extractor.ModernizationMetadata;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
 import io.jenkins.tools.pluginmodernizer.core.github.GHService;
+import io.jenkins.tools.pluginmodernizer.core.model.DiffStats;
 import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
@@ -187,9 +189,14 @@ public class PluginModernizer {
             LOG.debug("Plugin {} health score: {}", plugin.getName(), pluginService.extractScore(plugin));
             LOG.debug("Plugin {} installations: {}", plugin.getName(), pluginService.extractInstallationStats(plugin));
             LOG.debug("Is API plugin {} : {}", plugin.getName(), plugin.isApiPlugin(pluginService));
-            if (plugin.isDeprecated(pluginService)) {
+            if (plugin.isDeprecated(pluginService) && !config.isAllowDeprecatedPlugins()) {
                 LOG.info("Plugin {} is deprecated. Skipping.", plugin.getName());
-                plugin.addError("Plugin is deprecated");
+                plugin.addError("Plugin is deprecated. Modernization is blocked by default for deprecated plugins.\n"
+                        + "If you are a maintainer or understand the risks, you can bypass this restriction by adding:\n"
+                        + "  --allow-deprecated-plugins\n"
+                        + "Example:\n"
+                        + "  java -jar ./plugin-modernizer-cli/target/jenkins-plugin-modernizer-999999-SNAPSHOT.jar run --plugins="
+                        + plugin.getName() + " --recipe=<your-recipe> --allow-deprecated-plugins");
                 return;
             }
             if (plugin.isArchived(ghService)) {
@@ -239,7 +246,6 @@ public class PluginModernizer {
                 LOG.debug("Metadata already computed for plugin {}. Using cached metadata.", plugin.getName());
             }
 
-            // Try to remediate precondition errors
             if (plugin.hasPreconditionErrors()) {
                 plugin.getPreconditionErrors().forEach(preconditionError -> {
                     if (preconditionError.remediate(plugin)) {
@@ -312,6 +318,11 @@ public class PluginModernizer {
                 }
             }
 
+            plugin.setJenkinsBaseline(plugin.getMetadata().getProperties().get("jenkins.baseline"));
+            plugin.setJenkinsVersion(plugin.getMetadata().getJenkinsVersion());
+            plugin.setEffectiveBaseline(
+                    plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+
             // Run OpenRewrite
             plugin.runOpenRewrite(mavenInvoker);
             if (plugin.hasErrors()) {
@@ -377,6 +388,24 @@ public class PluginModernizer {
             if (!plugin.hasErrors()) {
                 plugin.addError("Unexpected processing error. Check the logs at " + plugin.getLogFile(), e);
             }
+        } finally {
+            if (!config.isSkipMetadata()) {
+                try {
+                    // collect the modernization metadata and push it to metadata repository if valid
+                    collectModernizationMetadata(plugin);
+                    validateModernizationMetadata(plugin);
+                    plugin.fetchMetadata(ghService);
+                    plugin.forkMetadata(ghService);
+                    plugin.syncMetadata(ghService);
+                    plugin.checkoutMetadataBranch(ghService);
+                    plugin.copyMetadataToLocalMetadataRepo(cacheManager);
+                    plugin.commitMetadata(ghService);
+                    plugin.pushMetadata(ghService);
+                    plugin.openMetadataPullRequest(ghService);
+                } catch (Exception e) {
+                    plugin.addError("Failed to collect modernization metadata for plugin " + plugin.getName(), e);
+                }
+            }
         }
     }
 
@@ -415,6 +444,74 @@ public class PluginModernizer {
         plugin.copyMetadata(cacheManager);
         plugin.loadMetadata(cacheManager);
         plugin.enrichMetadata(pluginService);
+    }
+
+    /**
+     * Collect modernization metadata for a plugin
+     * @param plugin The plugin
+     */
+    private void collectModernizationMetadata(Plugin plugin) {
+        ModernizationMetadata modernizationMetadata = new ModernizationMetadata(cacheManager, plugin);
+        modernizationMetadata.setPluginName(plugin.getMetadata().getPluginName());
+        modernizationMetadata.setJenkinsBaseline(plugin.getJenkinsBaseline());
+        modernizationMetadata.setJenkinsVersion(plugin.getJenkinsVersion());
+        modernizationMetadata.setEffectiveBaseline(plugin.getEffectiveBaseline());
+        modernizationMetadata.setTargetBaseline(
+                plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+        try {
+            modernizationMetadata.setPluginRepository(
+                    ghService.getRepository(plugin).getHttpTransportUrl());
+        } catch (PluginProcessingException e) {
+            LOG.warn("Skipping GitHub repo fetch in CI test for plugin {}", plugin.getName());
+        }
+        modernizationMetadata.setPluginVersion(pluginService.extractVersion(plugin));
+        modernizationMetadata.setMigrationName(plugin.getConfig().getRecipe().getDisplayName());
+        modernizationMetadata.setMigrationDescription(
+                plugin.getConfig().getRecipe().getDescription());
+        modernizationMetadata.setPluginName(plugin.getName());
+        modernizationMetadata.setTags(plugin.getConfig().getRecipe().getTags());
+        modernizationMetadata.setMigrationId(plugin.getConfig().getRecipe().getName());
+        modernizationMetadata.setPullRequestUrl(plugin.getPullRequestUrl());
+        // if the there is any PR created, set the status to open by default
+        if (plugin.getPullRequestUrl() != null && !plugin.getPullRequestUrl().isEmpty()) {
+            modernizationMetadata.setPullRequestStatus("open");
+        }
+        modernizationMetadata.setDryRun(config.isDryRun());
+        // get the diff stats for the plugin
+        DiffStats diffStats = plugin.getDiffStats(ghService, config.isDryRun());
+        modernizationMetadata.setAdditions(diffStats.additions());
+        modernizationMetadata.setDeletions(diffStats.deletions());
+        modernizationMetadata.setChangedFiles(diffStats.changedFiles());
+        if (plugin.hasErrors() || plugin.hasPreconditionErrors()) {
+            modernizationMetadata.setMigrationStatus("fail");
+        } else {
+            modernizationMetadata.setMigrationStatus("success");
+        }
+        plugin.setModernizationMetadata(modernizationMetadata);
+        modernizationMetadata.save();
+        LOG.info(
+                "Modernization metadata for plugin {}: {}",
+                plugin.getName(),
+                modernizationMetadata.getLocation().toAbsolutePath());
+    }
+
+    /**
+     * Validate modernization metadata for a plugin
+     * @param plugin The plugin
+     */
+    public void validateModernizationMetadata(Plugin plugin) {
+        if (plugin.isLocal()) {
+            LOG.warn("Skipping modernization metadata validation for local plugin {}.", plugin.getName());
+            return;
+        }
+        if (plugin.getModernizationMetadata() == null) {
+            LOG.warn("Plugin {} has no modernization metadata. Skipping validation.", plugin.getName());
+        }
+        if (plugin.getModernizationMetadata().validate()) {
+            LOG.info("Plugin {} modernization metadata is valid.", plugin.getName());
+        } else {
+            throw new ModernizerException("Plugin " + plugin.getName() + " has invalid modernization metadata.");
+        }
     }
 
     /**

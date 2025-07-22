@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 
 /**
  * Enum to represent the precondition errors preventing any modernization process
@@ -121,11 +122,19 @@ public enum PreconditionError {
                     return false;
                 }
                 try {
-                    Double nonHttpsRepositories = (Double) xpath.evaluate(
-                            "count(//*[local-name()='project']/*[local-name()='repositories']/*[local-name()='repository']/*[local-name()='url' and not(starts-with(., 'https'))])",
+                    NodeList repositoryUrls = (NodeList) xpath.evaluate(
+                            "//*[local-name()='project']/*[local-name()='repositories']/*[local-name()='repository']/*[local-name()='url']",
                             document,
-                            XPathConstants.NUMBER);
-                    return nonHttpsRepositories != null && !nonHttpsRepositories.equals(0.0);
+                            XPathConstants.NODESET);
+
+                    int nonHttpsCount = 0;
+                    for (int i = 0; i < repositoryUrls.getLength(); i++) {
+                        String url = repositoryUrls.item(i).getTextContent().trim();
+                        if (!url.startsWith("https") && !url.startsWith("${") && !url.startsWith("file://")) {
+                            nonHttpsCount++;
+                        }
+                    }
+                    return nonHttpsCount > 0;
                 } catch (Exception e) {
                     return false;
                 }

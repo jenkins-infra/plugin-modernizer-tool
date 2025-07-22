@@ -51,9 +51,14 @@ public class Settings {
     public static final Path SSH_PRIVATE_KEY;
 
     public static final String GITHUB_OWNER;
+
     public static final Path GITHUB_APP_PRIVATE_KEY_FILE;
 
+    public static final String GITHUB_METADATA_REPOSITORY = "metadata-plugin-modernizer";
+
     public static final String ORGANIZATION = getTargetOrganisation();
+
+    public static final String METADATA_ORGANISATION = getMetadataTargetOrganisation();
 
     public static final String RECIPE_DATA_YAML_PATH = "META-INF/rewrite/recipes.yml";
 
@@ -197,6 +202,10 @@ public class Settings {
         return readProperty("bom.recommended.version", "versions.properties");
     }
 
+    public static String getMavenVersion() {
+        return readProperty("maven.version", "versions.properties");
+    }
+
     /**
      * Return a plugin version from versions.properties
      * @param plugin The plugin name (for example commons-compress-api)
@@ -220,6 +229,14 @@ public class Settings {
      */
     public static String getJenkinsTestHarnessVersion() {
         return readProperty("jenkins-test-harness.version", "versions.properties");
+    }
+
+    /**
+     * Return the Wiremock version
+     * @return The Wiremock version
+     */
+    public static String getWiremockVersion() {
+        return readProperty("wiremock.version", "versions.properties");
     }
 
     public static String getJenkinsMinimumBaseline() {
@@ -325,6 +342,14 @@ public class Settings {
             targetOrganisation = "jenkinsci";
         }
         return targetOrganisation;
+    }
+
+    private static String getMetadataTargetOrganisation() {
+        String metadataTargetOrganisation = System.getenv("GH_METADATA_TARGET_ORGANISATION");
+        if (metadataTargetOrganisation == null) {
+            metadataTargetOrganisation = "Raunak80Madan";
+        }
+        return metadataTargetOrganisation;
     }
 
     public static Path getDefaultSdkManJava(final String key) {

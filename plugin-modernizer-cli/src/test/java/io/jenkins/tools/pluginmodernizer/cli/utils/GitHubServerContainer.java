@@ -78,6 +78,9 @@ public class GitHubServerContainer extends GitServerContainer {
      */
     private void setupMock() {
 
+        String metadataPlugin = "metadata-plugin-modernizer";
+        OwnerObject ownerRaunak = new OwnerObject("Raunak80Madan");
+
         // Setup responses
         PluginStatsApiResponse pluginStatsApiResponse = new PluginStatsApiResponse(Map.of(plugin, 1));
         UpdateCenterApiResponse updateCenterApiResponse = new UpdateCenterApiResponse(
@@ -154,6 +157,60 @@ public class GitHubServerContainer extends GitServerContainer {
         wireMock.register(WireMock.post(WireMock.urlEqualTo("/api/repos/jenkinsci/%s/pulls".formatted(plugin)))
                 .willReturn(WireMock.jsonResponse(new PullRequestsResponse("PR"), 200)));
 
+        RepoApiResponse metadataRepoApi = new RepoApiResponse(
+                metadataPlugin,
+                "Raunak80Madan/" + metadataPlugin,
+                "main",
+                "%s/Raunak80Madan/%s".formatted(wmRuntimeInfo.getHttpBaseUrl(), metadataPlugin),
+                this.getGitRepoURIAsSSH().toString(),
+                ownerRaunak);
+
+        // GET /api/repos/Raunak80Madan/metadata-plugin-modernizer
+        wireMock.register(WireMock.get(WireMock.urlEqualTo("/api/repos/Raunak80Madan/" + metadataPlugin))
+                .willReturn(WireMock.jsonResponse(metadataRepoApi, 200)));
+
+        ParentForkObject parentFork =
+                new ParentForkObject(metadataPlugin, "Raunak80Madan/" + metadataPlugin, ownerRaunak);
+
+        // GET /api/repos/fake-owner/metadata-plugin-modernizer
+        wireMock.register(WireMock.get(WireMock.urlEqualTo("/api/repos/fake-owner/" + metadataPlugin))
+                .willReturn(WireMock.jsonResponse(
+                        new RepoForkApiResponse(
+                                metadataPlugin,
+                                "fake-owner/" + metadataPlugin,
+                                "main",
+                                "%s/fake-owner/%s".formatted(wmRuntimeInfo.getHttpBaseUrl(), metadataPlugin),
+                                this.getGitRepoURIAsSSH().toString(),
+                                parentFork),
+                        200)));
+
+        // POST /api/repos/fake-owner/metadata-plugin-modernizer/merge-upstream
+        wireMock.register(
+                WireMock.post(WireMock.urlEqualTo("/api/repos/fake-owner/" + metadataPlugin + "/merge-upstream"))
+                        .willReturn(WireMock.jsonResponse(
+                                new RepoForkApiResponse(
+                                        metadataPlugin,
+                                        "fake-owner/" + metadataPlugin,
+                                        "main",
+                                        "%s/fake-owner/%s".formatted(wmRuntimeInfo.getHttpBaseUrl(), metadataPlugin),
+                                        this.getGitRepoURIAsSSH().toString(),
+                                        parentFork),
+                                200)));
+
+        // POST /api/repos/Raunak80Madan/metadata-plugin-modernizer/issues/0/labels
+        wireMock.register(
+                WireMock.post(WireMock.urlEqualTo("/api/repos/Raunak80Madan/" + metadataPlugin + "/issues/0/labels"))
+                        .willReturn(WireMock.jsonResponse("[]", 200)));
+
+        // GET /api/repos/Raunak80Madan/metadata-plugin-modernizer/pulls?state=open
+        wireMock.register(
+                WireMock.get(WireMock.urlEqualTo("/api/repos/Raunak80Madan/" + metadataPlugin + "/pulls?state=open"))
+                        .willReturn(WireMock.jsonResponse(Collections.emptyList(), 200)));
+
+        // POST /api/repos/Raunak80Madan/metadata-plugin-modernizer/pulls
+        wireMock.register(WireMock.post(WireMock.urlEqualTo("/api/repos/Raunak80Madan/" + metadataPlugin + "/pulls"))
+                .willReturn(WireMock.jsonResponse(new PullRequestsResponse("PR"), 200)));
+
         wireMock.register(WireMock.get(WireMock.urlEqualTo("/update-center.json"))
                 .willReturn(WireMock.jsonResponse(updateCenterApiResponse, 200)));
         wireMock.register(WireMock.get(WireMock.urlEqualTo("/plugin-versions.json"))
@@ -163,7 +220,6 @@ public class GitHubServerContainer extends GitServerContainer {
         wireMock.register(WireMock.get(WireMock.urlEqualTo("/jenkins-stats/svg/202406-plugins.csv"))
                 .willReturn(WireMock.jsonResponse(pluginStatsApiResponse, 200)));
 
-        // Setup SSH key to access the container
         SshIdentity sshIdentity = this.getSshClientIdentity();
         byte[] privateKey = sshIdentity.getPrivateKey();
         try {

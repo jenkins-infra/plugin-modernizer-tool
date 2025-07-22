@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 public class CacheManager {
 
     // Cache keys
-    public static final String UPDATE_CENTER_CACHE_KEY = "update-center";
-    public static final String PLUGIN_VERSIONS_CACHE_KEY = "plugin-versions";
-    public static final String HEALTH_SCORE_KEY = "health-score";
-    public static final String INSTALLATION_STATS_KEY = "plugin-installation-stats";
-    public static final String PLUGIN_METADATA_CACHE_KEY = "plugin-metadata";
-
+    public static final String UPDATE_CENTER_CACHE_KEY = "update-center.json";
+    public static final String PLUGIN_VERSIONS_CACHE_KEY = "plugin-versions.json";
+    public static final String HEALTH_SCORE_KEY = "health-score.json";
+    public static final String INSTALLATION_STATS_KEY = "plugin-installation-stats.json";
+    public static final String PLUGIN_METADATA_CACHE_KEY = "plugin-metadata.json";
+    public static final String MODERNIZATION_METADATA_CACHE_KEY = "modernization-metadata.json";
     private static final Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
     private final Path location;

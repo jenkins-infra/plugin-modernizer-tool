@@ -1,0 +1,56 @@
+name: Update Metadata
+
+on:
+  workflow_call:
+
+jobs:
+  update-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 #v5.6.0
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download update_metadata.py script
+        run: |
+          mkdir scripts
+          curl -sSL https://raw.githubusercontent.com/jenkins-infra/plugin-modernizer-tool/main/scripts/update_metadata.py -o scripts/update_metadata.py
+
+      - name: Run updation script
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/update_metadata.py
+
+      - name: Create or update PR with changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          BRANCH_NAME="automation/update-pr-status"
+
+          # Create new branch
+          git checkout -b "$BRANCH_NAME"
+
+          git add --all ":!scripts" 
+          git commit -m "Update PR statuses and branch info in metadata files" || exit 0
+
+          # Push to branch (force needed if branch already exists)
+          git push origin "$BRANCH_NAME" --force
+
+          # Create or update PR
+          gh pr create --title "chore: update PR statuses and branch info" \
+                       --body "Automated update of metadata files" \
+                       --head "$BRANCH_NAME" \
+                       --base main || \
+          gh pr edit "$BRANCH_NAME" --title "chore: update PR statuses and branch info" \
+                                    --body "Automated update of metadata files" 
+                     

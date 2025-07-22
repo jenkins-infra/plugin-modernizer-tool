@@ -53,6 +53,14 @@ public class RunCommand implements ICommand {
     public boolean removeForks;
 
     /**
+     * Skip modernization metadata
+     */
+    @CommandLine.Option(
+            names = {"--skip-metadata"},
+            description = "Disable collection and pushing of modernization metadata")
+    private boolean skipMetadata;
+
+    /**
      * Environment options
      */
     @CommandLine.Mixin
@@ -82,6 +90,7 @@ public class RunCommand implements ICommand {
         return builder.withRecipe(recipe)
                 .withDraft(draft)
                 .withRemoveForks(removeForks)
+                .withSkipMetadata(skipMetadata)
                 .build();
     }
 

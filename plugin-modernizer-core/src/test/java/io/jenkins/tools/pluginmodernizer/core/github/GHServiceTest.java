@@ -115,6 +115,20 @@ public class GHServiceTest {
     }
 
     @Test
+    public void shouldGetMetadataRepository() throws Exception {
+
+        // Mock
+        GHRepository mock = Mockito.mock(GHRepository.class);
+        doReturn(mock).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
+
+        // Test
+        GHRepository repository = service.getMetadataRepository(plugin);
+
+        // Verify
+        assertSame(mock, repository);
+    }
+
+    @Test
     public void shouldFailToGetRepository() throws Exception {
 
         // Mock
@@ -124,6 +138,18 @@ public class GHServiceTest {
         // Test
         assertThrows(PluginProcessingException.class, () -> {
             service.getRepository(plugin);
+        });
+    }
+
+    @Test
+    public void shouldFailToGetMetadataRepository() throws Exception {
+
+        // Mock
+        doThrow(new IOException()).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
+
+        // Test
+        assertThrows(PluginProcessingException.class, () -> {
+            service.getMetadataRepository(plugin);
         });
     }
 
@@ -143,6 +169,20 @@ public class GHServiceTest {
         assertSame(mock, repository);
     }
 
+    public void shouldGetMetadataRepositoryFork() throws Exception {
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        GHRepository mock = Mockito.mock(GHRepository.class);
+        doReturn(mock).when(github).getRepository(eq("fake-owner/metadata-plugin-modernizer"));
+
+        // Test
+        GHRepository repository = service.getMetadataRepositoryFork(plugin);
+
+        // Verify
+        assertSame(mock, repository);
+    }
+
     @Test
     public void shouldFailToGetForkRepository() throws Exception {
 
@@ -154,6 +194,19 @@ public class GHServiceTest {
         // Test
         assertThrows(PluginProcessingException.class, () -> {
             service.getRepositoryFork(plugin);
+        });
+    }
+
+    @Test
+    public void shouldFailToGetForkMetadataRepository() throws Exception {
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doThrow(new IOException()).when(github).getRepository(eq("fake-owner/metadata-plugin-modernizer"));
+
+        // Test
+        assertThrows(PluginProcessingException.class, () -> {
+            service.getMetadataRepositoryFork(plugin);
         });
     }
 
@@ -202,6 +255,22 @@ public class GHServiceTest {
     }
 
     @Test
+    public void isForkedMetadataTest() throws Exception {
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(null).when(config).getGithubAppId();
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHMyself myself = Mockito.mock(GHMyself.class);
+
+        doReturn(myself).when(github).getMyself();
+        doReturn(fork).when(myself).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test and verify
+        assertTrue(service.isForkedMetadata(plugin));
+    }
+
+    @Test
     public void isNotForkedTest() throws Exception {
 
         // Mock
@@ -218,6 +287,21 @@ public class GHServiceTest {
     }
 
     @Test
+    public void isNotForkedMetadataTest() throws Exception {
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(null).when(config).getGithubAppId();
+        GHMyself myself = Mockito.mock(GHMyself.class);
+
+        doReturn(myself).when(github).getMyself();
+        doReturn(null).when(myself).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test and verify
+        assertFalse(service.isForkedMetadata(plugin));
+    }
+
+    @Test
     public void isForkedToOrganisation() throws Exception {
 
         // Mock
@@ -231,6 +315,21 @@ public class GHServiceTest {
 
         // Test and verify
         assertTrue(service.isForked(plugin));
+    }
+
+    @Test
+    public void isForkedMetadataToOrganisation() throws Exception {
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHOrganization org = Mockito.mock(GHOrganization.class);
+
+        doReturn(org).when(github).getOrganization(eq("fake-owner"));
+        doReturn(fork).when(org).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test and verify
+        assertTrue(service.isForkedMetadata(plugin));
     }
 
     @Test
@@ -289,6 +388,37 @@ public class GHServiceTest {
     }
 
     @Test
+    public void shouldForkMetadataRepoToMyself() throws Exception {
+
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHMyself myself = Mockito.mock(GHMyself.class);
+        GHRepositoryForkBuilder builder = Mockito.mock(GHRepositoryForkBuilder.class);
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(null).when(config).getGithubAppId();
+        doReturn("metadata-plugin-modernizer").when(repository).getName();
+        doReturn(Mockito.mock(URL.class)).when(fork).getHtmlUrl();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn(myself).when(github).getMyself();
+        doReturn(builder).when(repository).createFork();
+        doReturn(fork).when(builder).create();
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalMetadataRepository();
+
+        // Not yet forked
+        doReturn(null).when(myself).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test
+        service.forkMetadata(plugin);
+
+        // Verify
+        verify(repository, times(1)).createFork();
+    }
+
+    @Test
     public void shouldReturnForkWhenAlreadyForkedToMyself() throws Exception {
 
         GHRepository repository = Mockito.mock(GHRepository.class);
@@ -320,6 +450,37 @@ public class GHServiceTest {
     }
 
     @Test
+    public void shouldReturnMetadataForkWhenAlreadyForkedToMyself() throws Exception {
+
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHMyself myself = Mockito.mock(GHMyself.class);
+        GHRepositoryForkBuilder builder = Mockito.mock(GHRepositoryForkBuilder.class);
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(null).when(config).getGithubAppId();
+        doReturn(repository).when(fork).getParent();
+        doReturn("metadata-plugin-modernizer").when(repository).getName();
+        doReturn(Mockito.mock(URL.class)).when(fork).getHtmlUrl();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn(myself).when(github).getMyself();
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalMetadataRepository();
+
+        // Already forked
+        doReturn(fork).when(myself).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test
+        service.forkMetadata(plugin);
+
+        // Verify
+        verify(repository, times(0)).createFork();
+        verify(myself, times(2)).getRepository(eq("metadata-plugin-modernizer"));
+    }
+
+    @Test
     public void shouldFailToGetForkWhenAlreadyForkedFromOtherSource() throws Exception {
 
         GHRepository repository = Mockito.mock(GHRepository.class);
@@ -340,6 +501,30 @@ public class GHServiceTest {
 
         assertThrows(PluginProcessingException.class, () -> {
             service.fork(plugin);
+        });
+    }
+
+    @Test
+    public void shouldFailToGetMetadataForkWhenAlreadyForkedFromOtherSource() throws Exception {
+
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHRepository other = Mockito.mock(GHRepository.class);
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHMyself myself = Mockito.mock(GHMyself.class);
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(null).when(config).getGithubAppId();
+        doReturn(other).when(fork).getParent();
+        doReturn("metadata-plugin-modernizer").when(repository).getName();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn(myself).when(github).getMyself();
+
+        // Already forked
+        doReturn(fork).when(myself).getRepository(eq("metadata-plugin-modernizer"));
+
+        assertThrows(PluginProcessingException.class, () -> {
+            service.forkMetadata(plugin);
         });
     }
 
@@ -375,6 +560,37 @@ public class GHServiceTest {
     }
 
     @Test
+    public void shouldForkMetadataRepoToOrganisation() throws Exception {
+
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHOrganization org = Mockito.mock(GHOrganization.class);
+        GHRepositoryForkBuilder builder = Mockito.mock(GHRepositoryForkBuilder.class);
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn("metadata-plugin-modernizer").when(repository).getName();
+        doReturn(Mockito.mock(URL.class)).when(fork).getHtmlUrl();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn(org).when(github).getOrganization("fake-owner");
+        doReturn(builder).when(repository).createFork();
+        doReturn(builder).when(builder).organization(eq(org));
+        doReturn(fork).when(builder).create();
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalMetadataRepository();
+
+        // Not yet forked
+        doReturn(null).when(org).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test
+        service.forkMetadata(plugin);
+
+        // Verify
+        verify(repository, times(1)).createFork();
+    }
+
+    @Test
     public void shouldReturnForkWhenAlreadyForkedToOrganisation() throws Exception {
 
         GHRepository repository = Mockito.mock(GHRepository.class);
@@ -404,6 +620,35 @@ public class GHServiceTest {
     }
 
     @Test
+    public void shouldReturnMetadataForkWhenAlreadyForkedToOrganisation() throws Exception {
+
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHOrganization org = Mockito.mock(GHOrganization.class);
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(repository).when(fork).getParent();
+        doReturn("metadata-plugin-modernizer").when(repository).getName();
+        doReturn(Mockito.mock(URL.class)).when(fork).getHtmlUrl();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn(org).when(github).getOrganization("fake-owner");
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalMetadataRepository();
+
+        // Already forked to org
+        doReturn(fork).when(org).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test
+        service.forkMetadata(plugin);
+
+        // Verify
+        verify(repository, times(0)).createFork();
+        verify(org, times(2)).getRepository(eq("metadata-plugin-modernizer"));
+    }
+
+    @Test
     public void shouldFailtToGetForkWhenAlreadyForkedToOrganisationOfOtherSource() throws Exception {
 
         GHRepository repository = Mockito.mock(GHRepository.class);
@@ -424,6 +669,30 @@ public class GHServiceTest {
         // Test
         assertThrows(PluginProcessingException.class, () -> {
             service.fork(plugin);
+        });
+    }
+
+    @Test
+    public void shouldFailtToGetMetadataForkWhenAlreadyForkedToOrganisationOfOtherSource() throws Exception {
+
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHRepository other = Mockito.mock(GHRepository.class);
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHOrganization org = Mockito.mock(GHOrganization.class);
+
+        // Mock
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn(other).when(fork).getParent();
+        doReturn("metadata-plugin-modernizer").when(repository).getName();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn(org).when(github).getOrganization("fake-owner");
+
+        // Already forked to org
+        doReturn(fork).when(org).getRepository(eq("metadata-plugin-modernizer"));
+
+        // Test
+        assertThrows(PluginProcessingException.class, () -> {
+            service.forkMetadata(plugin);
         });
     }
 
@@ -652,6 +921,43 @@ public class GHServiceTest {
     }
 
     @Test
+    public void shouldSshFetchOriginalMetadataRepoInDryRunModeToNewFolder() throws Exception {
+
+        // Mock
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        Git git = Mockito.mock(Git.class);
+        CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
+
+        // Use SSH key auth
+        Field field = ReflectionUtils.findFields(
+                        GHService.class,
+                        f -> f.getName().equals("sshKeyAuth"),
+                        ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
+                .get(0);
+        field.setAccessible(true);
+        field.set(service, true);
+
+        doReturn(repository).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
+        doReturn(git).when(cloneCommand).call();
+        doReturn("fake-url").when(repository).getSshUrl();
+        doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
+        doReturn(cloneCommand).when(cloneCommand).setURI(eq("ssh:///fake-url"));
+        doReturn(cloneCommand).when(cloneCommand).setCredentialsProvider(any(CredentialsProvider.class));
+        doReturn(cloneCommand).when(cloneCommand).setDirectory(any(File.class));
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalMetadataRepository();
+
+        // Test
+        try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
+            mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
+            service.fetchMetadata(plugin);
+            verify(cloneCommand, times(1)).call();
+            verifyNoMoreInteractions(cloneCommand);
+        }
+    }
+
+    @Test
     public void shouldHttpFetchOriginalRepoInDryRunModeToNewFolder() throws Exception {
 
         // Mock
@@ -675,6 +981,34 @@ public class GHServiceTest {
         try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
             mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
             service.fetch(plugin);
+            verify(cloneCommand, times(1)).call();
+            verifyNoMoreInteractions(cloneCommand);
+        }
+    }
+
+    @Test
+    public void shouldHttpFetchOriginalMetadataRepoInDryRunModeToNewFolder() throws Exception {
+
+        // Mock
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        Git git = Mockito.mock(Git.class);
+        CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
+
+        doReturn(repository).when(github).getRepository(eq("Raunak80Madan/metadata-plugin-modernizer"));
+        doReturn(git).when(cloneCommand).call();
+        doReturn("fake-url").when(repository).getHttpTransportUrl();
+        doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
+        doReturn(cloneCommand).when(cloneCommand).setURI(eq("fake-url"));
+        doReturn(cloneCommand).when(cloneCommand).setCredentialsProvider(any(CredentialsProvider.class));
+        doReturn(cloneCommand).when(cloneCommand).setDirectory(any(File.class));
+
+        // Directory doesn't exists
+        doReturn(Path.of("not-existing-dir")).when(plugin).getLocalMetadataRepository();
+
+        // Test
+        try (MockedStatic<Git> mockStaticGit = mockStatic(Git.class)) {
+            mockStaticGit.when(Git::cloneRepository).thenReturn(cloneCommand);
+            service.fetchMetadata(plugin);
             verify(cloneCommand, times(1)).call();
             verifyNoMoreInteractions(cloneCommand);
         }
@@ -782,7 +1116,9 @@ public class GHServiceTest {
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(false), eq(false));
+                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
+
+        doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
         service.openPullRequest(plugin);
@@ -791,6 +1127,35 @@ public class GHServiceTest {
 
         // We delete a PR
         verify(toDeletePr, times(1)).close();
+    }
+
+    @Test
+    public void shouldOpenMetadataPullRequest() throws Exception {
+
+        // Mocks
+        Recipe recipe = Mockito.mock(Recipe.class);
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHPullRequest pr = Mockito.mock(GHPullRequest.class);
+        GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
+        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
+
+        doReturn("test").when(config).getGithubOwner();
+        doReturn("example").when(plugin).getName();
+        doReturn(null).when(config).getGithubAppTargetInstallationId();
+        doReturn(true).when(plugin).hasMetadataChangesPushed();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+
+        // Return just one PR to deleete
+        doReturn(prQuery).when(repository).queryPullRequests();
+        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
+        doReturn(prQueryList).when(prQuery).list();
+
+        doReturn(pr).when(repository).createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true));
+        doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
+
+        // Test
+        service.openMetadataPullRequest(plugin);
+        verify(repository).createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true));
     }
 
     @Test
@@ -825,6 +1190,10 @@ public class GHServiceTest {
         doReturn(prQueryList).when(prQuery).list();
         doReturn(List.of(existingPr, toDeletePr)).when(prQueryList).toList();
 
+        doReturn(new URL("https://github.com/owner/repo/pull/123"))
+                .when(existingPr)
+                .getHtmlUrl();
+
         // Test
         service.openPullRequest(plugin);
 
@@ -838,6 +1207,47 @@ public class GHServiceTest {
         // We don't open a PR
         verify(repository, never())
                 .createPullRequest(anyString(), anyString(), isNull(), anyString(), anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void shouldUpdateMetadataPullRequest() throws Exception {
+
+        // Mocks
+        Recipe recipe = Mockito.mock(Recipe.class);
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHPullRequest existingPr = Mockito.mock(GHPullRequest.class);
+        GHPullRequest toDeletePr = Mockito.mock(GHPullRequest.class);
+        GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
+        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
+        GHCommitPointer head = Mockito.mock(GHCommitPointer.class);
+        GHCommitPointer toDeleteHead = Mockito.mock(GHCommitPointer.class);
+
+        doReturn(null).when(config).getGithubAppTargetInstallationId();
+        doReturn("example").when(plugin).getName();
+        doReturn(true).when(plugin).hasMetadataChangesPushed();
+        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
+        doReturn("example-modernization-metadata").when(head).getRef();
+        doReturn(head).when(existingPr).getHead();
+
+        // Return one open PR that match the branch name
+        doReturn(prQuery).when(repository).queryPullRequests();
+        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
+        doReturn(prQueryList).when(prQuery).list();
+        doReturn(List.of(existingPr, toDeletePr)).when(prQueryList).toList();
+
+        doReturn(new URL("https://github.com/owner/repo/pull/123"))
+                .when(existingPr)
+                .getHtmlUrl();
+
+        // Test
+        service.openMetadataPullRequest(plugin);
+
+        // We update a PR
+        verify(existingPr, times(1)).setTitle(anyString());
+        verify(existingPr, times(1)).setBody(anyString());
+
+        // We don't open a PR
+        verify(repository, never()).createPullRequest(anyString(), anyString(), isNull(), anyString(), anyBoolean());
     }
 
     @Test
@@ -866,7 +1276,9 @@ public class GHServiceTest {
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(false), eq(true));
+                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(true));
+
+        doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
         service.openPullRequest(plugin);

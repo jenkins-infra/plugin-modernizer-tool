@@ -33,9 +33,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test for declarative recipes from recipes.yml.
  */
-// ConcurrentModification on rewriteRun (need fix upstream?
-// This only occur on recipeFromResource
-@Execution(ExecutionMode.SAME_THREAD)
+@Execution(ExecutionMode.CONCURRENT)
 public class DeclarativeRecipesTest implements RewriteTest {
 
     @Language("xml")
@@ -60,23 +58,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 configurations: [
                     [platform: 'linux', jdk: 21],
                     [platform: 'windows', jdk: 17]
-                ]
-            )""";
-
-    @Language("groovy")
-    // For example 2.401 was not supporting yet officially Java 21
-    private static final String NO_JAVA_21_SUPPORT_JENKINSFILE =
-            """
-            /*
-            See the documentation for more options:
-            https://github.com/jenkins-infra/pipeline-library/
-            */
-            buildPlugin(
-                forkCount: '1C', // Run a JVM per core in tests
-                useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
-                configurations: [
-                    [platform: 'linux', jdk: 17],
-                    [platform: 'windows', jdk: 11]
                 ]
             )""";
 
@@ -205,7 +186,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
     void upgradeParentpom() {
         rewriteRun(
                 spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.UpgradeParentVersion"),
+                        "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.UpgradeParent4Version"),
                 // language=xml
                 pomXml(
                         """
@@ -648,9 +629,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
     @Test
     void upgradeToRecommendCoreVersionTest() {
         rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml",
-                        "io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion"),
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.UpgradeToRecommendCoreVersion")
+                            .parser(parser);
+                },
                 // language=yaml
                 yaml("{}", sourceSpecs -> {
                     sourceSpecs.path(ArchetypeCommonFile.WORKFLOW_CD.getPath());
@@ -677,7 +663,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <parent>
                             <groupId>org.jenkins-ci.plugins</groupId>
                             <artifactId>plugin</artifactId>
-                            <version>4.87</version>
+                            <version>5.1</version>
                           </parent>
                           <groupId>io.jenkins.plugins</groupId>
                           <artifactId>empty</artifactId>
@@ -696,7 +682,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </scm>
                           <properties>
                             <jenkins-test-harness.version>2.41.1</jenkins-test-harness.version>
-                            <jenkins.version>2.440.3</jenkins.version>
+                            <jenkins.version>2.479.1</jenkins.version>
                           </properties>
                           <dependencies>
                             <dependency>
@@ -708,6 +694,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <groupId>org.jenkins-ci.main</groupId>
                               <artifactId>jenkins-test-harness</artifactId>
                               <version>2.41.1</version>
+                            </dependency>
+                            <dependency>
+                              <groupId>com.github.tomakehurst</groupId>
+                              <artifactId>wiremock-jre8-standalone</artifactId>
+                              <version>2.35.2</version>
+                              <scope>test</scope>
                             </dependency>
                           </dependencies>
                           <repositories>
@@ -731,7 +723,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <parent>
                             <groupId>org.jenkins-ci.plugins</groupId>
                             <artifactId>plugin</artifactId>
-                            <version>4.88</version>
+                            <version>%s</version>
                             <relativePath/>
                           </parent>
                           <groupId>io.jenkins.plugins</groupId>
@@ -743,7 +735,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             <connection>scm:git:https://github.com/jenkinsci/empty-plugin.git</connection>
                           </scm>
                           <properties>
-                            <jenkins-test-harness.version>2225.v04fa_3929c9b_5</jenkins-test-harness.version>
+                            <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
                             <jenkins.baseline>%s</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.%s</jenkins.version>
@@ -768,6 +760,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <groupId>org.jenkins-ci.main</groupId>
                               <artifactId>jenkins-test-harness</artifactId>
                             </dependency>
+                            <dependency>
+                              <groupId>org.wiremock</groupId>
+                              <artifactId>wiremock-standalone</artifactId>
+                              <version>%s</version>
+                              <scope>test</scope>
+                            </dependency>
                           </dependencies>
                           <repositories>
                             <repository>
@@ -784,9 +782,59 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         </project>
                         """
                                 .formatted(
+                                        Settings.getJenkinsParentVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getRecommendedBomVersion())));
+                                        Settings.getRecommendedBomVersion(),
+                                        Settings.getWiremockVersion())),
+                srcMainResources(
+                        // language=java
+                        java(
+                                """
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
+
+                                public class Foo {
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
+                                }
+                                """,
+                                """
+                                import java.io.File;
+                                import java.io.IOException;
+
+                                public class Foo {
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
+                                }
+                                """)));
     }
 
     @Test
@@ -859,7 +907,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <parent>
                             <groupId>org.jenkins-ci.plugins</groupId>
                             <artifactId>plugin</artifactId>
-                            <version>4.88</version>
+                            <version>%s</version>
                             <relativePath />
                           </parent>
                           <groupId>io.jenkins.plugins</groupId>
@@ -872,7 +920,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </scm>
                           <properties>
                             <jenkins.version>%s</jenkins.version>
-                            <jenkins-test-harness.version>2225.v04fa_3929c9b_5</jenkins-test-harness.version>
+                            <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
                           </properties>
                           <repositories>
                             <repository>
@@ -888,7 +936,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """
-                                .formatted(Settings.getJenkinsMinimumVersion())));
+                                .formatted(Settings.getJenkinsParentVersion(), Settings.getJenkinsMinimumVersion())));
     }
 
     @Test
@@ -974,7 +1022,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <parent>
                             <groupId>org.jenkins-ci.plugins</groupId>
                             <artifactId>plugin</artifactId>
-                            <version>4.88</version>
+                            <version>%s</version>
                             <relativePath />
                           </parent>
                           <groupId>io.jenkins.plugins</groupId>
@@ -983,7 +1031,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <packaging>hpi</packaging>
                           <name>Empty Plugin</name>
                           <properties>
-                            <jenkins-test-harness.version>2225.v04fa_3929c9b_5</jenkins-test-harness.version>
+                            <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
                             <jenkins.baseline>%s</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.%s</jenkins.version>
@@ -1020,6 +1068,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         </project>
                         """
                                 .formatted(
+                                        Settings.getJenkinsParentVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
                                         Settings.getRecommendedBomVersion())));
@@ -1042,7 +1091,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 // language=groovy
                 groovy(
                         null,
-                        NO_JAVA_21_SUPPORT_JENKINSFILE,
+                        EXPECTED_MODERN_JENKINSFILE,
                         s -> s.path(ArchetypeCommonFile.JENKINSFILE.getPath().getFileName())),
                 // language=xml
                 pomXml(
@@ -1053,7 +1102,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <parent>
                         <groupId>org.jenkins-ci.plugins</groupId>
                         <artifactId>plugin</artifactId>
-                        <version>4.88</version>
+                        <version>5.1</version>
                         <relativePath />
                       </parent>
                       <artifactId>empty</artifactId>
@@ -1071,7 +1120,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         <jenkins-test-harness.version>2.41.1</jenkins-test-harness.version>
                         <revision>2.17.0</revision>
                         <changelist>999999-SNAPSHOT</changelist>
-                        <jenkins.version>2.401.3</jenkins.version>
+                        <jenkins.version>2.479.1</jenkins.version>
                       </properties>
                       <repositories>
                         <repository>
@@ -1117,6 +1166,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <groupId>io.jenkins.plugins</groupId>
                           <artifactId>json-api</artifactId>
                         </dependency>
+                        <dependency>
+                          <groupId>com.github.tomakehurst</groupId>
+                          <artifactId>wiremock</artifactId>
+                          <version>3.0.1</version>
+                          <scope>test</scope>
+                        </dependency>
                       </dependencies>
                     </project>
                     """,
@@ -1127,7 +1182,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <parent>
                         <groupId>org.jenkins-ci.plugins</groupId>
                         <artifactId>plugin</artifactId>
-                        <version>4.88</version>
+                        <version>%s</version>
                         <relativePath />
                       </parent>
                       <artifactId>empty</artifactId>
@@ -1135,7 +1190,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <packaging>hpi</packaging>
                       <name>My API Plugin</name>
                       <properties>
-                        <jenkins-test-harness.version>2225.v04fa_3929c9b_5</jenkins-test-harness.version>
+                        <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
                         <revision>2.17.0</revision>
                         <changelist>999999-SNAPSHOT</changelist>
                         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
@@ -1185,21 +1240,36 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <groupId>io.jenkins.plugins</groupId>
                           <artifactId>json-api</artifactId>
                         </dependency>
+                        <dependency>
+                          <groupId>org.wiremock</groupId>
+                          <artifactId>wiremock</artifactId>
+                          <version>%s</version>
+                          <scope>test</scope>
+                        </dependency>
                       </dependencies>
                     </project>
                     """
                                 .formatted(
+                                        Settings.getJenkinsParentVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
-                                        Settings.getRecommendedBomVersion())));
+                                        Settings.getRecommendedBomVersion(),
+                                        Settings.getWiremockVersion())));
     }
 
     @Test
     void upgradeToUpgradeToLatestJava11CoreVersion() {
         rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml",
-                        "io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava11CoreVersion"),
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().stream()
+                            .filter(entry -> entry.getFileName().toString().contains("jenkins-core-2.497"))
+                            .forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava11CoreVersion")
+                            .parser(parser);
+                },
                 // language=xml
                 srcMainResources(text(
                         null,
@@ -1257,6 +1327,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <artifactId>jenkins-test-harness</artifactId>
                                 <version>2.41.1</version>
                               </dependency>
+                              <dependency>
+                                <groupId>com.github.tomakehurst</groupId>
+                                <artifactId>wiremock-jre8-standalone</artifactId>
+                                <version>2.35.2</version>
+                                <scope>test</scope>
+                              </dependency>
                             </dependencies>
                           <repositories>
                             <repository>
@@ -1301,7 +1377,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <dependency>
                                 <groupId>io.jenkins.tools.bom</groupId>
                                 <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                                <version>%s</version>
+                                <version>4228.v0a_71308d905b_</version>
                                 <type>pom</type>
                                 <scope>import</scope>
                               </dependency>
@@ -1311,6 +1387,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <dependency>
                                 <groupId>org.jenkins-ci.main</groupId>
                                 <artifactId>jenkins-test-harness</artifactId>
+                              </dependency>
+                              <dependency>
+                                <groupId>org.wiremock</groupId>
+                                <artifactId>wiremock-standalone</artifactId>
+                                <version>%s</version>
+                                <scope>test</scope>
                               </dependency>
                             </dependencies>
                           <repositories>
@@ -1327,7 +1409,55 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """
-                                .formatted(Settings.getRecommendedBomVersion())));
+                                .formatted(Settings.getWiremockVersion())),
+                srcMainResources(
+                        // language=java
+                        java(
+                                """
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
+
+                                public class Foo {
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
+                                }
+                                """,
+                                """
+                                import java.io.File;
+                                import java.io.IOException;
+
+                                public class Foo {
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
+                                }
+                                """)));
     }
 
     @Test
@@ -1336,7 +1466,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 spec -> {
                     var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
                     collectRewriteTestDependencies().stream()
-                            .filter(entry -> entry.getFileName().toString().contains("ssh-slaves-1.12"))
+                            .filter(entry -> entry.getFileName().toString().contains("ssh-slaves-1.12")
+                                    || entry.getFileName().toString().contains("jenkins-core-2.497"))
                             .forEach(parser::addClasspathEntry);
                     spec.recipeFromResource(
                                     "/META-INF/rewrite/recipes.yml",
@@ -1702,8 +1833,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         public class MatrixProject {}
                         """)),
                 srcMainJava(
+                        // language=java
                         java(
-                                // language=java
                                 """
                         import hudson.maven.MavenModuleSet;
                         import hudson.scm.SubversionSCM;
@@ -1729,6 +1860,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         import org.jenkinsci.main.modules.instance_identity.InstanceIdentity;
                         import hudson.markup.RawHtmlMarkupFormatter;
                         import hudson.matrix.MatrixProject;
+                        import hudson.util.IOException2;
+                        import java.io.File;
+                        import java.io.IOException;
 
                         public class TestDetachedPluginsUsage {
                             public void execute() {
@@ -1756,6 +1890,93 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 new InstanceIdentity();
                                 new RawHtmlMarkupFormatter();
                                 new MatrixProject();
+                            }
+                            private static void parseFile(File file) throws IOException2 {
+                                try {
+                                    throw new IOException("Unable to read file");
+                                } catch (IOException e) {
+                                    throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                }
+                            }
+                            public static void main(String[] args) {
+                                try {
+                                    parseFile(new File("invalid.xml"));
+                                } catch (IOException2 e) {
+                                    System.out.println("Caught custom exception: " + e.getMessage());
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                        """,
+                                """
+                        import hudson.maven.MavenModuleSet;
+                        import hudson.scm.SubversionSCM;
+                        import hudson.tasks.Ant;
+                        import hudson.tasks.JavadocArchiver;
+                        import hudson.tasks.Mailer;
+                        import hudson.tasks.junit.JUnitResultArchiver;
+                        import hudson.model.ExternalJob;
+                        import hudson.security.LDAPSecurityRealm;
+                        import hudson.security.PAMSecurityRealm;
+                        import hudson.security.GlobalMatrixAuthorizationStrategy;
+                        import hudson.security.ProjectMatrixAuthorizationStrategy;
+                        import hudson.security.AuthorizationMatrixProperty;
+                        import hudson.slaves.CommandLauncher;
+                        import hudson.tools.JDKInstaller;
+                        import javax.xml.bind.JAXBContext;
+                        import com.trilead.ssh2.Connection;
+                        import org.jenkinsci.main.modules.sshd.SSHD;
+                        import javax.activation.DataHandler;
+                        import jenkins.bouncycastle.api.BouncyCastlePlugin;
+                        import jenkins.plugins.javax.activation.CommandMapInitializer;
+                        import jenkins.plugins.javax.activation.FileTypeMapInitializer;
+                        import org.jenkinsci.main.modules.instance_identity.InstanceIdentity;
+                        import hudson.markup.RawHtmlMarkupFormatter;
+                        import hudson.matrix.MatrixProject;
+                        import java.io.File;
+                        import java.io.IOException;
+
+                        public class TestDetachedPluginsUsage {
+                            public void execute() {
+                                new MavenModuleSet();
+                                new SubversionSCM();
+                                new Ant();
+                                new JavadocArchiver();
+                                new Mailer();
+                                new JUnitResultArchiver();
+                                new ExternalJob();
+                                new LDAPSecurityRealm();
+                                new PAMSecurityRealm();
+                                new GlobalMatrixAuthorizationStrategy();
+                                new ProjectMatrixAuthorizationStrategy();
+                                new AuthorizationMatrixProperty();
+                                new CommandLauncher();
+                                new JDKInstaller();
+                                new JAXBContext();
+                                new Connection();
+                                new SSHD();
+                                new DataHandler();
+                                new BouncyCastlePlugin();
+                                new CommandMapInitializer();
+                                new FileTypeMapInitializer();
+                                new InstanceIdentity();
+                                new RawHtmlMarkupFormatter();
+                                new MatrixProject();
+                            }
+                            private static void parseFile(File file) throws IOException {
+                                try {
+                                    throw new IOException("Unable to read file");
+                                } catch (IOException e) {
+                                    throw new IOException("Failed to parse file: " + file.getName(), e);
+                                }
+                            }
+                            public static void main(String[] args) {
+                                try {
+                                    parseFile(new File("invalid.xml"));
+                                } catch (IOException e) {
+                                    System.out.println("Caught custom exception: " + e.getMessage());
+                                    e.printStackTrace();
+                                }
                             }
                         }
                         """)));
@@ -1817,6 +2038,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <maven.compiler.target>11</maven.compiler.target>
                                 <maven.compiler.release>11</maven.compiler.release>
                               </properties>
+                              <dependencies>
+                                <dependency>
+                                  <groupId>com.github.tomakehurst</groupId>
+                                  <artifactId>wiremock-jre8-standalone</artifactId>
+                                  <version>2.35.2</version>
+                                  <scope>test</scope>
+                                </dependency>
+                              </dependencies>
                               <repositories>
                                 <repository>
                                   <id>repo.jenkins-ci.org</id>
@@ -1851,8 +2080,16 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               </scm>
                               <properties>
                                 <jenkins-test-harness.version>%s</jenkins-test-harness.version>
-                                <jenkins.version>2.479.3</jenkins.version>
+                                <jenkins.version>2.492.3</jenkins.version>
                               </properties>
+                              <dependencies>
+                                <dependency>
+                                  <groupId>org.wiremock</groupId>
+                                  <artifactId>wiremock-standalone</artifactId>
+                                  <version>%s</version>
+                                  <scope>test</scope>
+                                </dependency>
+                              </dependencies>
                               <repositories>
                                 <repository>
                                   <id>repo.jenkins-ci.org</id>
@@ -1868,7 +2105,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             </project>
                             """
                                 .formatted(
-                                        Settings.getJenkinsParentVersion(), Settings.getJenkinsTestHarnessVersion())),
+                                        Settings.getJenkinsParentVersion(),
+                                        Settings.getJenkinsTestHarnessVersion(),
+                                        Settings.getWiremockVersion())),
                 srcMainResources(
                         // language=java
                         java(
@@ -1891,6 +2130,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import jenkins.model.Jenkins;
                                 import jenkins.security.SecurityListener;
                                 import hudson.security.SecurityRealm;
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
 
                                 public class Foo extends SecurityRealm {
                                     @Override
@@ -1910,6 +2152,21 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         StaplerResponse response = Stapler.getCurrentResponse();
                                         Authentication auth = Jenkins.getAuthentication();
                                     }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
+                                    }
                                 }
                                 """,
                                 """
@@ -1927,6 +2184,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import jenkins.model.Jenkins;
                                 import jenkins.security.SecurityListener;
                                 import hudson.security.SecurityRealm;
+                                import java.io.File;
+                                import java.io.IOException;
                                 import org.springframework.security.core.authority.SimpleGrantedAuthority;
                                 import org.springframework.security.authentication.AbstractAuthenticationToken;
                                 import java.util.List;
@@ -1951,6 +2210,21 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                         StaplerRequest2 req = Stapler.getCurrentRequest2();
                                         StaplerResponse2 response = Stapler.getCurrentResponse2();
                                         Authentication auth = Jenkins.getAuthentication2();
+                                    }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
                                     }
                                 }
                                 """)));
@@ -2025,6 +2299,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 <artifactId>jenkins-test-harness</artifactId>
                                 <version>2.41.1</version>
                               </dependency>
+                              <dependency>
+                                <groupId>com.github.tomakehurst</groupId>
+                                <artifactId>wiremock</artifactId>
+                                <version>3.0.1</version>
+                                <scope>test</scope>
+                              </dependency>
                             </dependencies>
                           <repositories>
                             <repository>
@@ -2058,7 +2338,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <properties>
                             <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                            <jenkins.baseline>2.479</jenkins.baseline>
+                            <jenkins.baseline>2.492</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                           </properties>
                           <dependencyManagement>
@@ -2076,6 +2356,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               <dependency>
                                 <groupId>org.jenkins-ci.main</groupId>
                                 <artifactId>jenkins-test-harness</artifactId>
+                              </dependency>
+                              <dependency>
+                                <groupId>org.wiremock</groupId>
+                                <artifactId>wiremock</artifactId>
+                                <version>%s</version>
+                                <scope>test</scope>
                               </dependency>
                             </dependencies>
                           <repositories>
@@ -2095,7 +2381,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 .formatted(
                                         Settings.getJenkinsParentVersion(),
                                         Settings.getJenkinsTestHarnessVersion(),
-                                        Settings.getBomVersion())),
+                                        Settings.getBomVersion(),
+                                        Settings.getWiremockVersion())),
                 srcTestJava(
                         java(
                                 // language=java
@@ -2115,11 +2402,29 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.kohsuke.stapler.StaplerRequest;
                                 import org.kohsuke.stapler.StaplerResponse;
                                 import hudson.util.ChartUtil;
+                                import hudson.util.IOException2;
+                                import java.io.File;
+                                import java.io.IOException;
 
                                 public class Foo {
                                     public void foo() {
                                         StaplerRequest req = Stapler.getCurrentRequest();
                                         StaplerResponse response = Stapler.getCurrentResponse();
+                                    }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException2 e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException2 {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException2("Failed to parse file: " + file.getName(), e);
+                                        }
                                     }
                                 }
                                 """,
@@ -2132,11 +2437,28 @@ public class DeclarativeRecipesTest implements RewriteTest {
                                 import org.kohsuke.stapler.StaplerRequest;
                                 import org.kohsuke.stapler.StaplerResponse;
                                 import hudson.util.ChartUtil;
+                                import java.io.File;
+                                import java.io.IOException;
 
                                 public class Foo {
                                     public void foo() {
                                         StaplerRequest req = Stapler.getCurrentRequest();
                                         StaplerResponse response = Stapler.getCurrentResponse();
+                                    }
+                                    public static void main(String[] args) {
+                                        try {
+                                            parseFile(new File("invalid.xml"));
+                                        } catch (IOException e) {
+                                            System.out.println("Caught custom exception: " + e.getMessage());
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    private static void parseFile(File file) throws IOException {
+                                        try {
+                                            throw new IOException("Unable to read file");
+                                        } catch (IOException e) {
+                                            throw new IOException("Failed to parse file: " + file.getName(), e);
+                                        }
                                     }
                                 }""")));
     }
@@ -2236,7 +2558,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <properties>
                     <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.baseline>2.492</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
@@ -2493,11 +2815,13 @@ public class DeclarativeRecipesTest implements RewriteTest {
     void replaceLibrariesByApiPluginsSimple() throws IOException {
 
         // Read API plugin version
+        String asmApiVersion = getApiPluginVersion("asm-api");
         String jsonApiVersion = getApiPluginVersion("json-api");
         String jsonPathApiVersion = getApiPluginVersion("json-path-api");
         String gsonApiVersion = getApiPluginVersion("gson-api");
         String jodaTimeApiVersion = getApiPluginVersion("joda-time-api");
         String jsoupVersion = getApiPluginVersion("jsoup");
+        String commonsCompressVersion = getApiPluginVersion("commons-compress-api");
         String commonsLang3ApiVersion = getApiPluginVersion("commons-lang3-api");
         String byteBuddyApiVersion = getApiPluginVersion("byte-buddy-api");
         String commonTextApiVersion = getApiPluginVersion("commons-text-api");
@@ -2515,7 +2839,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.1</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2524,7 +2848,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.462.3</jenkins.version>
+                    <jenkins.version>2.492.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2599,7 +2923,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.1</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2608,12 +2932,22 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.462.3</jenkins.version>
+                    <jenkins.version>2.492.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>asm-api</artifactId>
+                      <version>%s</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
                       <artifactId>byte-buddy-api</artifactId>
+                      <version>%s</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>commons-compress-api</artifactId>
                       <version>%s</version>
                     </dependency>
                     <dependency>
@@ -2637,11 +2971,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <version>%s</version>
                     </dependency>
                     <dependency>
-                      <groupId>org.apache.commons</groupId>
-                      <artifactId>commons-compress</artifactId>
-                      <version>1.26.1</version>
-                    </dependency>
-                    <dependency>
                       <groupId>org.jenkins-ci.plugins</groupId>
                       <artifactId>jsoup</artifactId>
                       <version>%s</version>
@@ -2655,11 +2984,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>json-path-api</artifactId>
                       <version>%s</version>
-                    </dependency>
-                    <dependency>
-                      <groupId>org.ow2.asm</groupId>
-                      <artifactId>asm</artifactId>
-                      <version>9.7.1</version>
                     </dependency>
                   </dependencies>
                   <repositories>
@@ -2677,7 +3001,9 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 </project>
                 """
                                 .formatted(
+                                        asmApiVersion,
                                         byteBuddyApiVersion,
+                                        commonsCompressVersion,
                                         commonsLang3ApiVersion,
                                         commonTextApiVersion,
                                         gsonApiVersion,
@@ -2702,7 +3028,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.1</version>
                     <relativePath />
                   </parent>
                   <artifactId>antexec</artifactId>
@@ -2710,15 +3036,15 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.479</jenkins.baseline>
-                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                    <jenkins.baseline>2.492</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
                     <dependencies>
                       <dependency>
                         <groupId>io.jenkins.tools.bom</groupId>
                         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                        <version>4051.v78dce3ce8b_d6</version>
+                        <version>4969.v6ffa_18d90c9f</version>
                         <scope>import</scope>
                         <type>pom</type>
                       </dependency>
@@ -2760,7 +3086,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.1</version>
                     <relativePath />
                   </parent>
                   <artifactId>antexec</artifactId>
@@ -2768,15 +3094,15 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.479</jenkins.baseline>
-                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                    <jenkins.baseline>2.492</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
                     <dependencies>
                       <dependency>
                         <groupId>io.jenkins.tools.bom</groupId>
                         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                        <version>4051.v78dce3ce8b_d6</version>
+                        <version>4969.v6ffa_18d90c9f</version>
                         <scope>import</scope>
                         <type>pom</type>
                       </dependency>
@@ -2836,7 +3162,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.1</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2845,7 +3171,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.479.1</jenkins.version>
+                    <jenkins.version>2.492.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2875,7 +3201,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.1</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2884,7 +3210,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.479.1</jenkins.version>
+                    <jenkins.version>2.492.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2924,7 +3250,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.13</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2933,7 +3259,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.489</jenkins.version>
+                    <jenkins.version>2.492.1</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2968,7 +3294,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>4.88</version>
+                    <version>5.13</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2977,7 +3303,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.489</jenkins.version>
+                    <jenkins.version>2.492.1</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -3030,7 +3356,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 import org.junit.rules.TemporaryFolder;
                 import java.io.File;
 
-                public class MyTest {
+                class MyTest {
                     @Rule
                     public JenkinsRule j = new JenkinsRule();
                     private TemporaryFolder tempFolder;
@@ -3091,6 +3417,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         Assert.fail("This should not run");
                     }
                 }
+                public class MyTestChild extends MyTest {
+                    @Test
+                    public void myTestMethodChild() {
+                        j.before();
+                    }
+                }
                 """,
                         """
                 import org.junit.jupiter.api.*;
@@ -3098,12 +3430,13 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
                 import org.hamcrest.Matchers;
                 import java.io.File;
+                import java.io.IOException;
+                import java.nio.file.Files;
 
                 import static org.hamcrest.MatcherAssert.assertThat;
                 import static org.junit.jupiter.api.Assertions.*;
 
                 @WithJenkins
-
                 class MyTest {
                     private File tempFolder;
 
@@ -3114,7 +3447,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
 
                     @BeforeEach
                     void setUp() throws Exception {
-                        tempFolder = new File();
+                        tempFolder = Files.createTempDirectory("junit").toFile();
                     }
 
                     @AfterEach
@@ -3124,7 +3457,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
 
                     @Test
                     void testSomething() throws Exception {
-                        File tempFile = File.createTempFile("test.txt", null, tempFolder);
+                        File tempFile = newFile(tempFolder, "test.txt");
                         assertTrue(tempFile.exists(), "File should exist");
                         assertEquals(0, tempFile.length());
                     }
@@ -3136,7 +3469,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     }
 
                     @Test
-                    void testException() {
+                    void testException()throws Exception {
                         assertThrows(IllegalArgumentException.class, () -> {
                             throw new IllegalArgumentException("Expected");
                         });
@@ -3160,6 +3493,19 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     @Test
                     void ignoredTest() {
                         fail("This should not run");
+                    }
+
+                    private static File newFile(File parent, String child) throws IOException {
+                        File result = new File(parent, child);
+                        result.createNewFile();
+                        return result;
+                    }
+                }
+
+                class MyTestChild extends MyTest {
+                    @Test
+                    public void myTestMethodChild(JenkinsRule j) {
+                        j.before();
                     }
                 }
                 """));

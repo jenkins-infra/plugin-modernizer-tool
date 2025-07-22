@@ -6,6 +6,8 @@ import static org.mockito.Mockito.doReturn;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.google.inject.Guice;
 import io.jenkins.tools.pluginmodernizer.core.GuiceModule;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
@@ -33,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({MockitoExtension.class})
 @Execution(ExecutionMode.CONCURRENT)
+@WireMockTest
 class PluginServiceTest {
 
     @TempDir
@@ -157,11 +160,10 @@ class PluginServiceTest {
     }
 
     @Test
-    public void shouldDownloadPluginVersionDataUpdateCenterData() throws Exception {
+    public void shouldDownloadPluginVersionDataUpdateCenterData(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
-        WireMockServer server = new WireMockServer(40465);
-        server.start();
-        WireMock wireMock = new WireMock(40465);
+        WireMock wireMock = wmRuntimeInfo.getWireMock();
+        int portNumber = wmRuntimeInfo.getHttpPort();
 
         CacheManager cacheManager = Mockito.mock(CacheManager.class);
         Path cacheRoot = Mockito.mock(Path.class);
@@ -173,7 +175,7 @@ class PluginServiceTest {
                 .willReturn(WireMock.okJson(JsonUtils.toJson(updateCenterData))));
 
         // No found from cache
-        doReturn(new URL("http://localhost:40465/update-center.json"))
+        doReturn(new URL("http://localhost:%d/update-center.json".formatted(portNumber)))
                 .when(config)
                 .getJenkinsUpdateCenter();
 
@@ -222,9 +224,10 @@ class PluginServiceTest {
     @Test
     public void shouldDownloadPluginVersionDataPluginHealthScore() throws Exception {
 
-        WireMockServer server = new WireMockServer(40466);
+        WireMockServer server = new WireMockServer();
         server.start();
-        WireMock wireMock = new WireMock(40466);
+        int portNumber = server.getOptions().portNumber();
+        WireMock wireMock = new WireMock(server.getOptions().portNumber());
 
         CacheManager cacheManager = Mockito.mock(CacheManager.class);
         Path cacheRoot = Mockito.mock(Path.class);
@@ -235,7 +238,9 @@ class PluginServiceTest {
                 .willReturn(WireMock.okJson(JsonUtils.toJson(healthScoreData))));
 
         // No found from cache
-        doReturn(new URL("http://localhost:40466/api/scores")).when(config).getPluginHealthScore();
+        doReturn(new URL("http://localhost:%d/api/scores".formatted(portNumber)))
+                .when(config)
+                .getPluginHealthScore();
 
         // Get result
         PluginService service = getService(config, cacheManager);
@@ -244,11 +249,10 @@ class PluginServiceTest {
     }
 
     @Test
-    public void shouldDownloadPluginInstallationsData() throws Exception {
+    public void shouldDownloadPluginInstallationsData(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
 
-        WireMockServer server = new WireMockServer(40467);
-        server.start();
-        WireMock wireMock = new WireMock(40467);
+        WireMock wireMock = wmRuntimeInfo.getWireMock();
+        int portNumber = wmRuntimeInfo.getHttpPort();
 
         CacheManager cacheManager = Mockito.mock(CacheManager.class);
         Path cacheRoot = Mockito.mock(Path.class);
@@ -262,7 +266,7 @@ class PluginServiceTest {
         wireMock.register(WireMock.get(WireMock.urlEqualTo("/jenkins-stats/svg/202406-plugins.csv"))
                 .willReturn(WireMock.ok("\"valid-plugin\",\"1\"\n" + "\"valid-plugin2\",\"1\"")));
 
-        URL url = new URL("http://localhost:40467/jenkins-stats/svg/202406-plugins.csv");
+        URL url = new URL("http://localhost:%d/jenkins-stats/svg/202406-plugins.csv".formatted(portNumber));
 
         // No found from cache
         doReturn(url).when(config).getPluginStatsInstallations();
