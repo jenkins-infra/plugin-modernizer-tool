@@ -24,7 +24,7 @@ schema = {
         "pluginVersion": {"type": "string", "pattern": "^[0-9]+(\\.[a-zA-Z0-9._-]+)*(-[a-zA-Z0-9._-]+)?$"},
         "effectiveBaseline": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
         "targetBaseline": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
-        "jenkinsVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "jenkinsVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"},
         "migrationName": {"type": "string", "minLength": 1},
         "migrationDescription": {"type": "string", "minLength": 1},
         "tags": {"type": "array", "items": {"type": "string"}},

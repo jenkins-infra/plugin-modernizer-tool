@@ -815,16 +815,15 @@ public class GHService {
     public void commitChanges(Plugin plugin, RepoType repoType) {
         Path localRepository = repoType.getLocalRepository(plugin);
         // Collect local changes
-        if (plugin.isLocal() || config.isDryRun()) {
+        if ((plugin.isLocal() || config.isDryRun()) && repoType == RepoType.PLUGIN) {
             try (Git git = Git.open(localRepository.toFile())) {
                 Status status = git.status().call();
-                if (repoType == RepoType.PLUGIN) {
-                    plugin.addModifiedFiles(status.getUntracked());
-                    plugin.addModifiedFiles(status.getChanged());
-                    plugin.addModifiedFiles(status.getModified());
-                    plugin.addModifiedFiles(status.getMissing());
-                    plugin.addModifiedFiles(status.getRemoved());
-                }
+                plugin.addModifiedFiles(status.getUntracked());
+                plugin.addModifiedFiles(status.getChanged());
+                plugin.addModifiedFiles(status.getModified());
+                plugin.addModifiedFiles(status.getMissing());
+                plugin.addModifiedFiles(status.getRemoved());
+
                 LOG.debug("Adding untracked files: {}", status.getUntracked());
                 LOG.debug("Adding changed files: {}", status.getChanged());
                 LOG.debug("Adding changed files: {}", status.getModified());
