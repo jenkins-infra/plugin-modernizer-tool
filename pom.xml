@@ -36,6 +36,7 @@
     <!-- Reproducible builds -->
     <project.build.outputTimestamp>2024-01-01T00:00:00Z</project.build.outputTimestamp>
 
+    <maven.compiler.release>21</maven.compiler.release>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -391,8 +392,8 @@
               <configuration>
                 <rules>
                   <requireJavaVersion>
-                    <version>17,21</version>
-                    <message>Project requires Java 17 or Java 21</message>
+                    <version>21</version>
+                    <message>Project Java 21</message>
                   </requireJavaVersion>
                 </rules>
               </configuration>

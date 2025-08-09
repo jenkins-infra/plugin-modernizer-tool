@@ -147,12 +147,6 @@
     <dependency>
       <groupId>org.openrewrite.recipe</groupId>
       <artifactId>rewrite-migrate-java</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.openrewrite</groupId>
-          <artifactId>rewrite-java-21</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.openrewrite.recipe</groupId>

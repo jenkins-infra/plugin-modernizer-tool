@@ -2,8 +2,8 @@
 # specifically tailored for building Jenkins plugins. It includes the installation of Maven,
 # cloning of two specific Jenkins plugin repositories, and building these plugins using Maven.
 
-# Start from a base image that includes JDK 17 and Git. This serves as the foundation for the development environment.
-FROM gitpod/workspace-java-17
+# Start from a base image that includes JDK 21 and Git. This serves as the foundation for the development environment.
+FROM gitpod/workspace-java-21
 
 # Define the versions of the JDKs to install. This is used by the `sdk install java` command to install the specified JDK.
 ENV JDK8_PACKAGE=8.0.462-tem

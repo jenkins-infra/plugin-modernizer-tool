@@ -56,7 +56,7 @@ Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/proj
 
 ### Requirements
 - Maven version 3.9.7 or later, or mvnd
-- Java 17 or Java 21 ([Eclipse Temurin](https://adoptium.net/temurin/releases) recommended)
+- Java 21 ([Eclipse Temurin](https://adoptium.net/temurin/releases) recommended)
 
 ### Build
 
