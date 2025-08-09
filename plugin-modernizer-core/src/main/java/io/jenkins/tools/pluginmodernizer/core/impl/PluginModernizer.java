@@ -159,6 +159,7 @@ public class PluginModernizer {
         LOG.debug("Plugin Health Score Url: {}", config.getPluginHealthScore());
         LOG.debug("Installation Stats Url: {}", config.getPluginStatsInstallations());
         LOG.debug("Cache Path: {}", config.getCachePath());
+        LOG.debug("Java Version: {}", getJavaVersion());
         LOG.debug("Maven Home: {}", config.getMavenHome());
         LOG.debug("Maven Local Repository: {}", config.getMavenLocalRepo());
         LOG.debug("Dry Run: {}", config.isDryRun());
@@ -237,7 +238,7 @@ public class PluginModernizer {
             plugin.checkoutBranch(ghService);
 
             // Minimum JDK to run openrewrite
-            plugin.withJDK(JDK.JAVA_17);
+            plugin.withJDK(JDK.JAVA_21);
 
             // Collect metadata and move metadata from the target directory of the plugin to the common cache
             if (!plugin.hasMetadata() || config.isFetchMetadataOnly()) {
@@ -348,7 +349,7 @@ public class PluginModernizer {
 
             // Recollect metadata after modernization
             if (!config.isFetchMetadataOnly()) {
-                plugin.withJDK(JDK.JAVA_17);
+                plugin.withJDK(JDK.JAVA_21);
                 plugin.clean(mavenInvoker);
                 collectMetadata(plugin, false);
                 LOG.debug(
@@ -416,7 +417,7 @@ public class PluginModernizer {
      */
     private void collectMetadata(Plugin plugin, boolean retryAfterFirstCompile) {
         LOG.trace("Collecting metadata for plugin {}... Please be patient", plugin.getName());
-        plugin.withJDK(JDK.JAVA_17);
+        plugin.withJDK(JDK.JAVA_21);
         try {
             plugin.collectMetadata(mavenInvoker);
             if (plugin.hasErrors()) {
@@ -435,7 +436,7 @@ public class PluginModernizer {
                             plugin.getName());
                     plugin.raiseLastError();
                 }
-                plugin.withJDK(JDK.JAVA_17);
+                plugin.withJDK(JDK.JAVA_21);
                 plugin.collectMetadata(mavenInvoker);
             } else {
                 LOG.info("Failed to collect metadata for plugin {}. Not retrying.", plugin.getName());
@@ -539,7 +540,7 @@ public class PluginModernizer {
         // Determine the JDK
         JDK jdk;
         if (metadata.getJdks() == null || metadata.getJdks().isEmpty()) {
-            jdk = JDK.JAVA_17;
+            jdk = JDK.JAVA_21;
             LOG.info(
                     "No JDKs found in metadata for plugin {}. Using same JDK as rewrite for verification",
                     plugin.getName());

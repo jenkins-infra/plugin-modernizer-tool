@@ -680,6 +680,7 @@ public class CommandLineITCase {
             properties.put("set.changelist", "true");
         }
         properties.put("exec.executable", javaHome.resolve("bin/java").toString());
+        LOG.debug("Using java executable: {}", properties.get("exec.executable"));
         properties.put("test.cliArgs", args);
         request.setProperties(properties);
 
