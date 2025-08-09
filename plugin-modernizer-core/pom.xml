@@ -16,7 +16,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.492.x</artifactId>
-        <version>5085.v05cc65a_936d3</version>
+        <version>5208.vb_69e9d049f68</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -248,7 +248,7 @@
                 <artifactItem>
                   <groupId>org.kohsuke.stapler</groupId>
                   <artifactId>stapler</artifactId>
-                  <version>1997.v356365fb_929e</version>
+                  <version>2014.v1f888f8f0b_84</version>
                 </artifactItem>
                 <dependency>
                   <groupId>jakarta.servlet</groupId>

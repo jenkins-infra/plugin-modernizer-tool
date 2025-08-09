@@ -18,7 +18,8 @@ public class JDKTest {
         assertEquals(JDK.JAVA_11, JDK.JAVA_8.next());
         assertEquals(JDK.JAVA_17, JDK.JAVA_11.next());
         assertEquals(JDK.JAVA_21, JDK.JAVA_17.next());
-        assertNull(JDK.JAVA_21.next());
+        assertEquals(JDK.JAVA_25, JDK.JAVA_21.next());
+        assertNull(JDK.JAVA_25.next());
     }
 
     @Test
@@ -27,6 +28,7 @@ public class JDKTest {
         assertEquals(JDK.JAVA_8, JDK.JAVA_11.previous());
         assertEquals(JDK.JAVA_11, JDK.JAVA_17.previous());
         assertEquals(JDK.JAVA_17, JDK.JAVA_21.previous());
+        assertEquals(JDK.JAVA_21, JDK.JAVA_25.previous());
     }
 
     @Test
@@ -35,21 +37,23 @@ public class JDKTest {
         assertEquals(JDK.JAVA_11, JDK.get(11));
         assertEquals(JDK.JAVA_17, JDK.get(17));
         assertEquals(JDK.JAVA_21, JDK.get(21));
+        assertEquals(JDK.JAVA_25, JDK.get(25));
     }
 
     @Test
     public void currentMax() {
         // Adapt when new JDK are added
-        assertEquals(JDK.JAVA_21, JDK.max());
+        assertEquals(JDK.JAVA_25, JDK.max());
     }
 
     @Test
     public void all() {
-        assertEquals(4, JDK.all().size());
+        assertEquals(5, JDK.all().size());
         assertEquals(JDK.JAVA_8, JDK.all().get(0));
         assertEquals(JDK.JAVA_11, JDK.all().get(1));
         assertEquals(JDK.JAVA_17, JDK.all().get(2));
         assertEquals(JDK.JAVA_21, JDK.all().get(3));
+        assertEquals(JDK.JAVA_25, JDK.all().get(4));
     }
 
     @Test
@@ -76,6 +80,10 @@ public class JDKTest {
                 17, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_17, JDK.JAVA_21)).get(1));
 
         assertEquals(
+                25, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_21, JDK.JAVA_25)).get(0));
+        assertEquals(
+                21, JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_21, JDK.JAVA_25)).get(1));
+        assertEquals(
                 2,
                 JDK.getTopTwoJdkVersions(List.of(JDK.JAVA_8, JDK.JAVA_17, JDK.JAVA_11))
                         .size());
@@ -101,7 +109,9 @@ public class JDKTest {
         assertEquals(
                 11, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_21, JDK.JAVA_8), 2).get(1));
         assertEquals(
-                11, JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_21, JDK.JAVA_8), 2).get(1));
+                11,
+                JDK.filter(Set.of(JDK.JAVA_11, JDK.JAVA_21, JDK.JAVA_8, JDK.JAVA_25), 2)
+                        .get(1));
     }
 
     @Test
@@ -148,13 +158,15 @@ public class JDKTest {
         assertEquals(JDK.JAVA_17, JDK.get("2.463").get(0));
         assertEquals(JDK.JAVA_21, JDK.get("2.463").get(1));
 
-        assertEquals(2, JDK.get("2.479.1").size());
+        assertEquals(3, JDK.get("2.479.1").size());
         assertEquals(JDK.JAVA_17, JDK.get("2.479.1").get(0));
         assertEquals(JDK.JAVA_21, JDK.get("2.479.1").get(1));
+        assertEquals(JDK.JAVA_25, JDK.get("2.479.1").get(2));
 
-        assertEquals(2, JDK.get("2.492.1").size());
+        assertEquals(3, JDK.get("2.492.1").size());
         assertEquals(JDK.JAVA_17, JDK.get("2.492.1").get(0));
         assertEquals(JDK.JAVA_21, JDK.get("2.492.1").get(1));
+        assertEquals(JDK.JAVA_25, JDK.get("2.492.1").get(2));
     }
 
     @Test

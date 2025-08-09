@@ -697,4 +697,42 @@ public class TemplateUtilsTest {
                 result.contains("Remove usage of deprecated IOException2"),
                 "Remove usage of deprecated IOException2 section");
     }
+
+    @Test
+    public void testFriendlyPrTitleMigrateToJava25() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateToJava25")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Migrate plugins to Java 25 LTS", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyMigrateToJava25() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateToJava25")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Just ensure it's using some key overall text
+        assertTrue(
+                result.contains("We have introduced changes to improve the plugin's compatibility with `Java 25`"),
+                "What's Changed section");
+    }
 }

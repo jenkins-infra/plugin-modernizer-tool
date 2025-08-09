@@ -138,6 +138,20 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AddThrowsExceptionWhereAssertThrows
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.MigrateToJava25
+displayName: Migrate plugins to Java 25
+description: Migrate plugins to Java 25 LTS.
+tags: ['migration', 'dependencies']
+recipeList:
+#  - org.openrewrite.java.migrate.UpgradeToJava21
+#  - org.openrewrite.java.migrate.RemoveSecurityPolicy
+#  - org.openrewrite.java.migrate.RemoveSecurityManager
+#  - org.openrewrite.java.migrate.SystemGetSecurityManagerToNull
+  - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion:
+      javaVersion: 25
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
 displayName: Migrate pom to using jenkins.baseline property if bom is present
 description: Migrate pom to using jenkins.baseline property if bom is present.
@@ -398,7 +412,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-compress-api
-      pluginVersion: 1.27.1-3
+      pluginVersion: 1.28.0-1
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-compress
@@ -449,7 +463,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-text-api
-      pluginVersion: 1.13.1-176.v74d88f22034b_
+      pluginVersion: 1.14.0-194.v804a_dc3a_1b_d8
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-text

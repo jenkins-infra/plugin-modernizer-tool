@@ -62,6 +62,22 @@ public class DeclarativeRecipesTest implements RewriteTest {
             )""";
 
     @Language("groovy")
+    private static final String EXPECTED_UPCOMING_MODERN_JENKINSFILE =
+            """
+            /*
+            See the documentation for more options:
+            https://github.com/jenkins-infra/pipeline-library/
+            */
+            buildPlugin(
+                forkCount: '1C', // Run a JVM per core in tests
+                useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
+                configurations: [
+                    [platform: 'linux', jdk: 25],
+                    [platform: 'windows', jdk: 21]
+                ]
+            )""";
+
+    @Language("groovy")
     private static final String JAVA_8_JENKINS_FILE =
             """
             /*
@@ -652,7 +668,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 // language=groovy
                 groovy(
                         null,
-                        EXPECTED_MODERN_JENKINSFILE,
+                        EXPECTED_UPCOMING_MODERN_JENKINSFILE,
                         s -> s.path(ArchetypeCommonFile.JENKINSFILE.getPath().getFileName())),
                 // language=xml
                 pomXml(
@@ -735,7 +751,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             <connection>scm:git:https://github.com/jenkinsci/empty-plugin.git</connection>
                           </scm>
                           <properties>
-                            <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
+                            <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
                             <jenkins.baseline>%s</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.%s</jenkins.version>
@@ -783,6 +799,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         """
                                 .formatted(
                                         Settings.getJenkinsParentVersion(),
+                                        Settings.getJenkinsTestHarnessVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
                                         Settings.getRecommendedBomVersion(),
@@ -920,7 +937,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </scm>
                           <properties>
                             <jenkins.version>%s</jenkins.version>
-                            <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
+                            <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                           </properties>
                           <repositories>
                             <repository>
@@ -936,7 +953,10 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """
-                                .formatted(Settings.getJenkinsParentVersion(), Settings.getJenkinsMinimumVersion())));
+                                .formatted(
+                                        Settings.getJenkinsParentVersion(),
+                                        Settings.getJenkinsMinimumVersion(),
+                                        Settings.getJenkinsTestHarnessVersion())));
     }
 
     @Test
@@ -1031,7 +1051,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <packaging>hpi</packaging>
                           <name>Empty Plugin</name>
                           <properties>
-                            <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
+                            <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
                             <jenkins.baseline>%s</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.%s</jenkins.version>
@@ -1069,6 +1089,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         """
                                 .formatted(
                                         Settings.getJenkinsParentVersion(),
+                                        Settings.getJenkinsTestHarnessVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
                                         Settings.getRecommendedBomVersion())));
@@ -1091,7 +1112,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                 // language=groovy
                 groovy(
                         null,
-                        EXPECTED_MODERN_JENKINSFILE,
+                        EXPECTED_UPCOMING_MODERN_JENKINSFILE,
                         s -> s.path(ArchetypeCommonFile.JENKINSFILE.getPath().getFileName())),
                 // language=xml
                 pomXml(
@@ -1190,7 +1211,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <packaging>hpi</packaging>
                       <name>My API Plugin</name>
                       <properties>
-                        <jenkins-test-harness.version>2462.v7cd38b_7a_361b_</jenkins-test-harness.version>
+                        <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                         <revision>2.17.0</revision>
                         <changelist>999999-SNAPSHOT</changelist>
                         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
@@ -1251,6 +1272,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     """
                                 .formatted(
                                         Settings.getJenkinsParentVersion(),
+                                        Settings.getJenkinsTestHarnessVersion(),
                                         Settings.getJenkinsMinimumBaseline(),
                                         Settings.getJenkinsMinimumPatchVersion(),
                                         Settings.getRecommendedBomVersion(),
@@ -3607,6 +3629,39 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   </pluginRepositories>
                 </project>
                 """));
+    }
+
+    @Test
+    void migrateToJava25JenkinsFile() {
+        rewriteRun(
+                spec -> spec.recipeFromResource(
+                        "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.MigrateToJava25"),
+                // language=groovy
+                groovy(
+                        """
+                        buildPlugin(
+                          useContainerAgent: true,
+                          configurations: [
+                            [platform: 'linux', jdk: 17],
+                            [platform: 'windows', jdk: 17]
+                          ]
+                        )
+                        """,
+                        """
+                        /*
+                         See the documentation for more options:
+                         https://github.com/jenkins-infra/pipeline-library/
+                        */
+                        buildPlugin(
+                          useContainerAgent: true,
+                          forkCount: '1C', // Set to `false` if you need to use Docker for containerized tests
+                          configurations: [
+                            [platform: 'linux', jdk: 17],
+                            [platform: 'windows', jdk: 17],
+                            [platform: 'linux', jdk: 25],
+                        ])
+                        """,
+                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
     }
 
     @Test
