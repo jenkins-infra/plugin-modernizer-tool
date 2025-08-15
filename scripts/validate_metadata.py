@@ -17,12 +17,13 @@ pr = repo.get_pull(int(pr_number))
 # JSON schema for metadata validation
 schema = {
     "type": "object",
-    "required": ["pluginName", "pluginRepository", "pluginVersion", "effectiveBaseline", "targetBaseline", "jenkinsVersion", "migrationName", "migrationDescription", "tags", "migrationId", "migrationStatus", "pullRequestUrl", "pullRequestStatus", "dryRun", "additions", "deletions", "changedFiles", "key", "path"],
+    "required": ["pluginName", "pluginRepository", "pluginVersion", "targetBaseline", "jenkinsVersion", "migrationName", "migrationDescription", "tags", "migrationId", "migrationStatus", "pullRequestUrl", "pullRequestStatus", "dryRun", "additions", "deletions", "changedFiles", "key", "path"],
     "properties": {
         "pluginName": {"type": "string", "pattern": "^[a-zA-Z0-9-]+$"},
         "pluginRepository": {"type": "string", "format": "uri", "pattern": "^https://github.com/[^/]+/.+\\.git$"},
         "pluginVersion": {"type": "string", "pattern": "^[0-9]+(\\.[a-zA-Z0-9._-]+)*(-[a-zA-Z0-9._-]+)?$"},
         "effectiveBaseline": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
+        "rpuBaseline": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
         "targetBaseline": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+$"},
         "jenkinsVersion": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?$"},
         "migrationName": {"type": "string", "minLength": 1},
@@ -38,7 +39,11 @@ schema = {
         "changedFiles": {"type": "integer", "minimum": 0},
         "key": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}\\.json$"},
         "path": {"type": "string", "pattern": "^metadata-plugin-modernizer/[^/]+/modernization-metadata$"}
-    }
+    },
+    "anyOf": [
+        { "required": ["effectiveBaseline"] },
+        { "required": ["rpuBaseline"] }
+    ]
 }
 
 # migration IDs
