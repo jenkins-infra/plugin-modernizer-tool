@@ -735,4 +735,43 @@ public class TemplateUtilsTest {
                 result.contains("We have introduced changes to improve the plugin's compatibility with `Java 25`"),
                 "What's Changed section");
     }
+
+    @Test
+    public void testFriendlyPrTitleMigrateCommonsLang2ToLang3AndCommonText() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateCommonsLang2ToLang3AndCommonText")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Migrate Commons Lang from 2 to 3 and StringEscapeUtils to Commons Text", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyMigrateCommonsLang2ToLang3AndCommonText() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.MigrateCommonsLang2ToLang3AndCommonText")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Just ensure it's using some key overall text
+        assertTrue(
+                result.contains(
+                        "This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3` and migrates HTML escaping functionality from `Apache Commons Lang` to `Apache Commons Text"),
+                "Description");
+    }
 }
