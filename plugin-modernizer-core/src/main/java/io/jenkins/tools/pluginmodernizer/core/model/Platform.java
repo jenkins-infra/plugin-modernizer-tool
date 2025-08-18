@@ -6,6 +6,7 @@ package io.jenkins.tools.pluginmodernizer.core.model;
 public enum Platform {
     LINUX,
     WINDOWS,
+    ARM64LINUX,
     UNKNOWN;
 
     /**
@@ -17,6 +18,7 @@ public enum Platform {
         return switch (platform) {
             case "linux" -> LINUX;
             case "windows" -> WINDOWS;
+            case "arm64linux" -> ARM64LINUX;
             default -> UNKNOWN;
         };
     }

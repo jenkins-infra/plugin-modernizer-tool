@@ -362,7 +362,11 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
 
         // New configuration is an empty map
         J.Literal valueLiteral;
-        if (platformConfigs.isEmpty()) {
+        // Filter out unknown platforms to avoid writing them back
+        List<PlatformConfig> serializable = platformConfigs.stream()
+                .filter(pc -> pc.name() != io.jenkins.tools.pluginmodernizer.core.model.Platform.UNKNOWN)
+                .collect(Collectors.toList());
+        if (serializable.isEmpty()) {
             valueLiteral = new J.Literal(
                     Tree.randomId(),
                     Space.format(" "),
@@ -373,7 +377,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
                     JavaType.Primitive.String);
         } else {
 
-            String valueSource = platformConfigs.stream()
+            String valueSource = serializable.stream()
                     .map(platformConfig -> {
                         String platform = platformConfig.name().toString().toLowerCase();
                         int major = platformConfig.jdk().getMajor();

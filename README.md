@@ -19,13 +19,34 @@ Using OpenRewrite Recipes for Plugin Modernization or Automation Plugin Build Me
 
 Plugin Modernizer is a generic CLI tool designed to automate the modernization of Jenkins plugins. It utilizes OpenRewrite recipes to apply transformations to the plugin, validating the applied transformations and creating pull requests with the results.
 
-The CLI is also used to collect metadata from Jenkins plugins, such as the plugin's dependencies (including transitive) or JDKs used for building the plugin. Such metadata is planned to be integrated with existing Jenkins tooling such as 
+The CLI tool is also used to collect metadata from Jenkins plugins modernization, such as the plugin's dependencies (including transitive) or JDKs used for building the plugin. Such metadata is pushed to a public [metadata repository](https://github.com/jenkins-infra/metadata-plugin-modernizer/) and planned to be integrated with existing Jenkins tooling such as 
 
 - [Jenkins Plugin Site](https://plugins.jenkins.io/)
 - [Jenkins statistics](https://stats.jenkins.io/)
 - [Plugin Health Scoring](https://github.com/jenkins-infra/plugin-health-scoring)
 
-Learn more at [this project page](https://www.jenkins.io/projects/gsoc/2024/projects/using-openrewrite-recipes-for-plugin-modernization-or-automation-plugin-build-metadata-updates/).
+Learn more at [Jenkins GSoC 2024 project page](https://www.jenkins.io/projects/gsoc/2024/projects/using-openrewrite-recipes-for-plugin-modernization-or-automation-plugin-build-metadata-updates/) and [Jenkins GSoC 2025 project page](https://www.jenkins.io/projects/gsoc/2025/projects/plugin-modernizer-improvements/).
+
+## What is OpenRewrite?
+The Plugin Modernizer Tool leverages [OpenRewrite](https://docs.openrewrite.org/), an automated refactoring tool that helps update and modernize codebases. OpenRewrite works by applying recipes—predefined transformations—that analyze and rewrite code based on specific rules.
+
+## What are Recipes?
+Recipes in OpenRewrite are a set of transformations that automatically update code patterns. In the context of Jenkins, these recipes help modernize outdated plugin code, making it compatible with the latest Jenkins core versions and best practices. You can checkout some recipes provided by open rewrite in their [recipe docs](https://docs.openrewrite.org/recipes).
+
+## Why is This Tool Important?
+With over 2000 plugins in Jenkins, keeping them updated manually is a daunting task. The Plugin Modernizer Tool automates much of this work, ensuring:
+
+- Plugins stay up to date with modern Jenkins practices.
+
+- Compatibility with the latest Java and Jenkins versions.
+
+- Reduced technical debt for plugin maintainers.
+
+## Modules:
+- `plugin-modernizer-cli`: The command-line interface for the Plugin Modernizer Tool.
+
+- `plugin-modernizer-core`: Contains the core logic such as performing Git operations (i.e cloning plugins, creating pull requests etc) and includes recipes for plugin modernization.
+
 
 ## Usage
 
@@ -126,7 +147,7 @@ Your classic token should have the following scopes:
 
 Set Environment Variables:
 
-Open your terminal and set the GH_TOKEN and GH_OWNER environment variables:
+Open your terminal and set the `GH_TOKEN` and `GH_OWNER` environment variables:
     
 ```shell
 export GH_TOKEN=your_generated_token
@@ -237,7 +258,7 @@ source <(plugin-modernizer generate-completion)
 - `--recipe` or `-r`: (required) Name of recipe to apply to the plugins.
 
 
-- `--skip-metadata` (optional) Skip collection and pushing the modernization metadata (i.e metadata after applying the recipes) to the metadata repository. Beneficial for testing or development purpose when we don't need to unnecessary add another step of collecting the metadata.
+- `--skip-metadata` (optional) Skip collection and pushing the modernization metadata (i.e metadata after applying the recipes) to the [metadata repository](https://github.com/jenkins-infra/metadata-plugin-modernizer/). Beneficial for testing or development purpose when we don't need to unnecessary add another step of collecting the metadata.
 
 
 - `--clean-forks` (optional) Remove forked repositories before and after the modernization process. Might cause data loss if you have other changes pushed on those forks. Forks with open pull request targeting original repo are not removed to prevent closing unmerged pull requests.
@@ -283,6 +304,10 @@ plugin-modernizer run --plugin-file path/to/plugin-file --recipe AddPluginsBom
 - `GITHUB_TOKEN` or `GH_TOKEN`: (required) GitHub Token.
 
 - `GITHUB_OWNER` or `GH_OWNER`: (required) GitHub username or organization name. Can also be passed through the CLI option `-g` or `--github-owner`.
+
+- `GH_TARGET_ORGANISATION`: (optional) GitHub target organization for the plugin repositories. Defaults to `jenkinsci`.
+
+- `GH_METADATA_TARGET_ORGANISATION`: (optional) GitHub metadata target organization for the metadata repository. Defaults to `jenkins-infra`.
 
 - `JENKINS_UC`: (optional) Update Center URL. Can also be passed through the CLI option `--jenkins-update-center`.
 
@@ -418,9 +443,14 @@ mvn org.openrewrite.maven:rewrite-maven-plugin:dryRun -Drewrite.recipeArtifactCo
 
 ```
 
-## References
+## Useful Links
 
+- [GSoC 2025 Project Proposal](https://docs.google.com/document/d/1QaEa4lvjdMi3JRXBOAN2eD2cjJkJ1-bfU-XHg4dlI0s/edit?usp=sharing)
 - [GSoC 2024 Project Proposal](https://docs.google.com/document/d/1e1QkprPN6fLpFXk_QqBUQlJhZrAl9RvXbOXOiJ-gAuY/edit?usp=sharing)
-- [Project Slack Channel](https://cdeliveryfdn.slack.com/archives/C071YTZ807)
+- [Project Slack Channel](https://cdeliveryfdn.slack.com/archives/C071YTZ807N)
+- [Metadata Repository](https://github.com/jenkins-infra/metadata-plugin-modernizer/)
 - [OpenRewrite Jenkins Recipes](https://docs.openrewrite.org/recipes/jenkins/)
 - [OpenRewrite LST](https://docs.openrewrite.org/concepts-explanations/lossless-semantic-trees)
+- [How to start contributing](https://codexraunak.hashnode.dev/how-to-start-contributing-to-jenkins-infra-plugin-modernizer-tool)
+- [Jenkins Discourse](https://community.jenkins.io/t/welcome-to-discourse/7)
+- [Jenkins Gitter](https://app.gitter.im/#/room/#jenkins-ci:matrix.org)
