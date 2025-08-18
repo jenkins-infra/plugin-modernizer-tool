@@ -114,6 +114,14 @@ preconditions:
   - org.openrewrite.java.search.DoesNotUseType:
       fullyQualifiedTypeName: org.jvnet.hudson.test.JenkinsSessionRule
 recipeList:
+  - org.openrewrite.maven.UpgradeParentVersion:
+      groupId: org.jenkins-ci.plugins
+      artifactId: plugin
+      newVersion: 5.X
+  - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
+  - org.openrewrite.maven.AddProperty:
+      key: ban-junit4-imports.skip
+      value: false
   - io.jenkins.tools.pluginmodernizer.core.recipes.AnnotateWithJenkins  
   - org.openrewrite.java.testing.junit5.UpdateTestAnnotation
   - org.openrewrite.java.testing.junit5.UpdateBeforeAfterAnnotations

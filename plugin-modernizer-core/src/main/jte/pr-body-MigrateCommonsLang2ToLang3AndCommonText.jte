@@ -11,13 +11,13 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3` and migrates HTML escaping functionality from `Apache Commons Lang` to `Apache Commons Text`, as
-`Apache Commons` community recommends using `Apache Commons Text` for string escaping operations, as it provides a more focused and feature-rich API for text processing.
+This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3` and migrates HTML escaping functionality from `Apache Commons Lang` to `Apache Commons Text`.
+The `Apache Commons` community recommends using `Apache Commons Text` for string escaping operations, as it offers a more focused and feature-rich API for text processing.
 
 ## What's Changed?
 
-- Migrate from deprecated/EOL `Apache Commons Lang 2` to `Commons Lang 3`.
-- Migrate from deprecated/EOL Apache Commons Lang `StringEscapeUtils` to `Commons Text`.
+- Migrated from deprecated/EOL `Apache Commons Lang 2` to `Commons Lang 3`.
+- Transitioned from deprecated/EOL `StringEscapeUtils` in `Apache Commons Lang` to `Commons Text`.
 
 
 

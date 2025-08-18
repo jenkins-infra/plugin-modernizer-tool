@@ -1,9 +1,11 @@
 package io.jenkins.tools.pluginmodernizer.core.visitors;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.jenkins.tools.pluginmodernizer.core.model.Platform;
 import io.jenkins.tools.pluginmodernizer.core.model.PlatformConfig;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
@@ -360,11 +362,11 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
         J.Literal keyLiteral = new J.Literal(
                 Tree.randomId(), Space.EMPTY, Markers.EMPTY, "configurations", "configurations", null, null);
 
-        // New configuration is an empty map
+        // New configuration is an empty list
         J.Literal valueLiteral;
         // Filter out unknown platforms to avoid writing them back
         List<PlatformConfig> serializable = platformConfigs.stream()
-                .filter(pc -> pc.name() != io.jenkins.tools.pluginmodernizer.core.model.Platform.UNKNOWN)
+                .filter(pc -> pc.name() != Platform.UNKNOWN)
                 .collect(Collectors.toList());
         if (serializable.isEmpty()) {
             valueLiteral = new J.Literal(
@@ -379,7 +381,7 @@ public class UpdateJenkinsFileVisitor extends GroovyIsoVisitor<ExecutionContext>
 
             String valueSource = serializable.stream()
                     .map(platformConfig -> {
-                        String platform = platformConfig.name().toString().toLowerCase();
+                        String platform = platformConfig.name().toString().toLowerCase(Locale.ROOT);
                         int major = platformConfig.jdk().getMajor();
                         String jenkinsVersion = platformConfig.jenkins();
                         if (jenkinsVersion == null) {
