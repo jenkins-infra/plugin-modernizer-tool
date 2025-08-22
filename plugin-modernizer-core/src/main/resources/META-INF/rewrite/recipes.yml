@@ -151,10 +151,22 @@ displayName: Migrate plugins to Java 25
 description: Migrate plugins to Java 25 LTS.
 tags: ['migration', 'dependencies']
 recipeList:
-#  - org.openrewrite.java.migrate.UpgradeToJava21
-#  - org.openrewrite.java.migrate.RemoveSecurityPolicy
-#  - org.openrewrite.java.migrate.RemoveSecurityManager
-#  - org.openrewrite.java.migrate.SystemGetSecurityManagerToNull
+  # Modified Upgrade to Java 21 (org.openrewrite.java.migrate.UpgradeToJava21)
+  - org.openrewrite.java.migrate.UpgradeToJava17
+  - org.openrewrite.staticanalysis.RemoveExtraSemicolons
+  - org.openrewrite.java.migrate.lang.ThreadStopUnsupported
+  - org.openrewrite.java.migrate.net.URLConstructorToURICreate
+  - org.openrewrite.java.migrate.util.SequencedCollection
+  - org.openrewrite.java.migrate.util.UseLocaleOf
+  - org.openrewrite.staticanalysis.ReplaceDeprecatedRuntimeExecMethods
+  - org.openrewrite.github.SetupJavaUpgradeJavaVersion
+  - org.openrewrite.java.migrate.UpgradePluginsForJava21
+  - org.openrewrite.java.migrate.DeleteDeprecatedFinalize
+  - org.openrewrite.java.migrate.RemovedSubjectMethods
+  # Modified Upgrade to Java 25 (org.openrewrite.java.migrate.UpgradeToJava25)
+  - org.openrewrite.java.migrate.RemoveSecurityPolicy
+  - org.openrewrite.java.migrate.RemoveSecurityManager
+  - org.openrewrite.java.migrate.SystemGetSecurityManagerToNull
   - org.openrewrite.maven.UpgradeParentVersion:
       groupId: org.jenkins-ci.plugins
       artifactId: plugin
