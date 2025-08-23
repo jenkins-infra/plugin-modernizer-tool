@@ -61,6 +61,14 @@ public class RunCommand implements ICommand {
     private boolean skipMetadata;
 
     /**
+     * Override opt out plugins
+     */
+    @CommandLine.Option(
+            names = {"--override-opt-out-plugins"},
+            description = "Override the default behavior to allow PRs to plugins marked as opt-out")
+    private boolean overrideOptOutPlugins;
+
+    /**
      * Environment options
      */
     @CommandLine.Mixin
@@ -91,6 +99,7 @@ public class RunCommand implements ICommand {
                 .withDraft(draft)
                 .withRemoveForks(removeForks)
                 .withSkipMetadata(skipMetadata)
+                .withOverrideOptOutPlugins(overrideOptOutPlugins)
                 .build();
     }
 
