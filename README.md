@@ -261,6 +261,9 @@ source <(plugin-modernizer generate-completion)
 - `--skip-metadata` (optional) Skip collection and pushing the modernization metadata (i.e metadata after applying the recipes) to the [metadata repository](https://github.com/jenkins-infra/metadata-plugin-modernizer/). Beneficial for testing or development purpose when we don't need to unnecessary add another step of collecting the metadata.
 
 
+- `--override-opt-out-plugins` (optional) Override the default behavior to allow PRs to plugins marked as opt-out. This forces PR creation regardless of the plugin's opt-out status.
+
+
 - `--clean-forks` (optional) Remove forked repositories before and after the modernization process. Might cause data loss if you have other changes pushed on those forks. Forks with open pull request targeting original repo are not removed to prevent closing unmerged pull requests.
 
 

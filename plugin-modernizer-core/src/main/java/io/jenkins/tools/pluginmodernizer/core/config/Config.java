@@ -27,6 +27,7 @@ public class Config {
     private final Path mavenHome;
     private final Path mavenLocalRepo;
     private final boolean skipMetadata;
+    private final boolean overrideOptOutPlugins;
     private final boolean dryRun;
     private final boolean draft;
     private final boolean removeForks;
@@ -54,6 +55,7 @@ public class Config {
             Path mavenHome,
             Path mavenLocalRepo,
             boolean skipMetadata,
+            boolean overrideOptOutPlugins,
             boolean dryRun,
             boolean draft,
             boolean removeForks,
@@ -75,6 +77,7 @@ public class Config {
         this.mavenHome = mavenHome;
         this.mavenLocalRepo = mavenLocalRepo;
         this.skipMetadata = skipMetadata;
+        this.overrideOptOutPlugins = overrideOptOutPlugins;
         this.dryRun = dryRun;
         this.draft = draft;
         this.removeForks = removeForks;
@@ -171,6 +174,10 @@ public class Config {
         return skipMetadata;
     }
 
+    public boolean isOverrideOptOutPlugins() {
+        return overrideOptOutPlugins;
+    }
+
     public boolean isDryRun() {
         return dryRun;
     }
@@ -213,6 +220,7 @@ public class Config {
         private Path mavenHome = Settings.DEFAULT_MAVEN_HOME;
         private Path mavenLocalRepo = Settings.DEFAULT_MAVEN_LOCAL_REPO;
         private boolean skipMetadata = false;
+        private boolean overrideOptOutPlugins = false;
         private boolean dryRun = false;
         private boolean draft = false;
         public boolean removeForks = false;
@@ -319,6 +327,11 @@ public class Config {
             return this;
         }
 
+        public Builder withOverrideOptOutPlugins(boolean overrideOptOutPlugins) {
+            this.overrideOptOutPlugins = overrideOptOutPlugins;
+            return this;
+        }
+
         public Builder withDryRun(boolean dryRun) {
             this.dryRun = dryRun;
             return this;
@@ -358,6 +371,7 @@ public class Config {
                     mavenHome,
                     mavenLocalRepo,
                     skipMetadata,
+                    overrideOptOutPlugins,
                     dryRun,
                     draft,
                     removeForks,

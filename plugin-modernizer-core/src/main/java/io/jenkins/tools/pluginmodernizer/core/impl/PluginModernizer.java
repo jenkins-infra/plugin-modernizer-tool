@@ -9,6 +9,7 @@ import io.jenkins.tools.pluginmodernizer.core.github.GHService;
 import io.jenkins.tools.pluginmodernizer.core.model.DiffStats;
 import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
+import io.jenkins.tools.pluginmodernizer.core.model.OptOutPlugins;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
@@ -363,14 +364,22 @@ public class PluginModernizer {
                 }
                 plugin.commit(ghService);
 
-                // Only fork/push/PR if we have any changes
-                if (!plugin.getModifiedFiles().isEmpty()) {
+                boolean isOptOutPlugin = OptOutPlugins.isPluginOptedOut(plugin.getName());
+                // Only fork/push/PR if we have any changes and the plugin hasn't opted out for receiving PRs or
+                // override the default behaviour
+                if (!plugin.getModifiedFiles().isEmpty() && (!isOptOutPlugin || config.isOverrideOptOutPlugins())) {
                     plugin.fork(ghService);
                     plugin.sync(ghService);
                     plugin.push(ghService);
                     plugin.openPullRequest(ghService);
                 } else {
-                    LOG.info("No changes were made for plugin {}", plugin.getName());
+                    if (isOptOutPlugin) {
+                        LOG.info(
+                                "Plugin {} has opted out for reciving PRs. See https://github.com/jenkins-infra/plugin-modernizer-tool/blob/main/plugin-modernizer-core/src/main/java/io/jenkins/tools/pluginmodernizer/core/model/OptOutPlugins.java, Use the --override-opt-out-plugins to override the default behaviour",
+                                plugin.getName());
+                    } else {
+                        LOG.info("No changes were made for plugin {}", plugin.getName());
+                    }
                 }
 
                 if (config.isRemoveForks()) {
