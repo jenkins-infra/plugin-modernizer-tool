@@ -442,7 +442,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: gson-api
-      pluginVersion: 2.13.1-153.vb_3d0c48a_a_b_4a_
+      pluginVersion: 2.13.2-173.va_a_092315913c
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson
