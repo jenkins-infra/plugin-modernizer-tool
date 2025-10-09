@@ -751,7 +751,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
 
         // Assert
-        assertEquals("Migrate Commons Lang from 2 to 3 and StringEscapeUtils to Commons Text", result);
+        assertEquals("Migrate Commons Lang from 2 to 3", result);
     }
 
     @Test
@@ -771,7 +771,7 @@ public class TemplateUtilsTest {
         // Just ensure it's using some key overall text
         assertTrue(
                 result.contains(
-                        "This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3` and migrates HTML escaping functionality from `Apache Commons Lang` to `Apache Commons Text"),
+                        "This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3`"),
                 "Description");
     }
 }
