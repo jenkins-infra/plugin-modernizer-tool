@@ -48,7 +48,7 @@
     <!-- Version -->
     <jenkins.core.minimum.version>2.504.3</jenkins.core.minimum.version>
     <openrewrite.bom.version>3.16.0</openrewrite.bom.version>
-    <openrewrite.maven.plugin.version>6.19.0</openrewrite.maven.plugin.version>
+    <openrewrite.maven.plugin.version>6.21.1</openrewrite.maven.plugin.version>
     <micrometer.version>1.15.4</micrometer.version>
     <slf4j.version>2.0.17</slf4j.version>
     <logback.version>1.5.19</logback.version>
