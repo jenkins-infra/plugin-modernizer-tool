@@ -374,4 +374,38 @@ class PluginServiceTest {
 
         return Triple.of(updateCenterData, healthScoreData, pluginInstallationStatsData);
     }
+
+    @Test
+    public void shouldReturnTrueWhenPluginExistsInUpdateCenter() throws Exception {
+        CacheManager cacheManager = Mockito.mock(CacheManager.class);
+        Path cacheRoot = Mockito.mock(Path.class);
+        Config config = Mockito.mock(Config.class);
+        UpdateCenterData updateCenterData =
+                setup(config, cacheManager, cacheRoot).getLeft();
+        setupUpdateCenterMocks(updateCenterData, cacheManager, cacheRoot);
+
+        PluginService pluginService = getService(config, cacheManager);
+
+        Plugin existingPlugin = Plugin.build("valid-plugin");
+        boolean exists = pluginService.existsInUpdateCenter(existingPlugin);
+
+        assertEquals(true, exists, "Plugin 'valid-plugin' should exist in update center");
+    }
+
+    @Test
+    public void shouldReturnFalseWhenPluginDoesNotExistInUpdateCenter() throws Exception {
+        CacheManager cacheManager = Mockito.mock(CacheManager.class);
+        Path cacheRoot = Mockito.mock(Path.class);
+        Config config = Mockito.mock(Config.class);
+        UpdateCenterData updateCenterData =
+                setup(config, cacheManager, cacheRoot).getLeft();
+        setupUpdateCenterMocks(updateCenterData, cacheManager, cacheRoot);
+
+        PluginService pluginService = getService(config, cacheManager);
+
+        Plugin nonExistentPlugin = Plugin.build("non-existent-plugin");
+        boolean exists = pluginService.existsInUpdateCenter(nonExistentPlugin);
+
+        assertEquals(false, exists, "Plugin 'non-existent-plugin' should not exist in update center");
+    }
 }

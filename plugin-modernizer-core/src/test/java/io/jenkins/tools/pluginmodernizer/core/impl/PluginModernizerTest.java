@@ -8,6 +8,7 @@ import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.github.GHService;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
+import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import java.net.URL;
@@ -186,6 +187,105 @@ class PluginModernizerTest {
         verify(pluginModernizerSpy).validate();
         verify(cacheManager).init();
         verify(pluginService).getPluginVersionData();
+    }
+
+    @Test
+    void testProcessSkipsPluginNotInUpdateCenter() throws Exception {
+        // Setup
+        Plugin plugin = Plugin.build("non-existent-plugin");
+        when(config.getPlugins()).thenReturn(Arrays.asList(plugin));
+        when(pluginService.existsInUpdateCenter(plugin)).thenReturn(false);
+
+        // Mock recipe
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getName()).thenReturn("MockRecipe");
+        when(config.getRecipe()).thenReturn(mockRecipe);
+
+        // Create a spy to access the private process method
+        PluginModernizer pluginModernizerSpy = spy(pluginModernizer);
+
+        // Mock the start method to call our test directly
+        doNothing().when(pluginModernizerSpy).validate();
+        doNothing().when(cacheManager).init();
+
+        // Mock getPluginVersionData to return a non-null value (required for start method)
+        PluginVersionData mockVersionData = mock(PluginVersionData.class);
+        when(pluginService.getPluginVersionData()).thenReturn(mockVersionData);
+
+        // Execute
+        pluginModernizerSpy.start();
+
+        // Verify that plugin was not processed further (no repository name extraction)
+        verify(pluginService, never()).extractRepoName(plugin);
+        verify(pluginService).existsInUpdateCenter(plugin);
+    }
+
+    @Test
+    void testProcessContinuesForPluginInUpdateCenter() throws Exception {
+        // Setup
+        Plugin plugin = Plugin.build("existing-plugin");
+        plugin.withConfig(config);
+        when(config.getPlugins()).thenReturn(Arrays.asList(plugin));
+        when(pluginService.existsInUpdateCenter(plugin)).thenReturn(true);
+        when(pluginService.extractRepoName(plugin)).thenReturn("jenkinsci/existing-plugin-plugin");
+        when(config.isFetchMetadataOnly()).thenReturn(true);
+
+        // Mock recipe
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getName()).thenReturn("MockRecipe");
+        when(config.getRecipe()).thenReturn(mockRecipe);
+
+        // Create a spy to access the private process method
+        PluginModernizer pluginModernizerSpy = spy(pluginModernizer);
+
+        // Mock the start method dependencies
+        doNothing().when(pluginModernizerSpy).validate();
+        doNothing().when(cacheManager).init();
+
+        // Mock getPluginVersionData to return a non-null value
+        PluginVersionData mockVersionData = mock(PluginVersionData.class);
+        when(pluginService.getPluginVersionData()).thenReturn(mockVersionData);
+
+        // Execute
+        pluginModernizerSpy.start();
+
+        // Verify that plugin processing continued past validation
+        verify(pluginService).existsInUpdateCenter(plugin);
+        verify(pluginService).extractRepoName(plugin);
+    }
+
+    @Test
+    void testProcessSkipsLocalPlugin() throws Exception {
+        // Setup - local plugins should skip the update center check
+        Plugin localPlugin = Plugin.build("local-plugin");
+        localPlugin.withConfig(config);
+        localPlugin.withLocal(true);
+        when(config.getPlugins()).thenReturn(Arrays.asList(localPlugin));
+        when(pluginService.extractRepoName(localPlugin)).thenReturn("local/repo");
+        when(config.isFetchMetadataOnly()).thenReturn(true);
+
+        // Mock recipe
+        Recipe mockRecipe = mock(Recipe.class);
+        when(mockRecipe.getName()).thenReturn("MockRecipe");
+        when(config.getRecipe()).thenReturn(mockRecipe);
+
+        // Create a spy
+        PluginModernizer pluginModernizerSpy = spy(pluginModernizer);
+
+        // Mock dependencies
+        doNothing().when(pluginModernizerSpy).validate();
+        doNothing().when(cacheManager).init();
+
+        // Mock getPluginVersionData to return a non-null value
+        PluginVersionData mockVersionData = mock(PluginVersionData.class);
+        when(pluginService.getPluginVersionData()).thenReturn(mockVersionData);
+
+        // Execute
+        pluginModernizerSpy.start();
+
+        // Verify that existsInUpdateCenter was never called for local plugins
+        verify(pluginService, never()).existsInUpdateCenter(localPlugin);
+        verify(pluginService).extractRepoName(localPlugin);
     }
 
     private Recipe createMockRecipe(String name, String description) {

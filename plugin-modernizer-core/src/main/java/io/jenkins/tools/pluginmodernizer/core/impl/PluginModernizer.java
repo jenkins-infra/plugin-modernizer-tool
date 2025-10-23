@@ -178,10 +178,21 @@ public class PluginModernizer {
      * @param plugin The plugin to process
      */
     private void process(Plugin plugin) {
+        boolean earlySkip = false;
         try {
 
             // Set config
             plugin.withConfig(config);
+
+            // Early validation: Check if plugin exists in update center before any operations that might create
+            // directories
+            if (!plugin.isLocal() && !pluginService.existsInUpdateCenter(plugin)) {
+                // Use general LOG without plugin marker to avoid creating directories
+                LOG.info("Plugin {} not found in update center. Skipping.", plugin.getName());
+                // Don't add error to plugin object to avoid directory creation through logging discriminator
+                earlySkip = true;
+                return;
+            }
 
             // Determine repo name
             plugin.withRepositoryName(pluginService.extractRepoName(plugin));
@@ -402,7 +413,7 @@ public class PluginModernizer {
                 plugin.addError("Unexpected processing error. Check the logs at " + plugin.getLogFile(), e);
             }
         } finally {
-            if (!config.isSkipMetadata()) {
+            if (!config.isSkipMetadata() && !earlySkip) {
                 try {
                     // collect the modernization metadata and push it to metadata repository if valid
                     collectModernizationMetadata(plugin);
@@ -600,7 +611,7 @@ public class PluginModernizer {
 
             }
             // Display what's done
-            else {
+            else if (plugin.getMetadata() != null) {
                 if (config.isFetchMetadataOnly()) {
                     LOG.info(
                             "Metadata was fetched for plugin {} and is available at {}",
@@ -619,6 +630,10 @@ public class PluginModernizer {
                             + plugin.getRemoteRepository(this.ghService).getHtmlUrl());
                     printModifiedFiles(plugin);
                 }
+            }
+            // Plugin was skipped early (no metadata and no errors)
+            else {
+                LOG.info("Plugin {} was skipped", plugin.getName());
             }
             LOG.info("*************");
         }

@@ -83,6 +83,16 @@ public class PluginService {
     }
 
     /**
+     * Check if a plugin exists in the update center
+     * @param plugin Plugin
+     * @return True if plugin exists in the update center
+     */
+    public boolean existsInUpdateCenter(Plugin plugin) {
+        UpdateCenterData updateCenterData = getUpdateCenterData();
+        return updateCenterData.getPlugins().containsKey(plugin.getName());
+    }
+
+    /**
      * Check if a plugin is deprecated
      * @param plugin Plugin
      * @return True if deprecated
