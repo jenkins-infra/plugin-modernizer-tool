@@ -56,6 +56,16 @@ public class JdkFetcher {
         if (Files.notExists(jdkPath)) {
             downloadAndSetupJdk(jdkVersion, jdkPath);
         }
+
+        if (!Files.isDirectory(jdkPath.resolve("bin"))) {
+            Path macOsHome = jdkPath.resolve("Contents").resolve("Home");
+            if (Files.isDirectory(macOsHome)) {
+                jdkPath = macOsHome;
+            }
+        }
+
+        LOG.info("Resolved JDK Path for version {}: {}", jdkVersion, jdkPath);
+
         return jdkPath;
     }
 
@@ -316,8 +326,13 @@ public class JdkFetcher {
         Path binDir = jdkPath.resolve("bin");
 
         if (!Files.isDirectory(binDir)) {
-            LOG.error("The bin directory does not exist: {}", binDir);
-            return;
+            Path macOsBinDir = jdkPath.resolve("Contents").resolve("Home").resolve("bin");
+            if (Files.isDirectory(macOsBinDir)) {
+                binDir = macOsBinDir;
+            } else {
+                LOG.error("The bin directory does not exist: {}", binDir);
+                return;
+            }
         }
 
         if (!binDir.getFileSystem().supportedFileAttributeViews().contains("posix")) {
