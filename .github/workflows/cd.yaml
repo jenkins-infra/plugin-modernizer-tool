@@ -61,6 +61,7 @@ jobs:
         uses: actions/checkout@v6.0.0
         with:
           fetch-depth: 0
+          submodules: false
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -166,6 +167,7 @@ jobs:
         uses: actions/checkout@v6.0.0
         with:
           fetch-depth: 0
+          submodules: false
 
       - name: Download built jar
         uses: actions/download-artifact@v6

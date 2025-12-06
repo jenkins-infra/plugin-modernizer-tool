@@ -31,6 +31,7 @@ runs:
         java-version: 21
         maven-version: 3.9.11
         cache-enabled: true
+        checkout-enabled: false
 
     - name: Download Plugin Modernizer JAR
       shell: bash
