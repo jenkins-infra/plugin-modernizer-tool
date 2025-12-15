@@ -494,7 +494,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-lang3-api
-      pluginVersion: 3.19.0-104.v12125f33a_255
+      pluginVersion: 3.20.0-109.ve43756e2d2b_4
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-lang3
