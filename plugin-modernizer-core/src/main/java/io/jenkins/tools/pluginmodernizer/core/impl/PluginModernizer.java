@@ -249,7 +249,7 @@ public class PluginModernizer {
             plugin.checkoutBranch(ghService);
 
             // Minimum JDK to run openrewrite
-            plugin.withJDK(JDK.JAVA_21);
+            plugin.withJDK(JDK.JAVA_25);
 
             // Collect metadata and move metadata from the target directory of the plugin to the common cache
             if (!plugin.hasMetadata() || config.isFetchMetadataOnly()) {
@@ -360,7 +360,7 @@ public class PluginModernizer {
 
             // Recollect metadata after modernization
             if (!config.isFetchMetadataOnly()) {
-                plugin.withJDK(JDK.JAVA_21);
+                plugin.withJDK(JDK.JAVA_25);
                 plugin.clean(mavenInvoker);
                 collectMetadata(plugin, false);
                 LOG.debug(
@@ -439,7 +439,7 @@ public class PluginModernizer {
      */
     private void collectMetadata(Plugin plugin, boolean retryAfterFirstCompile) {
         LOG.trace("Collecting metadata for plugin {}... Please be patient", plugin.getName());
-        plugin.withJDK(JDK.JAVA_21);
+        plugin.withJDK(JDK.JAVA_25);
         try {
             plugin.collectMetadata(mavenInvoker);
             if (plugin.hasErrors()) {
@@ -458,7 +458,7 @@ public class PluginModernizer {
                             plugin.getName());
                     plugin.raiseLastError();
                 }
-                plugin.withJDK(JDK.JAVA_21);
+                plugin.withJDK(JDK.JAVA_25);
                 plugin.collectMetadata(mavenInvoker);
             } else {
                 LOG.info("Failed to collect metadata for plugin {}. Not retrying.", plugin.getName());
@@ -568,7 +568,7 @@ public class PluginModernizer {
         // Determine the JDK
         JDK jdk;
         if (metadata.getJdks() == null || metadata.getJdks().isEmpty()) {
-            jdk = JDK.JAVA_21;
+            jdk = JDK.JAVA_25;
             LOG.info(
                     "No JDKs found in metadata for plugin {}. Using same JDK as rewrite for verification",
                     plugin.getName());
