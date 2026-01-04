@@ -329,6 +329,38 @@ class PluginModernizerTest {
         // No exception should be thrown
     }
 
+    @Test
+    void testMetadataOperationsSkippedWhenModernizationMetadataIsNull() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        when(plugin.getName()).thenReturn("test-plugin");
+        when(plugin.getModernizationMetadata()).thenReturn(null);
+        when(config.isSkipMetadata()).thenReturn(false);
+        when(plugin.isLocal()).thenReturn(true);
+
+        // Execute - Invoke the private process method using reflection
+        java.lang.reflect.Method method = PluginModernizer.class.getDeclaredMethod("process", Plugin.class);
+        method.setAccessible(true);
+
+        try {
+            method.invoke(pluginModernizer, plugin);
+        } catch (Exception e) {
+            if (e.getCause() instanceof NullPointerException) {
+                fail("Null check should have prevented NPE when modernizationMetadata is null");
+            }
+        }
+
+        // Verify that metadata operations were NOT called due to null check
+        verify(plugin, never()).fetchMetadata(any());
+        verify(plugin, never()).forkMetadata(any());
+        verify(plugin, never()).syncMetadata(any());
+        verify(plugin, never()).checkoutMetadataBranch(any());
+        verify(plugin, never()).copyMetadataToLocalMetadataRepo(any());
+        verify(plugin, never()).commitMetadata(any());
+        verify(plugin, never()).pushMetadata(any());
+        verify(plugin, never()).openMetadataPullRequest(any());
+    }
+
     private Recipe createMockRecipe(String name, String description) {
         Recipe recipe = mock(Recipe.class);
         when(recipe.getName()).thenReturn(name);
