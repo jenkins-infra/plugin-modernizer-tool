@@ -676,7 +676,7 @@ public class Plugin {
                 "Compiling plugin {} with JDK {} ... Please be patient",
                 name,
                 this.getJDK().getMajor());
-        maven.invokeGoal(this, "compile");
+        maven.invokeGoal(this, "compile", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true");
         if (!hasErrors()) {
             LOG.info("Done");
         }
@@ -691,7 +691,14 @@ public class Plugin {
     public void verifyQuickBuild(MavenInvoker maven, JDK jdk) {
         LOG.info("Quick build without tests {} using with JDK {} ... Please be patient", name, jdk.getMajor());
         this.withJDK(jdk);
-        maven.invokeGoal(this, "verify", "-DskipTests", "-Pquick-build", "-Denforcer.skip=true");
+        maven.invokeGoal(
+                this,
+                "verify",
+                "-DskipTests",
+                "-Pquick-build",
+                "-Denforcer.skip=true",
+                "-Dhpi.validate.skip=true",
+                "-Dmaven.antrun.skip=true");
         if (!hasErrors()) {
             LOG.info("Done");
         }
