@@ -418,14 +418,17 @@ public class PluginModernizer {
                     // collect the modernization metadata and push it to metadata repository if valid
                     collectModernizationMetadata(plugin);
                     validateModernizationMetadata(plugin);
-                    plugin.fetchMetadata(ghService);
-                    plugin.forkMetadata(ghService);
-                    plugin.syncMetadata(ghService);
-                    plugin.checkoutMetadataBranch(ghService);
-                    plugin.copyMetadataToLocalMetadataRepo(cacheManager);
-                    plugin.commitMetadata(ghService);
-                    plugin.pushMetadata(ghService);
-                    plugin.openMetadataPullRequest(ghService);
+                    // Only proceed with metadata operations if modernization metadata was successfully created
+                    if (plugin.getModernizationMetadata() != null) {
+                        plugin.fetchMetadata(ghService);
+                        plugin.forkMetadata(ghService);
+                        plugin.syncMetadata(ghService);
+                        plugin.checkoutMetadataBranch(ghService);
+                        plugin.copyMetadataToLocalMetadataRepo(cacheManager);
+                        plugin.commitMetadata(ghService);
+                        plugin.pushMetadata(ghService);
+                        plugin.openMetadataPullRequest(ghService);
+                    }
                 } catch (Exception e) {
                     plugin.addError("Failed to collect modernization metadata for plugin " + plugin.getName(), e);
                 }
