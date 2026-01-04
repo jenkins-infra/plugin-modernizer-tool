@@ -118,6 +118,8 @@ public class MavenInvoker {
         List<String> goals = new ArrayList<>();
         goals.add("org.openrewrite.maven:rewrite-maven-plugin:" + Settings.MAVEN_REWRITE_PLUGIN_VERSION + ":run");
         goals.add("-Denforcer.skip=true");
+        goals.add("-Dhpi.validate.skip=true");
+        goals.add("-Dmaven.antrun.skip=true");
         goals.add("-Dmaven.repo.local=%s".formatted(config.getMavenLocalRepo()));
         goals.add("-Drewrite.activeRecipes=" + recipe.getName());
         goals.add("-Drewrite.recipeArtifactCoordinates=io.jenkins.plugin-modernizer:plugin-modernizer-core:"
