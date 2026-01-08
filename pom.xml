@@ -73,7 +73,7 @@
     <snakeyaml.version>2.5</snakeyaml.version>
     <guice.version>7.0.0</guice.version>
     <error.prone.version>2.45.0</error.prone.version>
-    <checker.qual.version>3.52.1</checker.qual.version>
+    <checker.qual.version>3.53.0</checker.qual.version>
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
     <jwt.version>0.13.0</jwt.version>
     <bouncycastle.version>1.83</bouncycastle.version>
