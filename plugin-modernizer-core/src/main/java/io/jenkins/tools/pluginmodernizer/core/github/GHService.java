@@ -73,14 +73,11 @@ import org.slf4j.LoggerFactory;
 public class GHService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GHService.class);
-    private static final Logger BRANCH_NAMELOG = LoggerFactory.getLogger(GHService.class);
 
     /**
      * Allowed github tags for PR
      */
     private static final Set<String> ALLOWED_TAGS = Set.of("chore", "dependencies", "developer");
-
-    private static final Set<String> ALLOWED_METADATA_TAGS = Set.of("chore", "metadata");
 
     @Inject
     private Config config;
@@ -1078,35 +1075,47 @@ public class GHService {
 
         // Check if existing PR exists
         GHRepository repository = repoType.getRemoteRepository(plugin, this);
-        Optional<GHPullRequest> existingPR = checkIfPullRequestExists(plugin, repoType);
+        String branchName = repoType.getBranchName(plugin, config.getRecipe());
+        String head = getGithubOwner() + ":" + branchName;
+        String base = repository.getDefaultBranch();
+
+        Optional<GHPullRequest> existingPR = findExistingPullRequest(repository, head, base);
+
         if (existingPR.isPresent()) {
-            LOG.info("Pull request already exists: {}", existingPR.get().getHtmlUrl());
-            GHPullRequest existing = existingPR.get();
-            try {
-                existing.setTitle(prTitle);
-                existing.setBody(prBody);
-                repoType.withPullRequest(plugin);
-                LOG.info("Pull request update: {}", existing.getHtmlUrl());
-                if (repoType == RepoType.PLUGIN) {
-                    plugin.setPullRequestUrl(existing.getHtmlUrl().toString());
-                    deleteLegacyPrs(plugin);
-                }
-                return;
-            } catch (Exception e) {
-                plugin.addError("Failed to update pull request for" + " " + repoType.getType(), e);
-                plugin.raiseLastError();
+            switch (config.getDuplicatePrStrategy()) {
+                case SKIP:
+                    LOG.info(
+                            "Duplicate PR detected: {}. Skipping creation.",
+                            existingPR.get().getHtmlUrl());
+                    return;
+
+                case UPDATE:
+                    LOG.info(
+                            "Duplicate PR detected: {}. Updating existing PR.",
+                            existingPR.get().getHtmlUrl());
+                    try {
+                        GHPullRequest pr = existingPR.get();
+                        pr.setTitle(prTitle);
+                        pr.setBody(prBody);
+                        LOG.info("Successfully updated PR: {}", pr.getHtmlUrl());
+                    } catch (IOException e) {
+                        LOG.warn(
+                                "Failed to update existing PR: {}",
+                                existingPR.get().getHtmlUrl(),
+                                e);
+                    }
+                    return;
+
+                case IGNORE:
+                    LOG.info(
+                            "Duplicate PR detected: {}. Creating new one as per IGNORE strategy.",
+                            existingPR.get().getHtmlUrl());
+                    break;
             }
         }
 
         try {
-            String branchName = repoType.getBranchName(plugin, config.getRecipe());
-            GHPullRequest pr = repository.createPullRequest(
-                    prTitle,
-                    getGithubOwner() + ":" + branchName,
-                    repository.getDefaultBranch(),
-                    prBody,
-                    true,
-                    config.isDraft());
+            GHPullRequest pr = repository.createPullRequest(prTitle, head, base, prBody, true, config.isDraft());
             LOG.info("Pull request created: {}", pr.getHtmlUrl());
             repoType.withPullRequest(plugin);
             if (repoType == RepoType.PLUGIN) {
@@ -1176,28 +1185,19 @@ public class GHService {
     }
 
     /**
-     * Check if a pull request already exists for the branch to the target repo
+     * Find existing pull request
      *
-     * @param plugin The plugin
-     * @param repoType The repo type to check
+     * @param repo The repository
+     * @param head The head branch
+     * @param base The base branch
      * @return The pull request if it exists
      */
-    private Optional<GHPullRequest> checkIfPullRequestExists(Plugin plugin, RepoType repoType) {
-        GHRepository repository = repoType.getRemoteRepository(plugin, this);
-        String branchName = repoType.getBranchName(plugin, config.getRecipe());
+    private Optional<GHPullRequest> findExistingPullRequest(GHRepository repo, String head, String base) {
         try {
-            List<GHPullRequest> pullRequests = repository
-                    .queryPullRequests()
-                    .state(GHIssueState.OPEN)
-                    .list()
-                    .toList();
-            return pullRequests.stream()
-                    .peek(pr -> LOG.debug(
-                            "Checking pull request with ref {}", pr.getHead().getRef()))
-                    .filter(pr -> pr.getHead().getRef().equals(branchName))
+            return repo.queryPullRequests().state(GHIssueState.OPEN).head(head).base(base).list().toList().stream()
                     .findFirst();
         } catch (IOException e) {
-            plugin.addError("Failed to check if pull request exists", e);
+            LOG.warn("Failed to find existing pull request", e);
             return Optional.empty();
         }
     }

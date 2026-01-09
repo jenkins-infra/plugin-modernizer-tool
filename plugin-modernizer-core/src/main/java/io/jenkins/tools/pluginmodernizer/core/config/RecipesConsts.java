@@ -18,5 +18,7 @@ public final class RecipesConsts {
     public static final String VERSION_METADATA_PATTERN = "\\.v[a-f0-9_]+";
     public static final String OLD_BOM_VERSION_PATTERN =
             ""; // Old release line like 2.150.x, no need to filter by pattern
+    public static final String OLD_PARENT_VERSION_PATTERN =
+            ""; // Old release line like 4.x, no need to filter by pattern
     public static final String INCREMENTAL_REPO_ID = "incrementals";
 }

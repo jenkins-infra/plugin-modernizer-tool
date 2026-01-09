@@ -132,7 +132,7 @@ public class PluginTest {
         doReturn(false).when(config).isFetchMetadataOnly();
         plugin.withJDK(JDK.JAVA_21);
         plugin.compile(mavenInvoker);
-        verify(mavenInvoker).invokeGoal(plugin, "compile");
+        verify(mavenInvoker).invokeGoal(plugin, "compile", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true");
         verifyNoMoreInteractions(mavenInvoker);
     }
 

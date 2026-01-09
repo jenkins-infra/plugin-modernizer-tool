@@ -5,7 +5,10 @@ import io.jenkins.tools.pluginmodernizer.core.model.Platform;
 import io.jenkins.tools.pluginmodernizer.core.model.PlatformConfig;
 import io.jenkins.tools.pluginmodernizer.core.visitors.UpdateJenkinsFileVisitor;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Option;
@@ -44,6 +47,16 @@ public class UpdateJenkinsfileForJavaVersion extends Recipe {
     Integer totalJdk;
 
     /**
+     * The list of JDKs version to remove.
+     */
+    @Option(
+            displayName = "JDKs to remove",
+            description = "The list of JDKs version to remove from the Jenkinsfile",
+            example = "[11, 17]",
+            required = false)
+    List<Integer> jdksToRemove;
+
+    /**
      * Constructor.
      * @param javaVersion The java version.
      */
@@ -58,6 +71,16 @@ public class UpdateJenkinsfileForJavaVersion extends Recipe {
     public UpdateJenkinsfileForJavaVersion(Integer javaVersion, Integer totalJdkVersions) {
         this.javaVersion = javaVersion;
         this.totalJdk = totalJdkVersions;
+    }
+
+    /**
+     * Constructor.
+     * @param jdksToRemove The list of JDKs version to remove.
+     */
+    public UpdateJenkinsfileForJavaVersion(Integer javaVersion, List<Integer> jdksToRemove) {
+        this.javaVersion = javaVersion;
+        this.jdksToRemove = jdksToRemove;
+        this.totalJdk = DEFAULT_TOTAL_JDK;
     }
 
     @Override
@@ -94,15 +117,20 @@ public class UpdateJenkinsfileForJavaVersion extends Recipe {
                         .anyMatch(p -> "linux".equalsIgnoreCase(p.name().toString())
                                 && p.jdk().getMajor() == javaVersion);
 
-                if (hasJavaVersion) {
+                // see if windows platform is already present
+                boolean hasWindows = model.platformConfigs.stream()
+                        .anyMatch(p -> "windows".equalsIgnoreCase(p.name().toString()));
+
+                if (hasJavaVersion && (jdksToRemove == null || jdksToRemove.isEmpty())) {
                     LOG.info("Java {} configuration already exists. No update needed.", javaVersion);
                     return method;
                 }
 
-                // add the java version configuration to the model.
-                model.platformConfigs.add(PlatformConfig.build(Platform.LINUX, jdkVersion));
-
-                // limit the number of JDK configurations to totalJdk
+                // add the java version configuration to the model if not present
+                if (!hasJavaVersion) {
+                    LOG.info("Adding Java {} configuration to Jenkinsfile.", javaVersion);
+                    model.platformConfigs.add(PlatformConfig.build(Platform.LINUX, jdkVersion));
+                }
 
                 // If we limit the number of JDK to save build resources
                 if (totalJdk < DEFAULT_TOTAL_JDK) {
@@ -121,6 +149,31 @@ public class UpdateJenkinsfileForJavaVersion extends Recipe {
                         model.platformConfigs.set(0, PlatformConfig.build(Platform.WINDOWS, lowest.jdk()));
                     }
                 }
+
+                // Remove JDKs if specified on jdksToRemove
+                if (jdksToRemove != null && !jdksToRemove.isEmpty()) {
+                    Set<Integer> jdksToRemoveSet = new HashSet<>(jdksToRemove);
+                    model.platformConfigs = model.platformConfigs.stream()
+                            .filter(p -> !jdksToRemoveSet.contains(p.jdk().getMajor()))
+                            .collect(Collectors.toList());
+
+                    // If windows and more that one platform we need to ensure the lowest JDK is on windows platform
+                    if (hasWindows && model.platformConfigs.size() > 1) {
+                        PlatformConfig lowest = model.platformConfigs.stream()
+                                .min(Comparator.comparingInt(a -> a.jdk().getMajor()))
+                                .orElse(null);
+                        if (!"windows".equalsIgnoreCase(lowest.name().toString())) {
+                            model.platformConfigs.remove(lowest);
+                            model.platformConfigs.add(PlatformConfig.build(Platform.WINDOWS, lowest.jdk()));
+                        }
+                    }
+                }
+
+                // Reorder by higher JDK first
+                model.platformConfigs = model.platformConfigs.stream()
+                        .sorted((a, b) ->
+                                Integer.compare(b.jdk().getMajor(), a.jdk().getMajor()))
+                        .collect(Collectors.toList());
 
                 // We pass it the complete, updated configuration, and it will overwrite the old method call.
                 // in future at some point remove jdk 17 from the configurations

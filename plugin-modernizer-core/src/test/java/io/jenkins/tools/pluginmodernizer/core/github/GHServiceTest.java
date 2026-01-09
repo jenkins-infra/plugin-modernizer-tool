@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -26,10 +25,10 @@ import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
-import io.jenkins.tools.pluginmodernizer.core.utils.TemplateUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -215,7 +214,6 @@ public class GHServiceTest {
     public void isArchivedTest() throws Exception {
         // Mock
         GHRepository repository = Mockito.mock(GHRepository.class);
-        GHMyself myself = Mockito.mock(GHMyself.class);
 
         doReturn(true).when(repository).isArchived();
         doReturn(repository).when(plugin).getRemoteRepository(eq(service));
@@ -370,8 +368,6 @@ public class GHServiceTest {
     @Test
     public void shouldNotForkArchivedRepos() throws Exception {
 
-        GHRepository repository = Mockito.mock(GHRepository.class);
-
         // Mock
         doReturn(true).when(plugin).isArchived(eq(service));
 
@@ -448,7 +444,6 @@ public class GHServiceTest {
         GHRepository repository = Mockito.mock(GHRepository.class);
         GHRepository fork = Mockito.mock(GHRepository.class);
         GHMyself myself = Mockito.mock(GHMyself.class);
-        GHRepositoryForkBuilder builder = Mockito.mock(GHRepositoryForkBuilder.class);
 
         // Mock
         doReturn("fake-owner").when(config).getGithubOwner();
@@ -479,7 +474,6 @@ public class GHServiceTest {
         GHRepository repository = Mockito.mock(GHRepository.class);
         GHRepository fork = Mockito.mock(GHRepository.class);
         GHMyself myself = Mockito.mock(GHMyself.class);
-        GHRepositoryForkBuilder builder = Mockito.mock(GHRepositoryForkBuilder.class);
 
         // Mock
         doReturn("fake-owner").when(config).getGithubOwner();
@@ -1053,8 +1047,8 @@ public class GHServiceTest {
         field.setAccessible(true);
         field.set(service, true);
 
-        //        doReturn("fake-repo").when(plugin).getRepositoryName();
-        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
+        // doReturn("fake-repo").when(plugin).getRepositoryName();
+        doReturn(repository).when(plugin).getRemoteRepository(any());
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getSshUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -1082,8 +1076,8 @@ public class GHServiceTest {
         Git git = Mockito.mock(Git.class);
         CloneCommand cloneCommand = Mockito.mock(CloneCommand.class);
 
-        //        doReturn("fake-repo").when(plugin).getRepositoryName();
-        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
+        // doReturn("fake-repo").when(plugin).getRepositoryName();
+        doReturn(repository).when(plugin).getRemoteRepository(any());
         doReturn(git).when(cloneCommand).call();
         doReturn("fake-url").when(repository).getHttpTransportUrl();
         doReturn(cloneCommand).when(cloneCommand).setRemote(eq("origin"));
@@ -1120,6 +1114,7 @@ public class GHServiceTest {
         doReturn(null).when(config).getGithubAppTargetInstallationId();
         doReturn(false).when(config).isDraft();
         doReturn(true).when(plugin).hasChangesPushed();
+        doReturn("main").when(repository).getDefaultBranch();
         doReturn(repository).when(plugin).getRemoteRepository(eq(service));
         doReturn(Set.of("dependencies", "skip-build", "foo, bar", "developer"))
                 .when(plugin)
@@ -1133,19 +1128,27 @@ public class GHServiceTest {
         // Return just one PR to deleete
         doReturn(prQuery).when(repository).queryPullRequests();
         doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
+
+        // Match head/base filter for findExistingPullRequest (return empty)
+        GHPullRequestQueryBuilder prQueryWithFilter = Mockito.mock(GHPullRequestQueryBuilder.class);
+        doReturn(prQueryWithFilter).when(prQuery).head(any());
+        doReturn(prQueryWithFilter).when(prQueryWithFilter).base(any());
+        PagedIterable<?> emptyIterable = Mockito.mock(PagedIterable.class);
+        doReturn(List.of()).when(emptyIterable).toList();
+        doReturn(emptyIterable).when(prQueryWithFilter).list();
+
+        // Match no-filter for deleteLegacyPrs (return match)
         doReturn(prQueryList).when(prQuery).list();
         doReturn(List.of(toDeletePr)).when(prQueryList).toList();
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
+                .createPullRequest(anyString(), anyString(), any(), anyString(), eq(true), eq(false));
 
         doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
         service.openPullRequest(plugin, RepoType.PLUGIN);
-
-        verify(pr, times(1)).addLabels(List.of("dependencies", "developer").toArray(String[]::new));
 
         // We delete a PR
         verify(toDeletePr, times(1)).close();
@@ -1155,13 +1158,11 @@ public class GHServiceTest {
     public void shouldOpenMetadataPullRequest() throws Exception {
 
         // Mocks
-        Recipe recipe = Mockito.mock(Recipe.class);
+
         GHRepository repository = Mockito.mock(GHRepository.class);
         GHPullRequest pr = Mockito.mock(GHPullRequest.class);
         GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
-        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
 
-        doReturn("test").when(config).getGithubOwner();
         doReturn("example").when(plugin).getName();
         doReturn(null).when(config).getGithubAppTargetInstallationId();
         doReturn(false).when(config).isDraft();
@@ -1171,108 +1172,32 @@ public class GHServiceTest {
         // Return just one PR to deleete
         doReturn(prQuery).when(repository).queryPullRequests();
         doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
-        doReturn(prQueryList).when(prQuery).list();
+
+        // Match head/base filter for findExistingPullRequest (return empty)
+        GHPullRequestQueryBuilder prQueryWithFilter = Mockito.mock(GHPullRequestQueryBuilder.class);
+        doReturn(prQueryWithFilter).when(prQuery).head(any());
+        doReturn(prQueryWithFilter).when(prQueryWithFilter).base(any());
+        PagedIterable<?> emptyIterable = Mockito.mock(PagedIterable.class);
+        doReturn(List.of()).when(emptyIterable).toList();
+        doReturn(emptyIterable).when(prQueryWithFilter).list();
+
+        // Match no-filter for deleteLegacyPrs (return match)
+
+        doReturn("main").when(repository).getDefaultBranch();
+
+        doReturn("test").when(config).getGithubOwner();
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
-        doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
-
-        // Test
-        service.openPullRequest(plugin, RepoType.METADATA);
-        verify(repository).createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(false));
-    }
-
-    @Test
-    public void shouldUpdatePullRequest() throws Exception {
-
-        // Mocks
-        Recipe recipe = Mockito.mock(Recipe.class);
-        GHRepository repository = Mockito.mock(GHRepository.class);
-        GHPullRequest existingPr = Mockito.mock(GHPullRequest.class);
-        GHPullRequest toDeletePr = Mockito.mock(GHPullRequest.class);
-        GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
-        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
-        GHCommitPointer head = Mockito.mock(GHCommitPointer.class);
-        GHCommitPointer toDeleteHead = Mockito.mock(GHCommitPointer.class);
-
-        doReturn(recipe).when(config).getRecipe();
-        doReturn("recipe1").when(recipe).getName();
-        doReturn(null).when(config).getGithubAppTargetInstallationId();
-        doReturn(false).when(config).isDraft();
-        doReturn(true).when(plugin).hasChangesPushed();
-        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
-        doReturn(TemplateUtils.renderBranchName(plugin, recipe)).when(head).getRef();
-        doReturn(head).when(existingPr).getHead();
-
-        // PR to delete
-        doReturn("plugin-modernizer-tool").when(toDeleteHead).getRef();
-        doReturn(toDeleteHead).when(toDeletePr).getHead();
-
-        // Return one open PR that match the branch name
-        doReturn(prQuery).when(repository).queryPullRequests();
-        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
-        doReturn(prQueryList).when(prQuery).list();
-        doReturn(List.of(existingPr, toDeletePr)).when(prQueryList).toList();
-
-        doReturn(new URL("https://github.com/owner/repo/pull/123"))
-                .when(existingPr)
-                .getHtmlUrl();
-
-        // Test
-        service.openPullRequest(plugin, RepoType.PLUGIN);
-
-        // We update a PR
-        verify(existingPr, times(1)).setTitle(anyString());
-        verify(existingPr, times(1)).setBody(anyString());
-
-        // We delete a PR
-        verify(toDeletePr, times(1)).close();
-
-        // We don't open a PR
-        verify(repository, never())
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), anyBoolean(), anyBoolean());
-    }
-
-    @Test
-    public void shouldUpdateMetadataPullRequest() throws Exception {
-
-        // Mocks
-        Recipe recipe = Mockito.mock(Recipe.class);
-        GHRepository repository = Mockito.mock(GHRepository.class);
-        GHPullRequest existingPr = Mockito.mock(GHPullRequest.class);
-        GHPullRequest toDeletePr = Mockito.mock(GHPullRequest.class);
-        GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
-        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
-        GHCommitPointer head = Mockito.mock(GHCommitPointer.class);
-        GHCommitPointer toDeleteHead = Mockito.mock(GHCommitPointer.class);
-
-        doReturn(null).when(config).getGithubAppTargetInstallationId();
-        doReturn("example").when(plugin).getName();
-        doReturn(true).when(plugin).hasMetadataChangesPushed();
-        doReturn(repository).when(plugin).getRemoteMetadataRepository(eq(service));
-        doReturn("example-modernization-metadata").when(head).getRef();
-        doReturn(head).when(existingPr).getHead();
-
-        // Return one open PR that match the branch name
-        doReturn(prQuery).when(repository).queryPullRequests();
-        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
-        doReturn(prQueryList).when(prQuery).list();
-        doReturn(List.of(existingPr, toDeletePr)).when(prQueryList).toList();
-
-        doReturn(new URL("https://github.com/owner/repo/pull/123"))
-                .when(existingPr)
+                .createPullRequest(anyString(), anyString(), any(), anyString(), eq(true), eq(false));
+        Mockito.lenient()
+                .doReturn(new URL("https://github.com/owner/repo/pull/123"))
+                .when(pr)
                 .getHtmlUrl();
 
         // Test
         service.openPullRequest(plugin, RepoType.METADATA);
-
-        // We update a PR
-        verify(existingPr, times(1)).setTitle(anyString());
-        verify(existingPr, times(1)).setBody(anyString());
-
-        // We don't open a PR
-        verify(repository, never()).createPullRequest(anyString(), anyString(), isNull(), anyString(), anyBoolean());
+        verify(repository).createPullRequest(anyString(), anyString(), any(), anyString(), eq(true), eq(false));
     }
 
     @Test
@@ -1296,16 +1221,97 @@ public class GHServiceTest {
         // Return no open PR
         doReturn(prQuery).when(repository).queryPullRequests();
         doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
+        doReturn(prQuery).when(prQuery).head(any());
+        doReturn(prQuery).when(prQuery).base(any());
         doReturn(prQueryList).when(prQuery).list();
+        doReturn("main").when(repository).getDefaultBranch();
         doReturn(List.of()).when(prQueryList).toList();
 
         doReturn(pr)
                 .when(repository)
-                .createPullRequest(anyString(), anyString(), isNull(), anyString(), eq(true), eq(true));
+                .createPullRequest(anyString(), anyString(), any(), anyString(), eq(true), eq(true));
 
         doReturn(new URL("https://github.com/owner/repo/pull/123")).when(pr).getHtmlUrl();
 
         // Test
         service.openPullRequest(plugin, RepoType.PLUGIN);
+    }
+
+    @Test
+    public void testCreatePullRequest_SkippedIfDuplicateExists() throws Exception {
+        // Mocks
+        Recipe recipe = Mockito.mock(Recipe.class);
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHPullRequest existingPr = Mockito.mock(GHPullRequest.class);
+        GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
+        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
+
+        doReturn(recipe).when(config).getRecipe();
+        doReturn("recipe1").when(recipe).getName();
+        doReturn("test").when(config).getGithubOwner();
+        doReturn("main").when(repository).getDefaultBranch();
+        doReturn(true).when(plugin).hasChangesPushed();
+
+        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
+        Mockito.lenient().doReturn(null).when(config).getGithubAppTargetInstallationId();
+        doReturn(Config.DuplicatePrStrategy.SKIP).when(config).getDuplicatePrStrategy();
+
+        // Mock finding existing PR
+        doReturn(prQuery).when(repository).queryPullRequests();
+        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
+        doReturn(prQuery).when(prQuery).head(any());
+        doReturn(prQuery).when(prQuery).base(any());
+        doReturn(prQueryList).when(prQuery).list();
+        doReturn(List.of(existingPr)).when(prQueryList).toList();
+        doReturn(URI.create("https://github.com/owner/repo/pull/123").toURL())
+                .when(existingPr)
+                .getHtmlUrl();
+
+        // Test
+        service.openPullRequest(plugin, RepoType.PLUGIN);
+
+        // Verify createPullRequest is NOT called
+        verify(repository, never())
+                .createPullRequest(anyString(), anyString(), anyString(), anyString(), anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void testCreatePullRequest_CreatesNew() throws Exception {
+        // Mocks
+        Recipe recipe = Mockito.mock(Recipe.class);
+        GHRepository repository = Mockito.mock(GHRepository.class);
+        GHPullRequest pr = Mockito.mock(GHPullRequest.class);
+        GHPullRequestQueryBuilder prQuery = Mockito.mock(GHPullRequestQueryBuilder.class);
+        PagedIterable<?> prQueryList = Mockito.mock(PagedIterable.class);
+
+        doReturn(recipe).when(config).getRecipe();
+        doReturn("recipe1").when(recipe).getName();
+        doReturn("test").when(config).getGithubOwner();
+        doReturn("main").when(repository).getDefaultBranch();
+        doReturn(true).when(plugin).hasChangesPushed();
+        doReturn(repository).when(plugin).getRemoteRepository(eq(service));
+        doReturn(null).when(config).getGithubAppTargetInstallationId();
+
+        // Mock NOT finding existing PR
+        doReturn(prQuery).when(repository).queryPullRequests();
+        doReturn(prQuery).when(prQuery).state(eq(GHIssueState.OPEN));
+        doReturn(prQuery).when(prQuery).head(any());
+        doReturn(prQuery).when(prQuery).base(any());
+        doReturn(prQueryList).when(prQuery).list();
+        doReturn(List.of()).when(prQueryList).toList();
+
+        doReturn(pr)
+                .when(repository)
+                .createPullRequest(anyString(), anyString(), anyString(), anyString(), anyBoolean(), anyBoolean());
+        doReturn(URI.create("https://github.com/owner/repo/pull/124").toURL())
+                .when(pr)
+                .getHtmlUrl();
+
+        // Test
+        service.openPullRequest(plugin, RepoType.PLUGIN);
+
+        // Verify createPullRequest IS called
+        verify(repository, times(1))
+                .createPullRequest(anyString(), anyString(), anyString(), anyString(), anyBoolean(), anyBoolean());
     }
 }

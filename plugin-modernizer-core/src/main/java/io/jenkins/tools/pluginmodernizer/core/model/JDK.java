@@ -26,10 +26,11 @@ public enum JDK {
      */
     JAVA_8(8, true, null, "2.346.1", "1900.v9e128c991ef4"),
     JAVA_11(11, true, "2.164.1", "2.462.3", "2225.v04fa_3929c9b_5"),
-    JAVA_17(17, true, "2.346.1", null, null),
+    JAVA_17(17, true, "2.346.1", "2.544", null),
     JAVA_21(21, true, "2.426.1", null, null),
-    JAVA_25(25, true, "2.479.1", null, null);
-    // TODO: Update Java 25 compatible Since (jenkins version) if required
+
+    // TODO: Adapt when LTS is released in March 2026
+    JAVA_25(25, true, "2.516.1", null, null);
     /**
      * The major version
      */

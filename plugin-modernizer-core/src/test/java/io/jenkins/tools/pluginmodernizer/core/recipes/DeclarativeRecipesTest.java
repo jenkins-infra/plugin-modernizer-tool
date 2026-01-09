@@ -672,7 +672,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </scm>
                           <properties>
                             <jenkins-test-harness.version>2.41.1</jenkins-test-harness.version>
-                            <jenkins.version>2.479.1</jenkins.version>
+                            <jenkins.version>2.516.1</jenkins.version>
                           </properties>
                           <dependencies>
                             <dependency>
@@ -1104,7 +1104,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         <jenkins-test-harness.version>2.41.1</jenkins-test-harness.version>
                         <revision>2.17.0</revision>
                         <changelist>999999-SNAPSHOT</changelist>
-                        <jenkins.version>2.479.1</jenkins.version>
+                        <jenkins.version>2.516.1</jenkins.version>
                       </properties>
                       <repositories>
                         <repository>
@@ -2052,7 +2052,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                               </scm>
                               <properties>
                                 <jenkins-test-harness.version>%s</jenkins-test-harness.version>
-                                <jenkins.version>2.504.3</jenkins.version>
+                                <jenkins.version>%s</jenkins.version>
                               </properties>
                               <dependencies>
                                 <dependency>
@@ -2078,6 +2078,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             """.formatted(
                                 Settings.getJenkinsParentVersion(),
                                 Settings.getJenkinsTestHarnessVersion(),
+                                Settings.getJenkinsMinimumVersion(),
                                 Settings.getWiremockVersion())),
                 srcMainResources(
                         // language=java
@@ -2305,7 +2306,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <properties>
                             <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                            <jenkins.baseline>2.504</jenkins.baseline>
+                            <jenkins.baseline>2.516</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                           </properties>
                           <dependencyManagement>
@@ -2519,7 +2520,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <properties>
                     <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.504</jenkins.baseline>
+                    <jenkins.baseline>2.516</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
@@ -2841,7 +2842,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>5.1</version>
+                    <version>6.2105.v7d6ddb_2da_0d2</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2850,7 +2851,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.504.3</jenkins.version>
+                    <jenkins.version>2.516.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2924,7 +2925,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>5.1</version>
+                    <version>6.2105.v7d6ddb_2da_0d2</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -2933,7 +2934,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.504.3</jenkins.version>
+                    <jenkins.version>2.516.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -3035,7 +3036,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.504</jenkins.baseline>
+                    <jenkins.baseline>2.516</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
@@ -3043,14 +3044,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <dependency>
                         <groupId>io.jenkins.tools.bom</groupId>
                         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                        <version>4969.v6ffa_18d90c9f</version>
+                        <version>5857.vb_f3dd0731f44</version>
                         <scope>import</scope>
                         <type>pom</type>
                       </dependency>
                       <dependency>
                         <groupId>org.jenkins-ci.tools</groupId>
                         <artifactId>maven-hpi-plugin</artifactId>
-                        <version>3.61</version>
+                        <version>3.1787.vd08d76c755ef</version>
                       </dependency>
                     </dependencies>
                   </dependencyManagement>
@@ -3092,7 +3093,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.504</jenkins.baseline>
+                    <jenkins.baseline>2.516</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
@@ -3100,14 +3101,14 @@ public class DeclarativeRecipesTest implements RewriteTest {
                       <dependency>
                         <groupId>io.jenkins.tools.bom</groupId>
                         <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                        <version>4969.v6ffa_18d90c9f</version>
+                        <version>5857.vb_f3dd0731f44</version>
                         <scope>import</scope>
                         <type>pom</type>
                       </dependency>
                       <dependency>
                         <groupId>org.jenkins-ci.tools</groupId>
                         <artifactId>maven-hpi-plugin</artifactId>
-                        <version>3.61</version>
+                        <version>3.1787.vd08d76c755ef</version>
                       </dependency>
                     </dependencies>
                   </dependencyManagement>
@@ -3115,6 +3116,18 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
                       <artifactId>asm-api</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>commons-compress-api</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>commons-lang3-api</artifactId>
+                    </dependency>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>commons-text-api</artifactId>
                     </dependency>
                     <dependency>
                       <groupId>io.jenkins.plugins</groupId>
@@ -3429,12 +3442,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         Assert.assertEquals(0, tempFile.length());
                     }
 
-                    @Test
-                    public void testInstanceOf() {
-                        Object obj = new String();
-                        Assert.assertTrue(obj instanceof java.lang.String);
-                    }
-
                     @Test(expected = IllegalArgumentException.class)
                     public void testException() {
                         throw new IllegalArgumentException("Expected");
@@ -3504,12 +3511,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         File tempFile = newFile(tempFolder, "test.txt");
                         assertTrue(tempFile.exists(), "File should exist");
                         assertEquals(0, tempFile.length());
-                    }
-
-                    @Test
-                    void testInstanceOf() {
-                        Object obj = new String();
-                        assertInstanceOf(java.lang.String.class, obj);
                     }
 
                     @Test
@@ -3603,7 +3604,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <parent>
                     <groupId>org.jenkins-ci.plugins</groupId>
                     <artifactId>plugin</artifactId>
-                    <version>%s</version>
+                    <version>5.2102.v5f5fe09fccf1</version>
                     <relativePath />
                   </parent>
                   <groupId>io.jenkins.plugins</groupId>
@@ -3639,7 +3640,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     </pluginRepository>
                   </pluginRepositories>
                 </project>
-                """.formatted(Settings.getJenkinsParentVersion())));
+                """));
     }
 
     @Test

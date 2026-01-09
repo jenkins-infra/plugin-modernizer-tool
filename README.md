@@ -77,7 +77,7 @@ With over 2000 plugins in Jenkins, keeping them updated manually is a daunting t
 
 ### Requirements
 - Maven version 3.9.12 or later, or mvnd
-- Java 21 ([Eclipse Temurin](https://adoptium.net/temurin/releases) recommended)
+- Java 25 ([Eclipse Temurin](https://adoptium.net/temurin/releases) recommended)
 
 ### Build
 
@@ -278,6 +278,8 @@ source <(plugin-modernizer generate-completion)
 
 
 - `--github-api-url` (optional) Set the URL for the GitHub API. If not set via CLI option or environment variable, will default to `https://api.github.com`. Automatically set if `GH_HOST` environment variable is set.
+
+- `--on-duplicate-pr` (optional) Strategy to apply when a pull request already exists. Default: `SKIP`. Strategies include: `SKIP` (do nothing if a matching PR exists), `UPDATE` (update the title and body of the existing PR), and `IGNORE` (create a new PR regardless of existing ones - legacy behavior).
 
 ## Plugin Input Format
 

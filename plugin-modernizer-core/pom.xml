@@ -147,13 +147,6 @@
     <dependency>
       <groupId>org.openrewrite.recipe</groupId>
       <artifactId>rewrite-migrate-java</artifactId>
-      <exclusions>
-        <!-- Until migration to Java 25 is done -->
-        <exclusion>
-          <groupId>org.openrewrite</groupId>
-          <artifactId>rewrite-java-25</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.openrewrite.recipe</groupId>
@@ -249,7 +242,7 @@
                 <artifactItem>
                   <groupId>org.kohsuke.stapler</groupId>
                   <artifactId>stapler</artifactId>
-                  <version>2061.v3949245133a_f</version>
+                  <version>2065.v7db_c1fcf0a_d0</version>
                 </artifactItem>
                 <dependency>
                   <groupId>jakarta.servlet</groupId>

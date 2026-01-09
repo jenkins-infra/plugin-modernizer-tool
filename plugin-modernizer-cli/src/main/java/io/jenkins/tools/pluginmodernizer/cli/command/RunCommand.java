@@ -68,6 +68,12 @@ public class RunCommand implements ICommand {
             description = "Override the default behavior to allow PRs to plugins marked as opt-out")
     private boolean overrideOptOutPlugins;
 
+    @CommandLine.Option(
+            names = {"--on-duplicate-pr"},
+            description = "Strategy to apply when a pull request already exists. Default: SKIP.",
+            defaultValue = "SKIP")
+    private Config.DuplicatePrStrategy duplicatePrStrategy;
+
     /**
      * Environment options
      */
@@ -100,6 +106,7 @@ public class RunCommand implements ICommand {
                 .withRemoveForks(removeForks)
                 .withSkipMetadata(skipMetadata)
                 .withOverrideOptOutPlugins(overrideOptOutPlugins)
+                .withDuplicatePrStrategy(duplicatePrStrategy)
                 .build();
     }
 

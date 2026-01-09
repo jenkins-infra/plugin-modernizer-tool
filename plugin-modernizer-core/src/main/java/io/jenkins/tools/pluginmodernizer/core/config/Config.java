@@ -37,6 +37,7 @@ public class Config {
     private final Long githubAppSourceInstallationId;
     private final Long githubAppTargetInstallationId;
     private final Path sshPrivateKey;
+    private final DuplicatePrStrategy duplicatePrStrategy;
 
     private Config(
             String version,
@@ -61,7 +62,8 @@ public class Config {
             boolean dryRun,
             boolean draft,
             boolean removeForks,
-            boolean allowDeprecatedPlugins) {
+            boolean allowDeprecatedPlugins,
+            DuplicatePrStrategy duplicatePrStrategy) {
         this.version = version;
         this.githubOwner = githubOwner;
         this.githubAppId = githubAppId;
@@ -85,6 +87,7 @@ public class Config {
         this.draft = draft;
         this.removeForks = removeForks;
         this.allowDeprecatedPlugins = allowDeprecatedPlugins;
+        this.duplicatePrStrategy = duplicatePrStrategy;
     }
 
     public String getVersion() {
@@ -120,7 +123,7 @@ public class Config {
     }
 
     /**
-     * Return if the current configuration is only fetching metadata which will skip compile and verify steps
+     * Return if only fetching metadata (skips compile/verify).
      * @return True if only fetching metadata
      */
     public boolean isFetchMetadataOnly() {
@@ -128,7 +131,7 @@ public class Config {
     }
 
     /**
-     * Return if the execution the recipe will be skipped
+     * Return if recipe execution will be skipped.
      * @return True if the recipe will skip verification
      */
     public boolean isSkipVerification() {
@@ -205,6 +208,16 @@ public class Config {
         return allowDeprecatedPlugins;
     }
 
+    public DuplicatePrStrategy getDuplicatePrStrategy() {
+        return duplicatePrStrategy;
+    }
+
+    public enum DuplicatePrStrategy {
+        SKIP,
+        UPDATE,
+        IGNORE
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -233,6 +246,7 @@ public class Config {
         private boolean draft = false;
         public boolean removeForks = false;
         private boolean allowDeprecatedPlugins = false;
+        private DuplicatePrStrategy duplicatePrStrategy = DuplicatePrStrategy.SKIP;
 
         public Builder withVersion(String version) {
             this.version = version;
@@ -367,6 +381,11 @@ public class Config {
             return this;
         }
 
+        public Builder withDuplicatePrStrategy(DuplicatePrStrategy duplicatePrStrategy) {
+            this.duplicatePrStrategy = duplicatePrStrategy;
+            return this;
+        }
+
         public Config build() {
             return new Config(
                     version,
@@ -391,7 +410,8 @@ public class Config {
                     dryRun,
                     draft,
                     removeForks,
-                    allowDeprecatedPlugins);
+                    allowDeprecatedPlugins,
+                    duplicatePrStrategy);
         }
     }
 }
