@@ -9,6 +9,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.utils.JdkFetcher;
+import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -227,12 +229,69 @@ public class MavenInvoker {
     private InvocationRequest createInvocationRequest(Plugin plugin, String... args) {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setMavenHome(config.getMavenHome().toFile());
-        request.setPomFile(plugin.getLocalRepository().resolve("pom.xml").toFile());
+        request.setPomFile(resolvePom(plugin));
         request.addArgs(List.of(args));
         if (config.isDebug()) {
             request.addArg("-X");
         }
         return request;
+    }
+
+    /**
+     * Resolve the POM file to use for the plugin
+     * @param plugin The plugin
+     * @return The POM file
+     */
+    private java.io.File resolvePom(Plugin plugin) {
+        Path rootPom = plugin.getLocalRepository().resolve("pom.xml");
+        if (!Files.exists(rootPom)) {
+            return rootPom.toFile(); // Let validation fail later
+        }
+
+        // Check root first
+        if (isPluginPom(rootPom, plugin.getName())) {
+            LOG.debug("Root POM matches plugin {}", plugin.getName());
+            return rootPom.toFile();
+        }
+
+        // Search in subdirectories (depth 2)
+        try (Stream<Path> stream = Files.find(
+                plugin.getLocalRepository(),
+                2,
+                (path, attr) -> path.getFileName().toString().equals("pom.xml") && !path.equals(rootPom))) {
+            return stream.filter(path -> isPluginPom(path, plugin.getName()))
+                    .findFirst()
+                    .map(Path::toFile)
+                    .orElseGet(() -> {
+                        LOG.debug("No matching submodule POM found for {}, using root POM", plugin.getName());
+                        return rootPom.toFile();
+                    });
+        } catch (IOException e) {
+            LOG.warn("Failed to search for sub-module POMs", e);
+            return rootPom.toFile();
+        }
+    }
+
+    private boolean isPluginPom(Path pomPath, String pluginName) {
+        try {
+            StaticPomParser parser = new StaticPomParser(pomPath.toString());
+            String artifactId = parser.getArtifactId();
+            String packaging = parser.getPackaging();
+
+            // Perfect match on artifactId
+            if (pluginName.equals(artifactId)) {
+                return true;
+            }
+
+            // HPI/JPI packaging is a strong strong indicator
+            if ("hpi".equals(packaging) || "jpi".equals(packaging)) {
+                return true;
+            }
+
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
