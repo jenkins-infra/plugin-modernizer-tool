@@ -51,7 +51,7 @@
     <openrewrite.maven.plugin.version>6.27.1</openrewrite.maven.plugin.version>
     <micrometer.version>1.16.2</micrometer.version>
     <slf4j.version>2.0.17</slf4j.version>
-    <logback.version>1.5.24</logback.version>
+    <logback.version>1.5.25</logback.version>
     <picocli.version>4.7.6</picocli.version>
     <common.io.version>2.21.0</common.io.version>
     <common.lang3.version>3.20.0</common.lang3.version>
