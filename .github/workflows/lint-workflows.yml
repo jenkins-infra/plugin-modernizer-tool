@@ -13,7 +13,7 @@ jobs:
           submodules: false
 
       - name: Lint GitHub Actions workflows
-        uses: super-linter/super-linter@v8.3.2
+        uses: super-linter/super-linter@v8.4.0
         env:
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_GITHUB_ACTIONS: true
