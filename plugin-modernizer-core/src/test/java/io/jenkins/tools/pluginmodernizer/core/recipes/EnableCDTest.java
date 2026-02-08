@@ -103,6 +103,18 @@ class EnableCDTest implements RewriteTest {
                       <properties>
                         <jenkins.version>2.452.4</jenkins.version>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """, """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -130,6 +142,18 @@ class EnableCDTest implements RewriteTest {
                         <jenkins.version>2.452.4</jenkins.version>
                         <changelist>999999-SNAPSHOT</changelist>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """),
                 text(null, "-Dchangelist.format=%d.v%s", spec -> spec.path(ArchetypeCommonFile.MAVEN_CONFIG.getPath())),
@@ -159,6 +183,18 @@ class EnableCDTest implements RewriteTest {
                       <properties>
                         <jenkins.version>2.452.4</jenkins.version>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """, """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -179,6 +215,18 @@ class EnableCDTest implements RewriteTest {
                         <jenkins.version>2.452.4</jenkins.version>
                         <changelist>999999-SNAPSHOT</changelist>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """),
                 text(null, "-Dchangelist.format=%d.v%s", spec -> spec.path(ArchetypeCommonFile.MAVEN_CONFIG.getPath())),
@@ -209,6 +257,18 @@ class EnableCDTest implements RewriteTest {
                         <changelist>999999-SNAPSHOT</changelist>
                         <jenkins.version>2.452.4</jenkins.version>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """),
                 yaml("existing: content", spec -> spec.path(ArchetypeCommonFile.WORKFLOW_CD.getPath())),
@@ -237,6 +297,18 @@ class EnableCDTest implements RewriteTest {
                       <properties>
                         <jenkins.version>2.452.4</jenkins.version>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """, """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -256,6 +328,18 @@ class EnableCDTest implements RewriteTest {
                         <jenkins.version>2.452.4</jenkins.version>
                         <changelist>999999-SNAPSHOT</changelist>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """),
                 text(
@@ -284,6 +368,18 @@ class EnableCDTest implements RewriteTest {
                       <artifactId>test-plugin</artifactId>
                       <version>1.0-SNAPSHOT</version>
                       <packaging>hpi</packaging>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """));
     }
@@ -310,6 +406,18 @@ class EnableCDTest implements RewriteTest {
                       <properties>
                         <jenkins.version>2.440.3</jenkins.version>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """, """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -329,6 +437,18 @@ class EnableCDTest implements RewriteTest {
                         <jenkins.version>2.440.3</jenkins.version>
                         <changelist>999999-SNAPSHOT</changelist>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """),
                 // language=yaml
@@ -376,6 +496,18 @@ class EnableCDTest implements RewriteTest {
                         <revision>1.1.42</revision>
                         <changelist>-SNAPSHOT</changelist>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """, """
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -396,6 +528,18 @@ class EnableCDTest implements RewriteTest {
                         <jenkins.version>2.452.4</jenkins.version>
                         <changelist>999999-SNAPSHOT</changelist>
                       </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
                     </project>
                     """),
                 text(null, "-Dchangelist.format=%d.v%s", spec -> spec.path(ArchetypeCommonFile.MAVEN_CONFIG.getPath())),
