@@ -170,6 +170,12 @@ public class Settings {
                         new ModernizerException("io.jenkins.tools.pluginmodernizer.FetchMetadata recipe not found"));
     }
 
+    /**
+     * Get the default Maven home path.
+     * Checks environment variables only.
+     *
+     * @return The Maven home path or null if not configured
+     */
     private static Path getDefaultMavenHome() {
         String mavenHome = System.getenv("MAVEN_HOME");
         if (mavenHome == null) {

@@ -10,11 +10,16 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.utils.JdkFetcher;
 import jakarta.inject.Inject;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
@@ -47,6 +52,8 @@ public class MavenInvoker {
     @Inject
     private Invoker invoker;
 
+    private static final String MAVEN_HOME_PREFIX = "Maven home: ";
+
     /**
      * Get the maven version
      * @return The maven version
@@ -54,8 +61,13 @@ public class MavenInvoker {
     public @Nullable ComparableVersion getMavenVersion() {
         AtomicReference<String> version = new AtomicReference<>();
         try {
+            Path mavenHome = resolveMavenHome();
+            if (mavenHome == null) {
+                LOG.error("Failed to check for maven version. Make sure Maven and Java are installed correctly.");
+                return null;
+            }
             InvocationRequest request = new DefaultInvocationRequest();
-            request.setMavenHome(config.getMavenHome().toFile());
+            request.setMavenHome(mavenHome.toFile());
             request.setBatchMode(true);
             request.addArg("-q");
             request.addArg("--version");
@@ -181,13 +193,17 @@ public class MavenInvoker {
      * @throws IllegalArgumentException if the Maven home directory is not set or invalid.
      */
     public void validateMaven() {
-        Path mavenHome = config.getMavenHome();
+        Path mavenHome = resolveMavenHome();
         if (mavenHome == null) {
             throw new ModernizerException(
-                    "Neither MAVEN_HOME nor M2_HOME environment variables are set. Or use --maven-home if running from CLI");
+                    "Could not find Maven. Neither MAVEN_HOME nor M2_HOME environment variables are set, "
+                            + "and 'mvn' could not be found on the system PATH. Use --maven-home if running from CLI.");
         }
 
-        if (!Files.isDirectory(mavenHome) || !Files.isExecutable(mavenHome.resolve("bin/mvn"))) {
+        if (!Files.isDirectory(mavenHome)) {
+            throw new ModernizerException("Invalid Maven home directory at '%s'.".formatted(mavenHome));
+        }
+        if (!isMavenExecutablePresent(mavenHome)) {
             throw new ModernizerException("Invalid Maven home directory at '%s'.".formatted(mavenHome));
         }
 
@@ -198,6 +214,88 @@ public class MavenInvoker {
         if (!Files.isDirectory(mavenLocalRepo)) {
             throw new ModernizerException("Invalid Maven local repository at '%s'.".formatted(mavenLocalRepo));
         }
+    }
+
+    /**
+     * Check if Maven executable is present in the given Maven home directory.
+     * Works on both Windows ({@code mvn.cmd}) and Unix ({@code mvn}).
+     *
+     * @param mavenHome The Maven home directory
+     * @return true if the Maven executable is present
+     */
+    private static boolean isMavenExecutablePresent(Path mavenHome) {
+        Path mvnUnix = mavenHome.resolve("bin/mvn");
+        if (Files.isExecutable(mvnUnix)) {
+            return true;
+        }
+        boolean isWindows =
+                System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+        if (isWindows) {
+            Path mvnWindows = mavenHome.resolve("bin/mvn.cmd");
+            return Files.exists(mvnWindows) && Files.isReadable(mvnWindows);
+        }
+        return false;
+    }
+
+    private @Nullable Path resolveMavenHome() {
+        Path mavenHome = config.getMavenHome();
+        if (mavenHome != null) {
+            return mavenHome;
+        }
+        return detectMavenHomeFromPath();
+    }
+
+    /**
+     * Attempts to detect Maven installation by running the {@code mvn} executable on the system PATH.
+     * Works on both Windows ({@code mvn.cmd}) and Linux/Mac ({@code mvn}).
+     * Parses the "Maven home:" line from {@code mvn --version} output.
+     *
+     * @return The Maven home path if detected, or null if auto-detection fails
+     */
+    private static @Nullable Path detectMavenHomeFromPath() {
+        boolean isWindows =
+                System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win");
+        String mvnCommand = isWindows ? "mvn.cmd" : "mvn";
+
+        Process process = null;
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, "--version");
+            processBuilder.redirectErrorStream(true);
+            process = processBuilder.start();
+
+            try (BufferedReader reader =
+                    new BufferedReader(
+                            new InputStreamReader(
+                                    process.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(MAVEN_HOME_PREFIX)) {
+                        String homePath = line.substring(MAVEN_HOME_PREFIX.length()).trim();
+                        if (!homePath.isEmpty()) {
+                            Path detectedMavenHome = Path.of(homePath);
+                            if (Files.isDirectory(detectedMavenHome)) {
+                                return detectedMavenHome;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (!process.waitFor(10, TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+            }
+        } catch (IOException e) {
+            LOG.debug("Could not auto-detect Maven from PATH: {}", e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            LOG.debug("Interrupted while auto-detecting Maven: {}", e.getMessage());
+        } finally {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
+        }
+        return null;
     }
 
     /**
@@ -228,7 +326,13 @@ public class MavenInvoker {
      */
     private InvocationRequest createInvocationRequest(Plugin plugin, String... args) {
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setMavenHome(config.getMavenHome().toFile());
+        Path mavenHome = resolveMavenHome();
+        if (mavenHome == null) {
+            throw new ModernizerException(
+                    "Could not find Maven. Neither MAVEN_HOME nor M2_HOME environment variables are set, "
+                            + "and 'mvn' could not be found on the system PATH. Use --maven-home if running from CLI.");
+        }
+        request.setMavenHome(mavenHome.toFile());
         request.setPomFile(plugin.getLocalRepository().resolve("pom.xml").toFile());
         request.addArgs(List.of(args));
         if (config.isDebug()) {
