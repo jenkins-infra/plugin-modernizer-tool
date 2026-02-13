@@ -5,27 +5,14 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": "io.jenkins.plugin-modernizer:plugin-modernizer-pom",
-      "enabled": false
-    },
-    {
       "matchFileNames": ["**/src/test/resources/**"],
       "enabled": false
     },
     {
-      "matchPackageNames": ["/jakarta.inject.*/"],
-      "enabled": false
-    },
-    {
-      "matchPackageNames": ["/com.fasterxml.jackson.*/"],
-      "enabled": false
-    },
-    {
-      "matchPackageNames": ["/org.junit.*/"],
-      "enabled": false
-    },
-    {
-      "matchPackageNames": ["/org.jenkins.*/"],
+      "matchPackageNames": [
+        "io.jenkins.plugin-modernizer:plugin-modernizer-pom",
+        "io.jenkins.plugin-modernizer:plugin-modernizer-core"
+      ],
       "enabled": false
     }
   ]
