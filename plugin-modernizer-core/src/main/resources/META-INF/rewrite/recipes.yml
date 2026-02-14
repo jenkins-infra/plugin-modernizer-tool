@@ -814,3 +814,11 @@ recipeList:
         jobs:
           close-bom-if-passing:
             uses: jenkins-infra/github-reusable-workflows/.github/workflows/close-bom-if-passing.yml@v1
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.EnableCD
+displayName: Enable Continuous Delivery (JEP-229)
+description: Enable Continuous Delivery using GitHub Actions reusable workflows for automated releases. See https://www.jenkins.io/doc/developer/publishing/releasing-cd/.
+tags: ['chore']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.EnableCD
