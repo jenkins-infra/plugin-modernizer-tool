@@ -1,7 +1,9 @@
 package io.jenkins.tools.pluginmodernizer.core.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
@@ -176,6 +178,16 @@ public class JDKTest {
         assertEquals(2, JDK.get("2.550.1").size());
         assertEquals(JDK.JAVA_21, JDK.get("2.550.1").get(0));
         assertEquals(JDK.JAVA_25, JDK.get("2.550.1").get(1));
+
+        // Java 25 compatibility: Before 2.541.1, JDK 25 should not be available
+        assertEquals(2, JDK.get("2.516.3").size());
+        assertEquals(JDK.JAVA_17, JDK.get("2.516.3").get(0));
+        assertEquals(JDK.JAVA_21, JDK.get("2.516.3").get(1));
+
+        // Java 25 compatibility: From 2.541.1 onwards, JDK 25 is supported
+        assertTrue(JDK.JAVA_25.supported("2.541.1"));
+        assertTrue(JDK.JAVA_25.supported("2.550.1"));
+        assertFalse(JDK.JAVA_25.supported("2.516.3"));
     }
 
     @Test
