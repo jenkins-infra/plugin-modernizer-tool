@@ -19,7 +19,7 @@ This PR enables [JEP-229 Continuous Delivery](https://www.jenkins.io/doc/develop
 
 ### Changes
 
-- Added `.github/workflows/cd.yaml` workflow for automated releases
+- Added `.github/workflows/cd.yml` workflow for automated releases
 - Updated `.mvn/maven.config` with `-Dchangelist.format=%d.v%s` for CD versioning
 - Modified `pom.xml` to use `${'$'}{changelist}` version format with `999999-SNAPSHOT` value
 - Configured Dependabot to keep GitHub Actions dependencies up to date

@@ -4,7 +4,6 @@ import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty;
 import io.jenkins.tools.pluginmodernizer.core.recipes.EnableCD;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Tree;
 import org.openrewrite.TreeVisitor;
@@ -23,7 +22,6 @@ import org.slf4j.LoggerFactory;
 public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
 
     private static final Logger LOG = LoggerFactory.getLogger(EnableCDVisitor.class);
-    private static final Pattern VERSION_PATTERN = Pattern.compile("^(\\d+(?:\\.\\d+)*)(.*|$)");
 
     private final EnableCD.ConfigState state;
 
@@ -36,7 +34,7 @@ public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
         // Handle POM transformations
         if (tree instanceof Xml.Document) {
             Xml.Document doc = (Xml.Document) tree;
-            if (doc.getSourcePath().endsWith("pom.xml")) {
+            if (ArchetypeCommonFile.POM.same(doc.getSourcePath())) {
                 return new PomVisitor(state).visitNonNull(tree, ctx);
             }
         }
@@ -78,16 +76,22 @@ public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
      * Update maven.config to add CD format
      */
     private PlainText updateMavenConfig(PlainText mavenConfig) {
-        // Don't update if POM already uses valid CD format and CD workflow exists
-        // This means the plugin is already fully configured for CD - respect existing configuration
-        if (state.isPomAlreadyUsesCDFormat() && state.isCdWorkflowExists()) {
-            LOG.debug("POM already uses valid CD format and CD workflow exists. Skipping maven.config update.");
-            return mavenConfig;
-        }
-
         String content = mavenConfig.getText();
 
         // Check if changelist.format is already present
+        if (content.contains("-Dchangelist.format")) {
+            LOG.debug("maven.config already contains changelist.format, skipping update");
+            return mavenConfig;
+        }
+
+        // Don't add if POM already uses valid CD format and CD workflow exists
+        // This means the plugin is already fully configured for CD
+        if (state.isPomAlreadyUsesCDFormat() && state.isCdWorkflowExists()) {
+            LOG.debug("POM already uses CD format and workflow exists. Skipping maven.config update.");
+            return mavenConfig;
+        }
+
+        // Check again if changelist.format is already present (defensive)
         if (content.contains("-Dchangelist.format")) {
             LOG.debug("maven.config already contains changelist.format, skipping update");
             return mavenConfig;
@@ -122,9 +126,10 @@ public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
         LOG.debug("Adding github-actions section to dependabot.yml");
 
         // Append the github-actions template to the content
-        String updatedContent = content.trim() + "\n" + EnableCD.DEPENDABOT_UPDATE_TEMPLATE.trim();
+        // Note: Keep template formatting intact (don't trim) to preserve YAML indentation
+        String updatedContent = content.trim() + "\n" + EnableCD.DEPENDABOT_UPDATE_TEMPLATE;
 
-        // Convert to PlainText instead of re-parsing as YAML to ensure the change is recognized
+        // Return as PlainText to ensure the change is recognized by OpenRewrite
         return PlainText.builder()
                 .sourcePath(dependabot.getSourcePath())
                 .text(updatedContent)
@@ -152,7 +157,7 @@ public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
                 .replaceAll("(?m)^\\s*tag-template:.*\\R?", "")
                 .replaceAll("(?m)^\\s*version-template:.*\\R?", "");
 
-        // Convert to PlainText to ensure the change is recognized
+        // Return as PlainText to ensure the change is recognized by OpenRewrite
         return PlainText.builder()
                 .sourcePath(releaseDrafter.getSourcePath())
                 .text(updatedContent)

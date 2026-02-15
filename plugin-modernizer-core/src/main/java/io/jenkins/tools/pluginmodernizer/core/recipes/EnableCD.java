@@ -86,10 +86,10 @@ public class EnableCD extends ScanningRecipe<EnableCD.ConfigState> {
 
     @Language("yaml")
     public static final String DEPENDABOT_UPDATE_TEMPLATE = """
-        - package-ecosystem: github-actions
-          directory: /
-          schedule:
-            interval: monthly
+          - package-ecosystem: github-actions
+            directory: /
+            schedule:
+              interval: monthly
         """;
 
     @Override
@@ -145,21 +145,24 @@ public class EnableCD extends ScanningRecipe<EnableCD.ConfigState> {
                                 root.getChild("version").ifPresent(versionTag -> {
                                     String currentVersion =
                                             versionTag.getValue().orElse("");
-                                    
+
                                     boolean isValidCDFormat = currentVersion.equals("${changelist}")
                                             || currentVersion.equals("${revision}.${changelist}")
                                             || currentVersion.equals("${revision}-${changelist}");
-                                    
+
                                     if (isValidCDFormat) {
                                         LOG.debug("POM version '{}' already uses valid CD format.", currentVersion);
-                                        
+
                                         // Verify changelist property exists with SNAPSHOT value
                                         root.getChild("properties").ifPresent(props -> {
                                             if (!props.getChildren("changelist").isEmpty()) {
-                                                String changelistValue = props.getChildren("changelist").get(0)
-                                                        .getValue().orElse("");
+                                                String changelistValue = props.getChildren("changelist")
+                                                        .get(0)
+                                                        .getValue()
+                                                        .orElse("");
                                                 if (changelistValue.contains("SNAPSHOT")) {
-                                                    LOG.debug("POM has valid CD format with SNAPSHOT changelist. Marking as already using CD.");
+                                                    LOG.debug(
+                                                            "POM has valid CD format with SNAPSHOT changelist. Marking as already using CD.");
                                                     state.setPomAlreadyUsesCDFormat(true);
                                                 }
                                             }
