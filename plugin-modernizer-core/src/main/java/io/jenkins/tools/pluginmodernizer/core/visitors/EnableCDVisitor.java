@@ -78,9 +78,10 @@ public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
      * Update maven.config to add CD format
      */
     private PlainText updateMavenConfig(PlainText mavenConfig) {
-        // Don't update if POM already uses CD format and workflow exists
+        // Don't update if POM already uses valid CD format and CD workflow exists
+        // This means the plugin is already fully configured for CD - respect existing configuration
         if (state.isPomAlreadyUsesCDFormat() && state.isCdWorkflowExists()) {
-            LOG.debug("POM already uses CD format and workflow exists. Skipping maven.config update.");
+            LOG.debug("POM already uses valid CD format and CD workflow exists. Skipping maven.config update.");
             return mavenConfig;
         }
 
@@ -185,36 +186,41 @@ public class EnableCDVisitor extends TreeVisitor<Tree, ExecutionContext> {
 
             state.setPomHasProperties(true);
 
-            // Check if already using CD format
+            // Check if already using valid CD format
             Optional<Xml.Tag> versionTag = root.getChild("version");
             if (versionTag.isPresent()) {
                 String currentVersion = versionTag.get().getValue().orElse("");
 
-                // If already using ${changelist} format, skip
-                if (currentVersion.equals("${changelist}")) {
-                    // Check if changelist property already has the correct value
+                boolean isValidCDFormat = currentVersion.equals("${changelist}")
+                        || currentVersion.equals("${revision}.${changelist}")
+                        || currentVersion.equals("${revision}-${changelist}");
+
+                if (isValidCDFormat) {
+                    // Check if changelist property has SNAPSHOT value
                     Optional<Xml.Tag> changelistProp = propertiesTag.get().getChildren("changelist").stream()
                             .findFirst();
                     if (changelistProp.isPresent()) {
                         String changelistValue = changelistProp.get().getValue().orElse("");
-                        if (changelistValue.equals("999999-SNAPSHOT")) {
-                            LOG.info("POM already uses correct CD version format. Skipping transformation.");
+                        if (changelistValue.contains("SNAPSHOT")) {
+                            LOG.info(
+                                    "POM already uses valid CD version format '{}' with SNAPSHOT changelist. Skipping transformation.",
+                                    currentVersion);
                             state.setPomAlreadyUsesCDFormat(true);
                             return document;
                         }
                     }
                 }
 
-                // Always use just ${changelist} format for CD (JEP-229)
-                LOG.debug("Transforming version from {} to ${{changelist}}", currentVersion);
+                // Transform to ${changelist} format (JEP-229 recommended)
+                LOG.debug("Transforming version from '{}' to ${{changelist}}", currentVersion);
                 document = (Xml.Document)
                         new ChangeTagValueVisitor<>(versionTag.get(), "${changelist}").visitNonNull(document, ctx);
 
-                // Remove revision property if it exists
+                // Remove revision property since we're using simple ${changelist} format
                 Optional<Xml.Tag> revisionProperty =
                         propertiesTag.get().getChildren("revision").stream().findFirst();
                 if (revisionProperty.isPresent()) {
-                    LOG.debug("Removing revision property from POM");
+                    LOG.debug("Removing revision property (converting to simple ${{changelist}} format)");
                     doAfterVisit(new org.openrewrite.xml.RemoveContentVisitor<>(revisionProperty.get(), true, true));
                 }
 

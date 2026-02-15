@@ -545,4 +545,94 @@ class EnableCDTest implements RewriteTest {
                 text(null, "-Dchangelist.format=%d.v%s", spec -> spec.path(ArchetypeCommonFile.MAVEN_CONFIG.getPath())),
                 yaml(null, EXPECTED_CD_WORKFLOW, spec -> spec.path(ArchetypeCommonFile.WORKFLOW_CD.getPath())));
     }
+
+    @Test
+    void shouldNotModifyPluginAlreadyUsingRevisionDashChangelist() {
+        // Test for API plugins like asm-api that use ${revision}-${changelist} format
+        // This is a valid CD format and should NOT be modified
+        rewriteRun(
+                spec -> spec.recipe(new EnableCD()),
+                // language=xml
+                pomXml("""
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                      <modelVersion>4.0.0</modelVersion>
+                      <parent>
+                        <groupId>org.jenkins-ci.plugins</groupId>
+                        <artifactId>plugin</artifactId>
+                        <version>4.87</version>
+                        <relativePath />
+                      </parent>
+                      <artifactId>asm-api</artifactId>
+                      <version>${revision}-${changelist}</version>
+                      <packaging>hpi</packaging>
+                      <name>ASM API Plugin</name>
+                      <properties>
+                        <revision>9.9.1</revision>
+                        <changelist>999999-SNAPSHOT</changelist>
+                        <jenkins.version>2.452.4</jenkins.version>
+                      </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
+                    </project>
+                    """),
+                text(null, "-Dchangelist.format=%d.v%s", spec -> spec.path(ArchetypeCommonFile.MAVEN_CONFIG.getPath())),
+                yaml(null, EXPECTED_CD_WORKFLOW, spec -> spec.path(ArchetypeCommonFile.WORKFLOW_CD.getPath())));
+    }
+
+    @Test
+    void shouldNotModifyPluginAlreadyUsingRevisionDotChangelist() {
+        // Test for plugins that use ${revision}.${changelist} format
+        // This is a valid CD format and should NOT be modified
+        rewriteRun(
+                spec -> spec.recipe(new EnableCD()),
+                // language=xml
+                pomXml("""
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                      <modelVersion>4.0.0</modelVersion>
+                      <parent>
+                        <groupId>org.jenkins-ci.plugins</groupId>
+                        <artifactId>plugin</artifactId>
+                        <version>4.87</version>
+                        <relativePath />
+                      </parent>
+                      <artifactId>test-plugin</artifactId>
+                      <version>${revision}.${changelist}</version>
+                      <packaging>hpi</packaging>
+                      <name>Test Plugin</name>
+                      <properties>
+                        <revision>1.0</revision>
+                        <changelist>999999-SNAPSHOT</changelist>
+                        <jenkins.version>2.452.4</jenkins.version>
+                      </properties>
+                      <repositories>
+                        <repository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                      </repositories>
+                      <pluginRepositories>
+                        <pluginRepository>
+                          <id>repo.jenkins-ci.org</id>
+                          <url>https://repo.jenkins-ci.org/public/</url>
+                        </pluginRepository>
+                      </pluginRepositories>
+                    </project>
+                    """),
+                text(null, "-Dchangelist.format=%d.v%s", spec -> spec.path(ArchetypeCommonFile.MAVEN_CONFIG.getPath())),
+                yaml(null, EXPECTED_CD_WORKFLOW, spec -> spec.path(ArchetypeCommonFile.WORKFLOW_CD.getPath())));
+    }
 }
