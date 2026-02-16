@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
@@ -155,6 +154,14 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
 
             @Override
             public J.MethodDeclaration visitMethodDeclaration(J.MethodDeclaration method, ExecutionContext ctx) {
+                // Skip methods inside anonymous classes
+                // to avoid incorrectly transforming methods that don't directly extend SecurityRealm
+                boolean isInsideAnonymousClass =
+                        getCursor().getPathAsStream().anyMatch(J.NewClass.class::isInstance);
+                if (isInsideAnonymousClass) {
+                    return super.visitMethodDeclaration(method, ctx);
+                }
+
                 // migration of changing the getAuthorities() return type from GrantedAuthority[] to
                 // Collection<GrantedAuthority>
                 // Identify methods named `getAuthorities()`
@@ -298,6 +305,7 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                 // Realm
                 MethodMatcher methodMatcher =
                         new MethodMatcher("hudson.security.SecurityRealm loadUserByUsername(java.lang.String)", true);
+
                 if (enclosingClass != null
                         && enclosingClass.getExtends() != null
                         && enclosingClass.getExtends().getType() != null
@@ -307,18 +315,21 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                     if (methodMatcher.matches(method, enclosingClass)) {
                         JavaType.Method type = method.getMethodType();
 
-                        if (!Objects.requireNonNull(method.getMethodType().getOverride())
+                        // Skip if method type or override is null
+                        if (type == null || type.getOverride() == null) {
+                            return super.visitMethodDeclaration(method, ctx);
+                        }
+
+                        if (!type.getOverride()
                                 .toString()
                                 .equals(
                                         "hudson.security.SecurityRealm{name=loadUserByUsername,return=org.acegisecurity.userdetails.UserDetails,parameters=[java.lang.String]}")) {
                             LOG.info(
                                     "Don't migrate this one to loadUserByUsername2 as it doesn't override the method of SecurityRealm, instead overrides of: {}",
-                                    method.getMethodType().getOverride().toString());
+                                    type.getOverride().toString());
                             return super.visitMethodDeclaration(method, ctx);
                         }
-                        if (type != null) {
-                            type = type.withName("loadUserByUsername2");
-                        }
+                        type = type.withName("loadUserByUsername2");
                         method = method.withName(method.getName()
                                         .withSimpleName("loadUserByUsername2")
                                         .withType(type))
