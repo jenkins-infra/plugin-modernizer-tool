@@ -47,7 +47,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
 
     @Language("groovy")
     private static final String EXPECTED_MODERN_JENKINSFILE = """
-            /*~~(Parsed as Groovy)~~>*//*
+            /*
             See the documentation for more options:
             https://github.com/jenkins-infra/pipeline-library/
             */
@@ -62,7 +62,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
 
     @Language("groovy")
     private static final String EXPECTED_UPCOMING_MODERN_JENKINSFILE = """
-            /*~~(Parsed as Groovy)~~>*//*
+            /*
             See the documentation for more options:
             https://github.com/jenkins-infra/pipeline-library/
             */
@@ -77,7 +77,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
 
     @Language("groovy")
     private static final String JAVA_8_JENKINS_FILE = """
-            /*~~(Parsed as Groovy)~~>*//*
+            /*
             See the documentation for more options:
             https://github.com/jenkins-infra/pipeline-library/
             */
@@ -4080,7 +4080,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   </project>
                   """),
                 groovy(null, """
-              /*~~(Parsed as Groovy)~~>*//*
+              /*
               See the documentation for more options:
               https://github.com/jenkins-infra/pipeline-library/
               */
