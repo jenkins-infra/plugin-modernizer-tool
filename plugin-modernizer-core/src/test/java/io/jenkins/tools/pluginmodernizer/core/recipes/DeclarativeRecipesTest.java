@@ -4080,7 +4080,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   </project>
                   """),
                 groovy(null, """
-              /*
+              /*~~(Parsed as Groovy)~~>*//*
               See the documentation for more options:
               https://github.com/jenkins-infra/pipeline-library/
               */
