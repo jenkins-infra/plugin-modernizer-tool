@@ -323,9 +323,7 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                                     type.getOverride().toString());
                             return super.visitMethodDeclaration(method, ctx);
                         }
-                        if (type != null) {
-                            type = type.withName("loadUserByUsername2");
-                        }
+                        type = type.withName("loadUserByUsername2");
                         method = method.withName(method.getName()
                                         .withSimpleName("loadUserByUsername2")
                                         .withType(type))
