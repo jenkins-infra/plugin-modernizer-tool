@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.openrewrite.ExecutionContext;
@@ -307,18 +306,24 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
                     if (methodMatcher.matches(method, enclosingClass)) {
                         JavaType.Method type = method.getMethodType();
 
-                        if (!Objects.requireNonNull(method.getMethodType().getOverride())
+                        // Check if the method type and its override are available
+                        if (type == null || type.getOverride() == null) {
+                            LOG.debug(
+                                    "Skipping migration for method without override information (e.g., in anonymous class): {}",
+                                    method.getSimpleName());
+                            return super.visitMethodDeclaration(method, ctx);
+                        }
+
+                        if (!type.getOverride()
                                 .toString()
                                 .equals(
                                         "hudson.security.SecurityRealm{name=loadUserByUsername,return=org.acegisecurity.userdetails.UserDetails,parameters=[java.lang.String]}")) {
                             LOG.info(
                                     "Don't migrate this one to loadUserByUsername2 as it doesn't override the method of SecurityRealm, instead overrides of: {}",
-                                    method.getMethodType().getOverride().toString());
+                                    type.getOverride().toString());
                             return super.visitMethodDeclaration(method, ctx);
                         }
-                        if (type != null) {
-                            type = type.withName("loadUserByUsername2");
-                        }
+                        type = type.withName("loadUserByUsername2");
                         method = method.withName(method.getName()
                                         .withSimpleName("loadUserByUsername2")
                                         .withType(type))
