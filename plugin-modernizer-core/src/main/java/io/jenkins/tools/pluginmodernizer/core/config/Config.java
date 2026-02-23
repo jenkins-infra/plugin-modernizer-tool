@@ -40,6 +40,8 @@ public class Config {
     private final Long githubAppTargetInstallationId;
     private final Path sshPrivateKey;
     private final DuplicatePrStrategy duplicatePrStrategy;
+    private final boolean parallel;
+    private final int threads;
 
     private Config(
             String version,
@@ -65,7 +67,9 @@ public class Config {
             boolean draft,
             boolean removeForks,
             boolean allowDeprecatedPlugins,
-            DuplicatePrStrategy duplicatePrStrategy) {
+            DuplicatePrStrategy duplicatePrStrategy,
+            boolean parallel,
+            int threads) {
         this.version = version;
         this.githubOwner = githubOwner;
         this.githubAppId = githubAppId;
@@ -90,6 +94,8 @@ public class Config {
         this.removeForks = removeForks;
         this.allowDeprecatedPlugins = allowDeprecatedPlugins;
         this.duplicatePrStrategy = duplicatePrStrategy;
+        this.parallel = parallel;
+        this.threads = threads;
     }
 
     public String getVersion() {
@@ -237,6 +243,14 @@ public class Config {
         return duplicatePrStrategy;
     }
 
+    public boolean isParallel() {
+        return parallel;
+    }
+
+    public int getThreads() {
+        return threads;
+    }
+
     public enum DuplicatePrStrategy {
         SKIP,
         UPDATE,
@@ -272,6 +286,8 @@ public class Config {
         public boolean removeForks = false;
         private boolean allowDeprecatedPlugins = false;
         private DuplicatePrStrategy duplicatePrStrategy = DuplicatePrStrategy.SKIP;
+        private boolean parallel = false;
+        private int threads = -1;
 
         public Builder withVersion(String version) {
             this.version = version;
@@ -406,6 +422,16 @@ public class Config {
             return this;
         }
 
+        public Builder withParallel(boolean parallel) {
+            this.parallel = parallel;
+            return this;
+        }
+
+        public Builder withThreads(int threads) {
+            this.threads = threads;
+            return this;
+        }
+
         public Builder withDuplicatePrStrategy(DuplicatePrStrategy duplicatePrStrategy) {
             this.duplicatePrStrategy = duplicatePrStrategy;
             return this;
@@ -436,7 +462,9 @@ public class Config {
                     draft,
                     removeForks,
                     allowDeprecatedPlugins,
-                    duplicatePrStrategy);
+                    duplicatePrStrategy,
+                    parallel,
+                    threads);
         }
     }
 }

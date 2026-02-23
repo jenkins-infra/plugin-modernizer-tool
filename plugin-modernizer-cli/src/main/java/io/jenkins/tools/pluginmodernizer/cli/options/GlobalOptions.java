@@ -60,6 +60,18 @@ public class GlobalOptions implements IOption {
             description = "Path to the Maven local repository.")
     private Path mavenLocalRepo = Settings.DEFAULT_MAVEN_LOCAL_REPO;
 
+    @CommandLine.Option(
+            names = {"--parallel"},
+            description = "Run modernization on plugins in parallel.",
+            defaultValue = "false")
+    private boolean parallel;
+
+    @CommandLine.Option(
+            names = {"--threads"},
+            description = "Number of threads to use for parallel execution. Defaults to the number of available processors.",
+            defaultValue = "-1")
+    private int threads;
+
     /**
      * Create a new config build for the global options
      */
@@ -73,7 +85,9 @@ public class GlobalOptions implements IOption {
                                 : cachePath)
                 .withMavenHome(mavenHome)
                 .withMavenLocalRepo(mavenLocalRepo)
-                .withAllowDeprecatedPlugins(allowDeprecatedPlugins);
+                .withAllowDeprecatedPlugins(allowDeprecatedPlugins)
+                .withParallel(parallel)
+                .withThreads(threads);
     }
 
     /**

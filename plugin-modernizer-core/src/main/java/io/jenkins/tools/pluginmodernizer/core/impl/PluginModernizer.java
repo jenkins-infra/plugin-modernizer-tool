@@ -169,7 +169,23 @@ public class PluginModernizer {
         pluginService.getPluginVersionData();
 
         List<Plugin> plugins = config.getPlugins();
-        plugins.forEach(this::process);
+        
+        if (config.isParallel()) {
+            int numThreads = config.getThreads() > 0 ? config.getThreads() : Runtime.getRuntime().availableProcessors();
+            LOG.info("Running modernization in parallel with {} threads", numThreads);
+            // Use a custom ForkJoinPool to control the level of parallelism
+            java.util.concurrent.ForkJoinPool customThreadPool = new java.util.concurrent.ForkJoinPool(numThreads);
+            try {
+                customThreadPool.submit(() -> plugins.parallelStream().forEach(this::process)).get();
+            } catch (Exception e) {
+                LOG.error("Parallel execution failed", e);
+            } finally {
+                customThreadPool.shutdown();
+            }
+        } else {
+            plugins.forEach(this::process);
+        }
+        
         printResults(plugins);
     }
 
