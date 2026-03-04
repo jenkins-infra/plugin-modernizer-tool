@@ -362,7 +362,9 @@ public class PluginModernizer {
 
             // Recollect metadata after modernization
             if (!config.isFetchMetadataOnly()) {
-                plugin.withJDK(JDK.JAVA_25);
+                // Use the minimum JDK from metadata that was successfully used to build the plugin
+                JDK jdkForMetadata = JDK.min(plugin.getMetadata().getJdks());
+                plugin.withJDK(jdkForMetadata);
                 plugin.clean(mavenInvoker);
                 collectMetadata(plugin, false);
                 LOG.debug(
@@ -444,7 +446,13 @@ public class PluginModernizer {
      */
     private void collectMetadata(Plugin plugin, boolean retryAfterFirstCompile) {
         LOG.trace("Collecting metadata for plugin {}... Please be patient", plugin.getName());
-        plugin.withJDK(JDK.JAVA_25);
+        // Use JDK 25 for initial metadata collection if no JDK is set yet
+        // If metadata already has JDKs, use the minimum one
+        if (plugin.getMetadata().getJdks() == null || plugin.getMetadata().getJdks().isEmpty()) {
+            plugin.withJDK(JDK.JAVA_25);
+        } else {
+            plugin.withJDK(JDK.min(plugin.getMetadata().getJdks()));
+        }
         try {
             plugin.collectMetadata(mavenInvoker);
             if (plugin.hasErrors()) {
@@ -463,7 +471,9 @@ public class PluginModernizer {
                             plugin.getName());
                     plugin.raiseLastError();
                 }
-                plugin.withJDK(JDK.JAVA_25);
+                // After successful build with JDK 8, use the minimum JDK from metadata for collection
+                JDK jdkForRetry = JDK.min(plugin.getMetadata().getJdks());
+                plugin.withJDK(jdkForRetry);
                 plugin.collectMetadata(mavenInvoker);
             } else {
                 LOG.info("Failed to collect metadata for plugin {}. Not retrying.", plugin.getName());
