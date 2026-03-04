@@ -376,7 +376,7 @@ class PluginModernizerTest {
                 mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
         when(plugin.getMetadata()).thenReturn(metadata);
         when(plugin.getName()).thenReturn("test-plugin");
-        
+
         // Plugin metadata has JDK 8 and JDK 11
         when(metadata.getJdks())
                 .thenReturn(java.util.Set.of(
@@ -400,13 +400,13 @@ class PluginModernizerTest {
 
     @Test
     void testCollectMetadata_WithNoJdks_ShouldUseJdk25() throws Exception {
-        // Setup  
+        // Setup
         Plugin plugin = mock(Plugin.class);
         io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata metadata =
                 mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
         when(plugin.getMetadata()).thenReturn(metadata);
         when(plugin.getName()).thenReturn("test-plugin");
-        
+
         // Plugin metadata has no JDKs initially
         when(metadata.getJdks()).thenReturn(java.util.Set.of());
         when(plugin.hasErrors()).thenReturn(false);
@@ -430,19 +430,19 @@ class PluginModernizerTest {
                 mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
         when(plugin.getMetadata()).thenReturn(metadata);
         when(plugin.getName()).thenReturn("test-plugin");
-        
+
         // Initially empty, then has JDK 8 after verifyQuickBuild
         // Return empty for first few calls, then JDK 8 for subsequent calls
         java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> emptySet = java.util.Set.of();
-        java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> jdk8Set = 
+        java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> jdk8Set =
                 java.util.Set.of(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
-        
+
         when(metadata.getJdks())
-                .thenReturn(emptySet)   // First check in collectMetadata
-                .thenReturn(emptySet)   // Second part of isEmpty check
-                .thenReturn(jdk8Set)    // After verifyQuickBuild, min() call
-                .thenReturn(jdk8Set);   // Any additional calls
-        
+                .thenReturn(emptySet) // First check in collectMetadata
+                .thenReturn(emptySet) // Second part of isEmpty check
+                .thenReturn(jdk8Set) // After verifyQuickBuild, min() call
+                .thenReturn(jdk8Set); // Any additional calls
+
         // hasErrors() is checked after verifyQuickBuild
         when(plugin.hasErrors()).thenReturn(false);
 

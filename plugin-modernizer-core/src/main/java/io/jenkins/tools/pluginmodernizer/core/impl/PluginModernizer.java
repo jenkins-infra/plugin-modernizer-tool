@@ -448,7 +448,8 @@ public class PluginModernizer {
         LOG.trace("Collecting metadata for plugin {}... Please be patient", plugin.getName());
         // Use JDK 25 for initial metadata collection if no JDK is set yet
         // If metadata already has JDKs, use the minimum one
-        if (plugin.getMetadata().getJdks() == null || plugin.getMetadata().getJdks().isEmpty()) {
+        if (plugin.getMetadata().getJdks() == null
+                || plugin.getMetadata().getJdks().isEmpty()) {
             plugin.withJDK(JDK.JAVA_25);
         } else {
             plugin.withJDK(JDK.min(plugin.getMetadata().getJdks()));
