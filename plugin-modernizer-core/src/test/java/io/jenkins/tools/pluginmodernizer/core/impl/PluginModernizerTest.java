@@ -467,4 +467,49 @@ class PluginModernizerTest {
         verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
         verify(plugin, times(2)).collectMetadata(mavenInvoker);
     }
+
+    @Test
+    void testCollectMetadata_WithEmptyJdksInRetry_ShouldUseMavenDefault() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata metadata =
+                mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
+        when(plugin.getMetadata()).thenReturn(metadata);
+        when(plugin.getName()).thenReturn("test-plugin");
+        
+        // getJdks() returns empty throughout (simulating a plugin with no JDK info)
+        when(metadata.getJdks()).thenReturn(java.util.Set.of());
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Execute
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, false);
+
+        // Verify that plugin defaults to JDK 25 when no JDK info exists
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).collectMetadata(mavenInvoker);
+    }
+
+    @Test
+    void testCollectMetadata_WithNullMetadata_ShouldUseJdk25() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        when(plugin.getName()).thenReturn("test-plugin");
+
+        // Plugin metadata is null (simulating first collection before metadata exists)
+        when(plugin.getMetadata()).thenReturn(null);
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Execute
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, false);
+
+        // Verify that plugin defaults to JDK 25 when metadata is null
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).collectMetadata(mavenInvoker);
+    }
 }
