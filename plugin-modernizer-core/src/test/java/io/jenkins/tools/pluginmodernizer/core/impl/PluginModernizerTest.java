@@ -476,7 +476,7 @@ class PluginModernizerTest {
                 mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
         when(plugin.getMetadata()).thenReturn(metadata);
         when(plugin.getName()).thenReturn("test-plugin");
-        
+
         // getJdks() returns empty throughout (simulating a plugin with no JDK info)
         when(metadata.getJdks()).thenReturn(java.util.Set.of());
         when(plugin.hasErrors()).thenReturn(false);

@@ -485,7 +485,9 @@ public class PluginModernizer {
                 // Ensure metadata exists and use Jenkins version compatibility if needed
                 PluginMetadata retryMetadata = plugin.getMetadata();
                 JDK jdkForRetry;
-                if (retryMetadata != null && retryMetadata.getJdks() != null && !retryMetadata.getJdks().isEmpty()) {
+                if (retryMetadata != null
+                        && retryMetadata.getJdks() != null
+                        && !retryMetadata.getJdks().isEmpty()) {
                     jdkForRetry = JDK.min(retryMetadata.getJdks(), retryMetadata.getJenkinsVersion());
                 } else {
                     // Fallback: use the JDK that was used for the quick build retry
