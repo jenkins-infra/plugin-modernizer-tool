@@ -431,17 +431,22 @@ class PluginModernizerTest {
         when(plugin.getMetadata()).thenReturn(metadata);
         when(plugin.getName()).thenReturn("test-plugin");
         
-        // First call: no JDKs, then after JDK 8 build, metadata has JDK 8
-        when(metadata.getJdks())
-                .thenReturn(java.util.Set.of()) // First time - empty
-                .thenReturn(java.util.Set.of(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8)); // After JDK 8 build
+        // Initially empty, then has JDK 8 after verifyQuickBuild
+        // Return empty for first few calls, then JDK 8 for subsequent calls
+        java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> emptySet = java.util.Set.of();
+        java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> jdk8Set = 
+                java.util.Set.of(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
         
-        // First attempt fails, second succeeds after JDK 8 build
-        when(plugin.hasErrors())
-                .thenReturn(true) // First attempt fails
-                .thenReturn(false); // After JDK 8 build succeeds
+        when(metadata.getJdks())
+                .thenReturn(emptySet)   // First check in collectMetadata
+                .thenReturn(emptySet)   // Second part of isEmpty check
+                .thenReturn(jdk8Set)    // After verifyQuickBuild, min() call
+                .thenReturn(jdk8Set);   // Any additional calls
+        
+        // hasErrors() is checked after verifyQuickBuild
+        when(plugin.hasErrors()).thenReturn(false);
 
-        // Mock the exception on first attempt
+        // Mock the exception on first collectMetadata attempt
         doThrow(new io.jenkins.tools.pluginmodernizer.core.model.ModernizerException("Build failed"))
                 .doNothing()
                 .when(plugin)
@@ -453,13 +458,13 @@ class PluginModernizerTest {
         method.setAccessible(true);
         method.invoke(pluginModernizer, plugin, true);
 
-        // Verify sequence of JDK usage:
-        // 1. First try with JDK 25 (no metadata yet)
+        // Verify sequence:
+        // 1. First try with JDK 25 (empty metadata)
         // 2. Build with JDK 8 to generate classes
         // 3. Then collect metadata with JDK 8 (minimum from metadata)
-        verify(plugin, atLeastOnce()).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
         verify(plugin).verifyQuickBuild(mavenInvoker, io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
-        verify(plugin, atLeastOnce()).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
         verify(plugin, times(2)).collectMetadata(mavenInvoker);
     }
 }
