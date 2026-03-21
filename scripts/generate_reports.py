@@ -148,3 +148,30 @@ with open(summary_path, "w") as f:
     f.write(summary)
 
 print(f"[INFO] Summary report generated at: {summary_path}")
+
+summary_data = {
+    "generatedOn": pd.Timestamp.now(tz='UTC').strftime('%Y-%m-%d %H:%M:%S UTC'),  
+    "totalMigrations": total_migrations,           
+    "failedMigrations": failed_migrations_count,          
+    "successRate": round(success_rate, 2),     
+    "failuresByRecipe": [
+        {"recipeId": recipe, "failures": count}
+        for recipe, count in failure_by_recipe      
+    ],
+    "pluginsWithFailures": failed_plugins,       
+    "pullRequestStats": {
+        "total": total_prs,                 
+        "open": open_prs,                  
+        "closed": closed_prs,                
+        "merged": merged_prs,                
+        "openRate": round(open_rate, 2),    
+        "closedRate": round(closed_rate, 2),  
+        "mergeRate": round(merge_rate, 2),   
+    }
+}
+
+json_summary_path = os.path.join(json_dir, "reports", "summary.json")  
+with open(json_summary_path, "w") as f:
+    json.dump(summary_data, f, indent=2)  
+
+print(f"[INFO] JSON summary report generated at: {json_summary_path}")
