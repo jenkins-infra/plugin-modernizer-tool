@@ -26,12 +26,16 @@ for root, dirs, files in os.walk(json_dir):
     if os.path.basename(root) == "modernization-metadata":
         for file in files:
             if file.endswith(".json"):
-                with open(os.path.join(root, file), "r") as f:
-                    data = json.load(f)
-                    # Set missing migrationStatus to empty string
-                    if 'migrationStatus' not in data:
-                        data['migrationStatus'] = ''
-                    data_list.append(data)
+                try: 
+                    with open(os.path.join(root, file), "r") as f:
+                        data = json.load(f)
+                        # Set missing migrationStatus to empty string
+                        if 'migrationStatus' not in data:
+                            data['migrationStatus'] = ''
+                        data_list.append(data)
+                except json.JSONDecodeError as e: 
+                    print(f"[WARN] Skipping invalid JSON file: {os.path.join(root, file)}, error {e}")
+                    continue
 
 # Create a DataFrame for analysis
 df = pd.DataFrame(data_list)
