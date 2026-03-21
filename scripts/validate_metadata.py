@@ -127,7 +127,7 @@ def validate_metadata(file_path):
     repo_name = metadata['pluginRepository'].replace('https://github.com/', '').replace('.git', '')
     try:
         g.get_repo(repo_name)
-    except:
+    except Exception:
         pr.create_issue_comment(f"Invalid plugin repository '{metadata['pluginRepository']}' in {file_path}")
         raise ValueError("Invalid plugin repository")
 
@@ -148,7 +148,7 @@ def validate_metadata(file_path):
             if pr_status and pr_status != actual_status:
                 pr.create_issue_comment(f"PR status mismatch in {file_path}: metadata says '{pr_status}', but actual status is '{actual_status}'")
                 raise ValueError("PR status mismatch")
-        except:
+        except Exception:
             pr.create_issue_comment(f"Unable to fetch PR '{pr_url}' in {file_path}")
             raise ValueError("Invalid PR")
 
