@@ -37,7 +37,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        if [ ${{ inputs.version }} == "latest" ]; then
+        if [ "${{ inputs.version }}" = "latest" ]; then
           API_URL="https://api.github.com/repos/jenkins-infra/plugin-modernizer-tool/releases/latest"
         else
           API_URL="https://api.github.com/repos/jenkins-infra/plugin-modernizer-tool/releases/tags/${{ inputs.version }}"
@@ -54,4 +54,4 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        java -jar plugin-modernizer.jar ${{ inputs.command }} ${{ inputs.arguments }} --maven-home=$(echo $(which mvn) | sed 's:/bin/mvn::')
+        java -jar plugin-modernizer.jar ${{ inputs.command }} ${{ inputs.arguments }} --maven-home="$(dirname "$(dirname "$(which mvn)")")"
