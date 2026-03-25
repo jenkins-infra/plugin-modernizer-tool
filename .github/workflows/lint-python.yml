@@ -1,0 +1,29 @@
+name: Lint Python Scripts
+
+on:
+  push:
+    paths:
+      - 'scripts/**'
+      - 'ruff.toml'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'ruff.toml'
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.11'
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff linter
+        run: ruff check scripts/ --output-format=github
