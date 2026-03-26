@@ -201,9 +201,11 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
         if (platforms == null) {
             platforms = new LinkedList<>();
         }
-        return platforms.stream().map(PlatformConfig::jdk).collect(HashSet::new, Set::add, Set::addAll);
+        return platforms.stream()
+                .map(PlatformConfig::jdk)
+                .filter(Objects::nonNull)            //To remove the nulls
+                .collect(HashSet::new, Set::add, Set::addAll);
     }
-
     public Set<Platform> getPlatforms() {
         if (platforms == null) {
             platforms = new LinkedList<>();
@@ -219,9 +221,12 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
         if (platforms == null) {
             platforms = new ArrayList<>();
         }
-        platforms.addAll(jdkVersions.stream()
-                .map(jdk -> new PlatformConfig(Platform.UNKNOWN, jdk, null, true))
-                .toList());
+        if (jdkVersions != null) {
+            platforms.addAll(jdkVersions.stream()
+                    .filter(Objects::nonNull)             //To prevent new nulls
+                    .map(jdk -> new PlatformConfig(Platform.UNKNOWN, jdk, null, true))
+                    .toList());
+        }
     }
 
     public void setPlatforms(List<PlatformConfig> platforms) {
