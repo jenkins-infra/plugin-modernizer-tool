@@ -1,7 +1,7 @@
 import json
-import os
-import requests
 import logging
+import os
+
 from github import Github
 
 # Configure logging

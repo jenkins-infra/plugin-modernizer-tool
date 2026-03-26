@@ -1,24 +1,27 @@
 import json
 import os
-import pandas as pd
 from collections import Counter
+
+import pandas as pd
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 json_dir = os.path.abspath(os.path.join(script_dir, ".."))
 
+
 def extract_timestamp(key):
     try:
-        if not key or not isinstance(key, str) or not key.endswith('.json'):
+        if not key or not isinstance(key, str) or not key.endswith(".json"):
             print(f"[WARN] Invalid key format: {key}")
             return pd.NaT
-        timestamp_str = key.replace('.json', '')
-        date_part, time_part = timestamp_str.split('T')
-        time_part = time_part.replace('-', ':')
+        timestamp_str = key.replace(".json", "")
+        date_part, time_part = timestamp_str.split("T")
+        time_part = time_part.replace("-", ":")
         timestamp_str = f"{date_part}T{time_part}"
         return pd.to_datetime(timestamp_str)
     except (ValueError, AttributeError) as e:
         print(f"[WARN] Failed to parse timestamp from key: {key}, error: {str(e)}")
         return pd.NaT
+
 
 # Collect data from all JSON files in modernization-metadata directories
 data_list = []
@@ -29,8 +32,8 @@ for root, dirs, files in os.walk(json_dir):
                 with open(os.path.join(root, file), "r") as f:
                     data = json.load(f)
                     # Set missing migrationStatus to empty string
-                    if 'migrationStatus' not in data:
-                        data['migrationStatus'] = ''
+                    if "migrationStatus" not in data:
+                        data["migrationStatus"] = ""
                     data_list.append(data)
 
 # Create a DataFrame for analysis
@@ -40,7 +43,7 @@ if df.empty:
     exit(0)
 
 # Add timestamp column
-df['timestamp'] = df['key'].apply(extract_timestamp)
+df["timestamp"] = df["key"].apply(extract_timestamp)
 
 # Create overall reports directory if it doesn't exist
 os.makedirs("reports", exist_ok=True)
@@ -74,7 +77,7 @@ for recipe_id, group_df in recipe_groups:
         "totalApplications": total_applications,
         "successCount": success_count,
         "failureCount": failure_count,
-        "plugins": plugins_list
+        "plugins": plugins_list,
     }
     recipe_dir = os.path.join(json_dir, "reports", "recipes")
     os.makedirs(recipe_dir, exist_ok=True)
@@ -95,10 +98,11 @@ failure_table = "\n".join([f"- {recipe}: {count} failures" for recipe, count in 
 
 # List of plugins with at least one failed migration
 failed_plugins = sorted(df[df["migrationStatus"] == "fail"]["pluginName"].unique())
-failed_plugins_list = "\n".join([
-    f"- [{plugin}]({os.path.join("..", plugin, 'reports', 'failed_migrations.csv')})"
-    for plugin in failed_plugins
-]) if failed_plugins else "No plugins with failed migrations."
+failed_plugins_list = (
+    "\n".join([f"- [{plugin}]({os.path.join('..', plugin, 'reports', 'failed_migrations.csv')})" for plugin in failed_plugins])
+    if failed_plugins
+    else "No plugins with failed migrations."
+)
 
 # Pull Request statistics
 unique_prs = df[(df["pullRequestUrl"] != "") & (df["pullRequestStatus"] != "") & (pd.notna(df["pullRequestUrl"])) & (pd.notna(df["pullRequestStatus"]))]
@@ -124,7 +128,7 @@ pr_stats_table = f"""
 
 summary = f"""
 # Jenkins Plugin Modernizer Report
-Generated on: {pd.Timestamp.now(tz='UTC').strftime('%Y-%m-%d %H:%M:%S UTC')}
+Generated on: {pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M:%S UTC")}
 
 ## Overview
 - **Total Migrations**: {total_migrations}
@@ -148,3 +152,30 @@ with open(summary_path, "w") as f:
     f.write(summary)
 
 print(f"[INFO] Summary report generated at: {summary_path}")
+
+summary_data = {
+    "generatedOn": pd.Timestamp.now(tz='UTC').strftime('%Y-%m-%d %H:%M:%S UTC'),  
+    "totalMigrations": total_migrations,           
+    "failedMigrations": failed_migrations_count,          
+    "successRate": round(success_rate, 2),     
+    "failuresByRecipe": [
+        {"recipeId": recipe, "failures": count}
+        for recipe, count in failure_by_recipe      
+    ],
+    "pluginsWithFailures": failed_plugins,       
+    "pullRequestStats": {
+        "total": total_prs,                 
+        "open": open_prs,                  
+        "closed": closed_prs,                
+        "merged": merged_prs,                
+        "openRate": round(open_rate, 2),    
+        "closedRate": round(closed_rate, 2),  
+        "mergeRate": round(merge_rate, 2),   
+    }
+}
+
+json_summary_path = os.path.join(json_dir, "reports", "summary.json")  
+with open(json_summary_path, "w") as f:
+    json.dump(summary_data, f, indent=2)  
+
+print(f"[INFO] JSON summary report generated at: {json_summary_path}")
