@@ -203,9 +203,10 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
         }
         return platforms.stream()
                 .map(PlatformConfig::jdk)
-                .filter(Objects::nonNull)            //To remove the nulls
+                .filter(Objects::nonNull)
                 .collect(HashSet::new, Set::add, Set::addAll);
     }
+
     public Set<Platform> getPlatforms() {
         if (platforms == null) {
             platforms = new LinkedList<>();
@@ -223,7 +224,7 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
         }
         if (jdkVersions != null) {
             platforms.addAll(jdkVersions.stream()
-                    .filter(Objects::nonNull)             //To prevent new nulls
+                    .filter(Objects::nonNull)
                     .map(jdk -> new PlatformConfig(Platform.UNKNOWN, jdk, null, true))
                     .toList());
         }
