@@ -29,12 +29,15 @@ for root, dirs, files in os.walk(json_dir):
     if os.path.basename(root) == "modernization-metadata":
         for file in files:
             if file.endswith(".json"):
-                with open(os.path.join(root, file), "r") as f:
-                    data = json.load(f)
-                    # Set missing migrationStatus to empty string
-                    if "migrationStatus" not in data:
-                        data["migrationStatus"] = ""
-                    data_list.append(data)
+                try:
+                    with open(os.path.join(root, file), "r") as f:
+                        data = json.load(f)
+                        if "migrationStatus" not in data:
+                            data["migrationStatus"] = ""
+                        data_list.append(data)
+                except (json.JSONDecodeError, OSError) as e:
+                    print(f"[WARN] Skipping invalid file: {os.path.join(root, file)}, error: {e}")
+                    continue
 
 # Create a DataFrame for analysis
 df = pd.DataFrame(data_list)
@@ -154,28 +157,25 @@ with open(summary_path, "w") as f:
 print(f"[INFO] Summary report generated at: {summary_path}")
 
 summary_data = {
-    "generatedOn": pd.Timestamp.now(tz='UTC').strftime('%Y-%m-%d %H:%M:%S UTC'),  
-    "totalMigrations": total_migrations,           
-    "failedMigrations": failed_migrations_count,          
-    "successRate": round(success_rate, 2),     
-    "failuresByRecipe": [
-        {"recipeId": recipe, "failures": count}
-        for recipe, count in failure_by_recipe      
-    ],
-    "pluginsWithFailures": failed_plugins,       
+    "generatedOn": pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M:%S UTC"),
+    "totalMigrations": total_migrations,
+    "failedMigrations": failed_migrations_count,
+    "successRate": round(success_rate, 2),
+    "failuresByRecipe": [{"recipeId": recipe, "failures": count} for recipe, count in failure_by_recipe],
+    "pluginsWithFailures": failed_plugins,
     "pullRequestStats": {
-        "total": total_prs,                 
-        "open": open_prs,                  
-        "closed": closed_prs,                
-        "merged": merged_prs,                
-        "openRate": round(open_rate, 2),    
-        "closedRate": round(closed_rate, 2),  
-        "mergeRate": round(merge_rate, 2),   
-    }
+        "total": total_prs,
+        "open": open_prs,
+        "closed": closed_prs,
+        "merged": merged_prs,
+        "openRate": round(open_rate, 2),
+        "closedRate": round(closed_rate, 2),
+        "mergeRate": round(merge_rate, 2),
+    },
 }
 
-json_summary_path = os.path.join(json_dir, "reports", "summary.json")  
+json_summary_path = os.path.join(json_dir, "reports", "summary.json")
 with open(json_summary_path, "w") as f:
-    json.dump(summary_data, f, indent=2)  
+    json.dump(summary_data, f, indent=2)
 
 print(f"[INFO] JSON summary report generated at: {json_summary_path}")
