@@ -1,24 +1,10 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import static org.openrewrite.groovy.Assertions.groovy;
-import static org.openrewrite.java.Assertions.java;
-import static org.openrewrite.java.Assertions.mavenProject;
-import static org.openrewrite.java.Assertions.srcMainJava;
-import static org.openrewrite.java.Assertions.srcMainResources;
-import static org.openrewrite.java.Assertions.srcTestJava;
-import static org.openrewrite.json.Assertions.json;
-import static org.openrewrite.maven.Assertions.pomXml;
-import static org.openrewrite.test.SourceSpecs.text;
-import static org.openrewrite.yaml.Assertions.yaml;
-
-import io.github.yamlpath.YamlPath;
-import io.jenkins.tools.pluginmodernizer.core.config.Settings;
-import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
-import io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructorTest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -26,11 +12,26 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import static org.openrewrite.groovy.Assertions.groovy;
+import static org.openrewrite.java.Assertions.java;
+import static org.openrewrite.java.Assertions.mavenProject;
+import static org.openrewrite.java.Assertions.srcMainJava;
+import static org.openrewrite.java.Assertions.srcMainResources;
+import static org.openrewrite.java.Assertions.srcTestJava;
 import org.openrewrite.java.JavaParser;
+import static org.openrewrite.json.Assertions.json;
+import static org.openrewrite.maven.Assertions.pomXml;
 import org.openrewrite.maven.MavenParser;
 import org.openrewrite.test.RewriteTest;
+import static org.openrewrite.test.SourceSpecs.text;
+import static org.openrewrite.yaml.Assertions.yaml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.github.yamlpath.YamlPath;
+import io.jenkins.tools.pluginmodernizer.core.config.Settings;
+import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructorTest;
 
 /**
  * Test for declarative recipes from recipes.yml.
@@ -3563,7 +3564,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
 
                       class Test {
                         boolean check(String str) {
-                          return StringUtils.isNotEmpty(str);
+                          return str != null && !str.isEmpty();
                         }
                       }
                       """, """
