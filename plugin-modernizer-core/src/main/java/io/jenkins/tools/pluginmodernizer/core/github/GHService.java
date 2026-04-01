@@ -1249,10 +1249,10 @@ public class GHService {
                         .readEnvironment()
                         .findGitDir()
                         .build();
-                Git git = new Git(repository)) {
+                Git git = new Git(repository);
+                ObjectReader reader = repository.newObjectReader();
+                DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream())) {
 
-            ObjectReader reader = repository.newObjectReader();
-            DiffFormatter formatter = new DiffFormatter(new ByteArrayOutputStream());
             formatter.setRepository(repository);
             formatter.setDiffComparator(RawTextComparator.DEFAULT);
             formatter.setDetectRenames(true);
@@ -1296,8 +1296,10 @@ public class GHService {
 
             CanonicalTreeParser oldTree = new CanonicalTreeParser();
             CanonicalTreeParser newTree = new CanonicalTreeParser();
-            oldTree.reset(reader, new RevWalk(repository).parseTree(defaultBranch));
-            newTree.reset(reader, new RevWalk(repository).parseTree(head));
+            try (RevWalk revWalk = new RevWalk(repository)) {
+                oldTree.reset(reader, revWalk.parseTree(defaultBranch));
+                newTree.reset(reader, revWalk.parseTree(head));
+            }
 
             List<DiffEntry> committedDiffs = git.diff()
                     .setOldTree(oldTree)
@@ -1313,7 +1315,6 @@ public class GHService {
                 }
                 changedFiles++;
             }
-            reader.close();
             return new DiffStats(additions, deletions, changedFiles);
 
         } catch (IOException | GitAPIException e) {
