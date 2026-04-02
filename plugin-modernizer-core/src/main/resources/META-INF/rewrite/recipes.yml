@@ -256,7 +256,6 @@ tags: ['dependencies', 'migration']
 recipeList:
   - org.openrewrite.apache.commons.lang.ApacheCommonsStringUtilsRecipes
   - org.openrewrite.apache.commons.lang.IsNotEmptyToJdk
-  - org.openrewrite.java.RemoveUnusedImports
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateJackson2To3
