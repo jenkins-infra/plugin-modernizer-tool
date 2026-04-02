@@ -1,23 +1,40 @@
 import json
 import os
 import re
-import requests
+
 from github import Github
-from jsonschema import validate, ValidationError
+from jsonschema import ValidationError, validate
 
 # GitHub API client
-token = os.getenv('GH_TOKEN')
+token = os.getenv("GH_TOKEN")
 if not token:
     raise EnvironmentError("GITHUB TOKEN is not found.")
 g = Github(token)
-repo = g.get_repo('jenkins-infra/metadata-plugin-modernizer')
+repo = g.get_repo("jenkins-infra/metadata-plugin-modernizer")
 pr_number = os.getenv("PR_NUMBER")
 pr = repo.get_pull(int(pr_number))
 
 # JSON schema for metadata validation
 schema = {
     "type": "object",
-    "required": ["pluginName", "pluginRepository", "pluginVersion", "migrationName", "migrationDescription", "tags", "migrationId", "migrationStatus", "pullRequestUrl", "pullRequestStatus", "dryRun", "additions", "deletions", "changedFiles", "key", "path"],
+    "required": [
+        "pluginName",
+        "pluginRepository",
+        "pluginVersion",
+        "migrationName",
+        "migrationDescription",
+        "tags",
+        "migrationId",
+        "migrationStatus",
+        "pullRequestUrl",
+        "pullRequestStatus",
+        "dryRun",
+        "additions",
+        "deletions",
+        "changedFiles",
+        "key",
+        "path",
+    ],
     "properties": {
         "pluginName": {"type": "string", "pattern": "^[a-zA-Z0-9-]+$"},
         "pluginRepository": {"type": "string", "format": "uri", "pattern": "^https://github.com/[^/]+/.+\\.git$"},
@@ -38,12 +55,9 @@ schema = {
         "deletions": {"type": "integer", "minimum": 0},
         "changedFiles": {"type": "integer", "minimum": 0},
         "key": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}\\.json$"},
-        "path": {"type": "string", "pattern": "^metadata-plugin-modernizer/[^/]+/modernization-metadata$"}
+        "path": {"type": "string", "pattern": "^metadata-plugin-modernizer/[^/]+/modernization-metadata$"},
     },
-    "anyOf": [
-        { "required": ["targetBaseline", "jenkinsVersion", "effectiveBaseline"] },
-        { "required": ["rpuBaseline"] }
-    ]
+    "anyOf": [{"required": ["targetBaseline", "jenkinsVersion", "effectiveBaseline"]}, {"required": ["rpuBaseline"]}],
 }
 
 # migration IDs
@@ -102,41 +116,42 @@ valid_migration_ids = [
     "io.jenkins.tools.pluginmodernizer.AddIncrementals",
     "io.jenkins.tools.pluginmodernizer.EnableCD",
     "io.jenkins.tools.pluginmodernizer.AutoMergeWorkflows",
-    "io.jenkins.tools.pluginmodernizer.StrictBundledArtifacts"
+    "io.jenkins.tools.pluginmodernizer.StrictBundledArtifacts",
 ]
+
 
 def validate_metadata(file_path):
     """Validate a metadata JSON file."""
-    with open(file_path, 'r') as f:
+    with open(file_path, "r") as f:
         metadata = json.load(f)
 
     # Schema validation
     try:
-        metadata['path'] = metadata['path'].replace('\\', '/')
+        metadata["path"] = metadata["path"].replace("\\", "/")
         validate(instance=metadata, schema=schema)
     except ValidationError as e:
         pr.create_issue_comment(f"Invalid metadata in {file_path}: {e.message}")
         raise
 
     # Validate migrationId
-    if metadata['migrationId'] not in valid_migration_ids:
+    if metadata["migrationId"] not in valid_migration_ids:
         pr.create_issue_comment(f"Unknown migrationId '{metadata['migrationId']}' in {file_path}")
         raise ValueError("Invalid migrationId")
 
     # Validate plugin repository
-    repo_name = metadata['pluginRepository'].replace('https://github.com/', '').replace('.git', '')
+    repo_name = metadata["pluginRepository"].replace("https://github.com/", "").replace(".git", "")
     try:
         g.get_repo(repo_name)
-    except:
+    except Exception:
         pr.create_issue_comment(f"Invalid plugin repository '{metadata['pluginRepository']}' in {file_path}")
         raise ValueError("Invalid plugin repository")
 
     # Validate PR URL and Status only if pullRequestUrl is not empty
-    pr_url = metadata.get('pullRequestUrl', '')
-    pr_status = metadata.get('pullRequestStatus', '')
+    pr_url = metadata.get("pullRequestUrl", "")
+    pr_status = metadata.get("pullRequestStatus", "")
 
     if pr_url:
-        pr_match = re.match(r'https://github.com/([^/]+)/([^/]+)/pull/([0-9]+)', pr_url)
+        pr_match = re.match(r"https://github.com/([^/]+)/([^/]+)/pull/([0-9]+)", pr_url)
         if not pr_match:
             pr.create_issue_comment(f"Invalid PR URL '{pr_url}' in {file_path}")
             raise ValueError("Invalid PR URL")
@@ -144,16 +159,17 @@ def validate_metadata(file_path):
         owner, repo, pr_num = pr_match.groups()
         try:
             plugin_pr = g.get_repo(f"{owner}/{repo}").get_pull(int(pr_num))
-            actual_status = 'merged' if plugin_pr.merged else plugin_pr.state
+            actual_status = "merged" if plugin_pr.merged else plugin_pr.state
             if pr_status and pr_status != actual_status:
                 pr.create_issue_comment(f"PR status mismatch in {file_path}: metadata says '{pr_status}', but actual status is '{actual_status}'")
                 raise ValueError("PR status mismatch")
-        except:
+        except Exception:
             pr.create_issue_comment(f"Unable to fetch PR '{pr_url}' in {file_path}")
             raise ValueError("Invalid PR")
+
 
 # Process changed JSON files in the PR
 files = pr.get_files()
 for file in files:
-    if file.filename.endswith('.json') and '/modernization-metadata/' in file.filename:
+    if file.filename.endswith(".json") and "/modernization-metadata/" in file.filename:
         validate_metadata(file.filename)

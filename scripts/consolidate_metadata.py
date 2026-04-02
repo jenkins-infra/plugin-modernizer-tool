@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(script_dir, ".."))
@@ -21,8 +21,12 @@ for plugin_dir in os.listdir(root_dir):
             migrations = []
             for json_file in json_files:
                 timestamp = json_file[:-5]  # Remove ".json"
-                with open(os.path.join(metadata_dir, json_file), "r") as f:
-                    data = json.load(f)
+                try:
+                    with open(os.path.join(metadata_dir, json_file) , "r") as f:
+                        data = json.load(f)
+                except (json.JSONDecodeError, OSError) as e:
+                    print(f"[WARN] Skipping invalid file: {os.path.join(metadata_dir, json_file)}, error: {e}")
+                    continue
                 data["timestamp"] = timestamp
                 migrations.append(data)
 

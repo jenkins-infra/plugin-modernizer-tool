@@ -1,0 +1,15 @@
+# Ruff configuration for scripts/
+# https://docs.astral.sh/ruff/settings/
+
+target-version = "py311"
+line-length = 160
+
+[lint]
+# Focus on critical issues that hide bugs:
+# - E: pycodestyle errors (syntax issues)
+# - F: pyflakes (unused imports, undefined variables)
+# - I: isort (import sorting - catches the string concatenation bug from PR #1653)
+select = ["E", "F", "I"]
+
+[format]
+indent-style = "space"
