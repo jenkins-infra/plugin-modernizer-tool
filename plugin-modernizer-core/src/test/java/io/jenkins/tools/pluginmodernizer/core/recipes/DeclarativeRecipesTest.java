@@ -3595,6 +3595,47 @@ public class DeclarativeRecipesTest implements RewriteTest {
     }
 
     @Test
+    void doesNotExpandWildcardImports() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.MigrateCommonsLangToJdkApi")
+                            .parser(parser);
+                },
+                // Stub for StringUtils
+                java("""
+                      package org.apache.commons.lang3;
+                      public class StringUtils {
+                          public static boolean isNotEmpty(String str) {
+                              return str != null && !str.isEmpty();
+                          }
+                      }
+                      """),
+                // Wildcard import should NOT be expanded
+                java("""
+                      import static org.junit.Assert.*;
+                      import org.apache.commons.lang3.StringUtils;
+
+                      class Test {
+                        boolean check(String str) {
+                          return StringUtils.isNotEmpty(str);
+                        }
+                      }
+                      """, """
+                      import static org.junit.Assert.*;
+
+                      class Test {
+                        boolean check(String str) {
+                          return str != null && !str.isEmpty();
+                        }
+                      }
+                      """));
+    }
+
+    @Test
     void migrateJackson2To3() {
         rewriteRun(
                 spec -> {
