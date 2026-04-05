@@ -90,7 +90,7 @@ for recipe_id, group_df in recipe_groups:
     print(f"[INFO] Generated recipe file for '{recipe_id}' at: {recipe_path}")
 
 
-# Report 3: Overall Summary Report (Markdown)
+# Report 3: Overall Summary Report (Markdown and JSON)
 total_migrations = len(df)
 failed_migrations_count = len(df[df["migrationStatus"] == "fail"])
 success_rate = ((total_migrations - failed_migrations_count) / total_migrations * 100) if total_migrations > 0 else 0
@@ -129,6 +129,38 @@ pr_stats_table = f"""
 | Merged PRs | {merged_prs} | {merge_rate:.2f}% |
 """
 
+# Timeline: monthly success/fail breakdown
+valid_ts = df.dropna(subset=["timestamp"])
+timeline_data = []
+timeline_section = "No timeline data available."
+if not valid_ts.empty:
+    timeline_df = (
+        valid_ts.assign(month=valid_ts["timestamp"].dt.to_period("M"))
+        .groupby("month")["migrationStatus"]
+        .value_counts()
+        .unstack(fill_value=0)
+    )
+    for col in ["success", "fail"]:
+        if col not in timeline_df.columns:
+            timeline_df[col] = 0
+    timeline_df = timeline_df[["success", "fail"]].assign(total=lambda x: x.sum(axis=1))
+    timeline_df.index = timeline_df.index.astype(str)
+    timeline_data = timeline_df.reset_index().to_dict(orient="records")
+    timeline_section = "\n".join(
+        [f"- **{e['month']}**: {e['success']} success, {e['fail']} fail, {e['total']} total" for e in timeline_data]
+    )
+
+# Tags: frequency of each tag
+tags_data = []
+tags_section = "No tags data available."
+if "tags" in df.columns:
+    tags_series = df["tags"].dropna().explode()
+    if not tags_series.empty:
+        tags_counts = tags_series.value_counts()
+        tags_data = [{"tag": tag, "count": int(count)} for tag, count in tags_counts.items()]
+        tags_section = "\n".join([f"- **{e['tag']}**: {e['count']}" for e in tags_data])
+
+# Generate summary.md
 summary = f"""
 # Jenkins Plugin Modernizer Report
 Generated on: {pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M:%S UTC")}
@@ -148,6 +180,12 @@ Generated on: {pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M:%S UTC")}
 {pr_stats_table}
 
 *Note: No. of Migrations != No. of PRs. A migration applied may trigger force push on already opened PR.*
+
+## Migration Timeline
+{timeline_section}
+
+## Tags
+{tags_section}
 """
 summary_path = os.path.join(json_dir, "reports", "summary.md")
 os.makedirs(os.path.dirname(summary_path), exist_ok=True)
@@ -156,6 +194,7 @@ with open(summary_path, "w") as f:
 
 print(f"[INFO] Summary report generated at: {summary_path}")
 
+# Generate summary.json
 summary_data = {
     "generatedOn": pd.Timestamp.now(tz="UTC").strftime("%Y-%m-%d %H:%M:%S UTC"),
     "totalMigrations": total_migrations,
@@ -172,6 +211,8 @@ summary_data = {
         "closedRate": round(closed_rate, 2),
         "mergeRate": round(merge_rate, 2),
     },
+    "timeline": timeline_data,
+    "tags": tags_data,
 }
 
 json_summary_path = os.path.join(json_dir, "reports", "summary.json")
