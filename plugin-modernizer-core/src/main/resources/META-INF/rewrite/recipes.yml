@@ -317,8 +317,8 @@ recipeList:
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeNextMajorParentVersion
-displayName: Upgrade to the next major parent version (6.X) requiring Jenkins 2.516 and Java 21
-description: Upgrade to the next major parent version (6.X) requiring Jenkins 2.516 and Java 21.
+displayName: Upgrade to the next major parent version (6.X) requiring Jenkins 2.528 and Java 21
+description: Upgrade to the next major parent version (6.X) requiring Jenkins 2.528 and Java 21.
 tags: ['dependencies']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath
@@ -326,9 +326,9 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
   - io.jenkins.tools.pluginmodernizer.UpgradeParent6Version
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.516.3
+      minimumVersion: 2.528.3
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
-      jenkinsVersion: 2.516.3
+      jenkinsVersion: 2.528.3
   - org.openrewrite.java.ChangePackage:  #deprecating
       oldPackageName: com.gargoylesoftware.htmlunit
       newPackageName: org.htmlunit

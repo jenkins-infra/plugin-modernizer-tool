@@ -674,7 +674,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </scm>
                           <properties>
                             <jenkins-test-harness.version>2.41.1</jenkins-test-harness.version>
-                            <jenkins.version>2.516.1</jenkins.version>
+                            <jenkins.version>2.528.1</jenkins.version>
                           </properties>
                           <dependencies>
                             <dependency>
@@ -1137,7 +1137,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                         <jenkins-test-harness.version>2.41.1</jenkins-test-harness.version>
                         <revision>2.17.0</revision>
                         <changelist>999999-SNAPSHOT</changelist>
-                        <jenkins.version>2.516.1</jenkins.version>
+                        <jenkins.version>2.528.1</jenkins.version>
                         <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
                       </properties>
                       <repositories>
@@ -2347,7 +2347,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <properties>
                             <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                            <jenkins.baseline>2.516</jenkins.baseline>
+                            <jenkins.baseline>2.528</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                             <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
                           </properties>
@@ -2563,7 +2563,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <properties>
                     <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.516</jenkins.baseline>
+                    <jenkins.baseline>2.528</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                     <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
                   </properties>
@@ -2895,7 +2895,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.516.3</jenkins.version>
+                    <jenkins.version>2.528.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2978,7 +2978,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.516.3</jenkins.version>
+                    <jenkins.version>2.528.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -3081,7 +3081,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.516</jenkins.baseline>
+                    <jenkins.baseline>2.528</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
@@ -3138,7 +3138,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.516</jenkins.baseline>
+                    <jenkins.baseline>2.528</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                   </properties>
                   <dependencyManagement>
