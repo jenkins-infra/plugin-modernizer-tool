@@ -334,9 +334,13 @@ public class PluginModernizer {
             }
 
             plugin.setJenkinsBaseline(plugin.getMetadata().getProperties().get("jenkins.baseline"));
-            plugin.setJenkinsVersion(plugin.getMetadata().getJenkinsVersion());
-            plugin.setEffectiveBaseline(
-                    plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+            String jenkinsVersion = plugin.getMetadata().getJenkinsVersion();
+            plugin.setJenkinsVersion(jenkinsVersion);
+            if (jenkinsVersion != null) {
+                plugin.setEffectiveBaseline(jenkinsVersion.replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+            } else {
+                LOG.warn("Jenkins version is null for plugin {}, skipping effective baseline", plugin.getName());
+            }
 
             // Run OpenRewrite
             plugin.runOpenRewrite(mavenInvoker);
@@ -490,8 +494,10 @@ public class PluginModernizer {
         modernizationMetadata.setJenkinsBaseline(plugin.getJenkinsBaseline());
         modernizationMetadata.setJenkinsVersion(plugin.getJenkinsVersion());
         modernizationMetadata.setEffectiveBaseline(plugin.getEffectiveBaseline());
-        modernizationMetadata.setTargetBaseline(
-                plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+        if (plugin.getMetadata().getJenkinsVersion() != null) {
+            modernizationMetadata.setTargetBaseline(
+                    plugin.getMetadata().getJenkinsVersion().replaceAll("(\\d+\\.\\d+)\\.\\d+", "$1"));
+        }
         try {
             modernizationMetadata.setPluginRepository(
                     ghService.getRepository(plugin, RepoType.PLUGIN).getHttpTransportUrl());
