@@ -57,6 +57,11 @@ public class UpdateJenkinsfileForJavaVersion extends Recipe {
     List<Integer> jdksToRemove;
 
     /**
+     * No-arg constructor required for Jackson deserialization.
+     */
+    public UpdateJenkinsfileForJavaVersion() {}
+
+    /**
      * Constructor.
      * @param javaVersion The java version.
      */
