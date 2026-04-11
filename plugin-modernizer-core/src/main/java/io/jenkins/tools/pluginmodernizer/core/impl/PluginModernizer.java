@@ -419,12 +419,10 @@ public class PluginModernizer {
                 plugin.addError("Unexpected processing error. Check the logs at " + plugin.getLogFile(), e);
             }
         } finally {
-            if (!config.isSkipMetadata() && !earlySkip) {
+            if (!config.isSkipMetadata() && !earlySkip && !config.isDryRun()) {
                 try {
-                    // collect the modernization metadata and push it to metadata repository if valid
                     collectModernizationMetadata(plugin);
                     validateModernizationMetadata(plugin);
-                    // Only proceed with metadata operations if modernization metadata was successfully created
                     if (plugin.getModernizationMetadata() != null) {
                         plugin.fetchMetadata(ghService);
                         plugin.forkMetadata(ghService);
