@@ -168,7 +168,19 @@ public class PluginModernizer {
         // Fetch plugin versions
         pluginService.getPluginVersionData();
 
-        List<Plugin> plugins = config.getPlugins();
+        List<Plugin> plugins;
+        if (config.getTopPluginsCount() > 0) {
+            LOG.info(
+                    "Resolving top {} most-installed plugins from installation stats...",
+                    config.getTopPluginsCount());
+            plugins = pluginService.getTopPlugins(config.getTopPluginsCount());
+            LOG.info(
+                    "Will process {} plugins: {}",
+                    plugins.size(),
+                    plugins.stream().map(Plugin::getName).toList());
+        } else {
+            plugins = config.getPlugins();
+        }
         plugins.forEach(this::process);
         printResults(plugins);
     }

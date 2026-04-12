@@ -367,7 +367,7 @@ class PluginServiceTest {
                         ReflectionUtils.HierarchyTraversalMode.TOP_DOWN)
                 .get(0);
         pluginInstallationDataField.setAccessible(true);
-        pluginInstallationDataField.set(pluginInstallationStatsData, healthPlugins);
+        pluginInstallationDataField.set(pluginInstallationStatsData, installations);
 
         return Triple.of(updateCenterData, healthScoreData, pluginInstallationStatsData);
     }
@@ -404,5 +404,49 @@ class PluginServiceTest {
         boolean exists = pluginService.existsInUpdateCenter(nonExistentPlugin);
 
         assertEquals(false, exists, "Plugin 'non-existent-plugin' should not exist in update center");
+    }
+
+    @Test
+    public void shouldGetTopPlugins() throws Exception {
+        CacheManager cacheManager = Mockito.mock(CacheManager.class);
+        Path cacheRoot = Mockito.mock(Path.class);
+        Config config = Mockito.mock(Config.class);
+        PluginInstallationStatsData statsData =
+                setup(config, cacheManager, cacheRoot).getRight();
+
+        doReturn(statsData)
+                .when(cacheManager)
+                .get(cacheRoot, CacheManager.INSTALLATION_STATS_KEY, PluginInstallationStatsData.class);
+        doReturn(cacheRoot).when(cacheManager).root();
+
+        PluginService service = getService(config, cacheManager);
+
+        // Top 1 must be the plugin with the highest install count (valid-plugin: 1000)
+        var top1 = service.getTopPlugins(1);
+        assertEquals(1, top1.size());
+        assertEquals("valid-plugin", top1.get(0).getName());
+
+        // Top 2 must be ordered descending: valid-plugin (1000) then valid-plugin2 (500)
+        var top2 = service.getTopPlugins(2);
+        assertEquals(2, top2.size());
+        assertEquals("valid-plugin", top2.get(0).getName());
+        assertEquals("valid-plugin2", top2.get(1).getName());
+
+        // Requesting more than available returns all known plugins
+        var topAll = service.getTopPlugins(100);
+        assertEquals(2, topAll.size());
+    }
+
+    @Test
+    public void shouldThrowWhenTopPluginsCountIsZeroOrNegative() throws Exception {
+        CacheManager cacheManager = Mockito.mock(CacheManager.class);
+        Path cacheRoot = Mockito.mock(Path.class);
+        Config config = Mockito.mock(Config.class);
+        setup(config, cacheManager, cacheRoot);
+
+        PluginService service = getService(config, cacheManager);
+
+        assertThrows(IllegalArgumentException.class, () -> service.getTopPlugins(0));
+        assertThrows(IllegalArgumentException.class, () -> service.getTopPlugins(-1));
     }
 }

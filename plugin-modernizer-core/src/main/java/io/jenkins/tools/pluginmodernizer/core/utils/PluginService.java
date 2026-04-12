@@ -13,6 +13,9 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
 import io.jenkins.tools.pluginmodernizer.core.model.UpdateCenterData;
 import jakarta.inject.Inject;
 import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,6 +248,24 @@ public class PluginService {
         PluginInstallationStatsData pluginInstallationStatsData = new PluginInstallationStatsData(cacheManager);
         pluginInstallationStatsData.setPlugins(CSVUtils.parseStats(data));
         return pluginInstallationStatsData;
+    }
+
+    /**
+     * Return the top N most-installed plugins ordered by installation count descending.
+     * If n exceeds the number of known plugins, all known plugins are returned.
+     * @param n Number of plugins to return; must be positive
+     * @return Ordered list of plugins, highest-install-count first
+     */
+    public List<Plugin> getTopPlugins(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("n must be a positive integer, got: " + n);
+        }
+        PluginInstallationStatsData stats = getPluginInstallationStatsData();
+        return stats.getPlugins().entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
+                .limit(n)
+                .map(entry -> Plugin.build(entry.getKey()))
+                .toList();
     }
 
     /**

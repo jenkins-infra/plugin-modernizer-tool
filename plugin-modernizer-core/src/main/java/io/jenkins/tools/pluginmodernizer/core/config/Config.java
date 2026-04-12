@@ -18,6 +18,7 @@ public class Config {
 
     private final String version;
     private final List<Plugin> plugins;
+    private final int topPluginsCount;
     private final Recipe recipe;
     private final URL jenkinsUpdateCenter;
     private final URL jenkinsPluginVersions;
@@ -49,6 +50,7 @@ public class Config {
             Long githubAppTargetInstallationId,
             Path sshPrivateKey,
             List<Plugin> plugins,
+            int topPluginsCount,
             Recipe recipe,
             URL jenkinsUpdateCenter,
             URL jenkinsPluginVersions,
@@ -73,6 +75,7 @@ public class Config {
         this.githubAppTargetInstallationId = githubAppTargetInstallationId;
         this.sshPrivateKey = sshPrivateKey;
         this.plugins = plugins;
+        this.topPluginsCount = topPluginsCount;
         this.recipe = recipe;
         this.jenkinsUpdateCenter = jenkinsUpdateCenter;
         this.jenkinsPluginVersions = jenkinsPluginVersions;
@@ -118,6 +121,14 @@ public class Config {
 
     public List<Plugin> getPlugins() {
         return plugins;
+    }
+
+    /**
+     * Return the number of top-installed plugins to process (0 means not set; use explicit plugin list instead).
+     * @return Top plugins count, or 0 if not set
+     */
+    public int getTopPluginsCount() {
+        return topPluginsCount;
     }
 
     public Recipe getRecipe() {
@@ -255,6 +266,7 @@ public class Config {
         private Long githubAppTargetInstallationId;
         private Path sshPrivateKey = Settings.SSH_PRIVATE_KEY;
         private List<Plugin> plugins;
+        private int topPluginsCount = 0;
         private Recipe recipe;
         private URL jenkinsUpdateCenter = Settings.DEFAULT_UPDATE_CENTER_URL;
         private URL jenkinsPluginVersions = Settings.DEFAULT_PLUGIN_VERSIONS;
@@ -305,6 +317,11 @@ public class Config {
 
         public Builder withPlugins(List<Plugin> plugins) {
             this.plugins = plugins;
+            return this;
+        }
+
+        public Builder withTopPluginsCount(int topPluginsCount) {
+            this.topPluginsCount = topPluginsCount;
             return this;
         }
 
@@ -420,6 +437,7 @@ public class Config {
                     githubAppTargetInstallationId,
                     sshPrivateKey,
                     plugins,
+                    topPluginsCount,
                     recipe,
                     jenkinsUpdateCenter,
                     jenkinsPluginVersions,
