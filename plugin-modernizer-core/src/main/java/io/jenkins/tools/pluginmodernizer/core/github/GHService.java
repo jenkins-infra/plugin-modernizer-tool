@@ -1237,7 +1237,7 @@ public class GHService {
      * @return DiffStats (no. of additions, deletions and changed files)
      */
     public DiffStats getDiffStats(Plugin plugin, boolean dryRun) {
-        Path gitDirPath = Settings.DEFAULT_CACHE_PATH
+        Path gitDirPath = config.getCachePath()
                 .resolve(plugin.getName())
                 .resolve("sources")
                 .resolve(".git")
