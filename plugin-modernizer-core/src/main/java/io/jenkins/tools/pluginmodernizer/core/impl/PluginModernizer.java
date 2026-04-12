@@ -597,10 +597,8 @@ public class PluginModernizer {
         plugin.format(mavenInvoker);
         plugin.verify(mavenInvoker);
         if (plugin.hasErrors()) {
-            LOG.info("Plugin {} failed to verify with JDK {}", plugin.getName(), jdk.getMajor());
-            plugin.withoutErrors();
+            LOG.warn("Plugin {} failed to verify with JDK {}", plugin.getName(), jdk.getMajor());
         }
-        plugin.withoutErrors();
 
         return jdk;
     }
