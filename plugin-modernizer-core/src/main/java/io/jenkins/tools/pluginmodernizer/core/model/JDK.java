@@ -280,7 +280,8 @@ public enum JDK {
         return jdks.stream()
                 .filter(supportedByVersion::contains)
                 .min(JDK::compareMajor)
-                .orElseGet(() -> supportedByVersion.stream().min(JDK::compareMajor).orElse(JDK.min()));
+                .orElseGet(
+                        () -> supportedByVersion.stream().min(JDK::compareMajor).orElse(JDK.min()));
     }
 
     /**
