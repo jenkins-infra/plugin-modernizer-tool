@@ -359,9 +359,14 @@ public class PluginModernizer {
 
             if (plugin.hasErrors()) {
                 LOG.warn(
-                        "Skipping plugin {} due to verification errors after modernization. Check logs for more details.",
+                        "Plugin {} failed verification after modernization. Check logs for more details.",
                         plugin.getName());
-                return;
+                if (!config.isDryRun()) {
+                    return;
+                }
+                // In dry-run mode we are only previewing changes, so clear the error and
+                // continue so the diff is still displayed to the user.
+                plugin.withoutErrors();
             }
 
             // Recollect metadata after modernization
