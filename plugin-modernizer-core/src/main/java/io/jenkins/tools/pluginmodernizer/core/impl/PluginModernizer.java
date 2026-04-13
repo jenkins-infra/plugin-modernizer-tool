@@ -170,9 +170,7 @@ public class PluginModernizer {
 
         List<Plugin> plugins;
         if (config.getTopPluginsCount() > 0) {
-            LOG.info(
-                    "Resolving top {} most-installed plugins from installation stats...",
-                    config.getTopPluginsCount());
+            LOG.info("Resolving top {} most-installed plugins from installation stats...", config.getTopPluginsCount());
             plugins = pluginService.getTopPlugins(config.getTopPluginsCount());
             LOG.info(
                     "Will process {} plugins: {}",
