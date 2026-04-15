@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import io.jenkins.tools.pluginmodernizer.cli.utils.GitHubServerContainer;
 import io.jenkins.tools.pluginmodernizer.cli.utils.ModernizerTestWatcher;
+import io.jenkins.tools.pluginmodernizer.core.campaign.CampaignReport;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
@@ -553,6 +554,93 @@ public class CommandLineITCase {
             assertTrue(
                     Files.exists(targetPath.resolve(ArchetypeCommonFile.WORKFLOW_SECURITY.getPath())),
                     "Workflow security file was not created");
+        }
+    }
+
+    @Test
+    @Tag("Slow")
+    public void testCampaignOnLocalPlugin(WireMockRuntimeInfo wmRuntimeInfo) throws Exception {
+
+        Path logFile = setupLogs("testCampaignOnLocalPlugin");
+
+        final String plugin = "empty";
+        final Path pluginPath = Path.of("src/test/resources").resolve(plugin);
+        Path targetPath = cachePath
+                .resolve("jenkins-plugin-modernizer-cli")
+                .resolve(plugin)
+                .resolve("sources");
+        FileUtils.copyDirectory(pluginPath.toFile(), targetPath.toFile());
+        Git.init().setDirectory(targetPath.toFile()).call().close();
+
+        Path campaignFile = cachePath.resolve("campaign.yaml");
+        Files.writeString(
+                campaignFile,
+                """
+                plugins:
+                  localPaths:
+                    - %s
+                stages:
+                  - recipe: SetupDependabot
+                  - recipe: SetupSecurityScan
+                execution:
+                  concurrency: 1
+                  continueOnFailure: false
+                  skipMetadata: true
+                output:
+                  reportJson: reports/campaign.json
+                """
+                        .formatted(targetPath.toAbsolutePath()));
+
+        try (GitHubServerContainer gitRemote = new GitHubServerContainer(wmRuntimeInfo, keysPath, plugin, "main")) {
+
+            gitRemote.start();
+
+            System.out.printf("[[ATTACHMENT|%s]]%n", getMavenInvokerLog(plugin));
+            System.out.printf("[[ATTACHMENT|%s]]%n", logFile.toAbsolutePath());
+
+            Invoker invoker = buildInvoker();
+            InvocationRequest request = buildRequest(
+                    """
+                    campaign --file %s
+                    --debug
+                    --maven-home %s
+                    --ssh-private-key %s
+                    --cache-path %s
+                    --github-api-url %s
+                    --jenkins-update-center %s
+                    --jenkins-plugin-info %s
+                    --plugin-health-score %s
+                    --jenkins-plugins-stats-installations-url %s
+                    """
+                            .formatted(
+                                    campaignFile.toAbsolutePath(),
+                                    getModernizerMavenHome(),
+                                    keysPath.resolve(plugin),
+                                    cachePath,
+                                    wmRuntimeInfo.getHttpBaseUrl() + "/api",
+                                    wmRuntimeInfo.getHttpBaseUrl() + "/update-center.json",
+                                    wmRuntimeInfo.getHttpBaseUrl() + "/plugin-versions.json",
+                                    wmRuntimeInfo.getHttpBaseUrl() + "/scores",
+                                    wmRuntimeInfo.getHttpBaseUrl() + "/jenkins-stats/svg/202406-plugins.csv")
+                            .replaceAll("\\s+", " "),
+                    logFile);
+            InvocationResult result = invoker.execute(request);
+
+            Path reportPath = cachePath.resolve("reports").resolve("campaign.json");
+            CampaignReport report = JsonUtils.fromJson(reportPath, CampaignReport.class);
+
+            assertAll(
+                    () -> assertEquals(0, result.getExitCode()),
+                    () -> assertTrue(Files.readAllLines(logFile).stream()
+                            .anyMatch(line -> line.matches("(.*)Campaign finished. Plugins: 1 success / 0 failed.(.*)"))),
+                    () -> assertTrue(Files.exists(targetPath.resolve(".github").resolve("dependabot.yml"))),
+                    () -> assertTrue(Files.exists(targetPath.resolve(ArchetypeCommonFile.WORKFLOW_SECURITY.getPath()))),
+                    () -> assertTrue(Files.exists(reportPath)),
+                    () -> assertEquals(1, report.getSuccessfulPlugins()),
+                    () -> assertEquals(2, report.getSuccessfulStages()),
+                    () -> assertEquals(
+                            targetPath.toAbsolutePath().toString(),
+                            report.getPlugins().get(0).getFinalLocalRepository()));
         }
     }
 
