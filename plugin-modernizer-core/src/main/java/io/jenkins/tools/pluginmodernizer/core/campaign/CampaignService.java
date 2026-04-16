@@ -129,15 +129,16 @@ public class CampaignService {
     }
 
     private Path resolveReportPath(CampaignDefinition definition, Path campaignFile) {
+        Path parent = campaignFile.toAbsolutePath().getParent();
         String reportJson = definition.getOutput().getReportJson();
         if (reportJson == null || reportJson.isBlank()) {
-            return campaignFile.getParent().resolve("campaign-report.json").normalize();
+            return parent.resolve("campaign-report.json").normalize();
         }
         Path configuredPath = Path.of(reportJson);
         if (configuredPath.isAbsolute()) {
             return configuredPath.normalize();
         }
-        return campaignFile.getParent().resolve(configuredPath).normalize();
+        return parent.resolve(configuredPath).normalize();
     }
 
     private Config buildStageConfig(Plugin plugin, CampaignDefinition definition, CampaignStage stage) {
