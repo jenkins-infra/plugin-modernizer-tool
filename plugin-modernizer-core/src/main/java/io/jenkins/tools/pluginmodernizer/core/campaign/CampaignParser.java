@@ -55,9 +55,12 @@ public class CampaignParser {
 
     private void validate(CampaignDefinition definition, Path campaignFile) {
         CampaignPluginSource pluginSource = definition.getPlugins();
-        boolean hasNames = pluginSource.getNames() != null && !pluginSource.getNames().isEmpty();
-        boolean hasFile = pluginSource.getFile() != null && !pluginSource.getFile().isBlank();
-        boolean hasLocalPaths = pluginSource.getLocalPaths() != null && !pluginSource.getLocalPaths().isEmpty();
+        boolean hasNames =
+                pluginSource.getNames() != null && !pluginSource.getNames().isEmpty();
+        boolean hasFile =
+                pluginSource.getFile() != null && !pluginSource.getFile().isBlank();
+        boolean hasLocalPaths = pluginSource.getLocalPaths() != null
+                && !pluginSource.getLocalPaths().isEmpty();
         boolean hasTopPlugins = pluginSource.getTopPlugins() != null;
 
         if (!hasNames && !hasFile && !hasLocalPaths && !hasTopPlugins) {

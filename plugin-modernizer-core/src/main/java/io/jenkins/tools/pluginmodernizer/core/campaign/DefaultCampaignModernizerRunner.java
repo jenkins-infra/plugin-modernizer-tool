@@ -36,30 +36,32 @@ public class DefaultCampaignModernizerRunner implements CampaignModernizerRunner
                 .map(PluginProcessingException::getMessage)
                 .collect(LinkedHashSet::new, LinkedHashSet::add, LinkedHashSet::addAll));
         if (plugin.hasPreconditionErrors()) {
-            plugin.getPreconditionErrors().stream()
-                    .map(Object::toString)
-                    .forEach(errors::add);
+            plugin.getPreconditionErrors().stream().map(Object::toString).forEach(errors::add);
         }
 
         Instant finishedAt = Instant.now();
         CampaignStageReport report = new CampaignStageReport();
-        report.setStageName(stage.getName() != null && !stage.getName().isBlank()
-                ? stage.getName()
-                : stage.getRecipe());
+        report.setStageName(
+                stage.getName() != null && !stage.getName().isBlank() ? stage.getName() : stage.getRecipe());
         report.setRecipe(stageConfig.getRecipe().getName());
         report.setSuccess(errors.isEmpty());
         report.setStartedAt(startedAt.toString());
         report.setFinishedAt(finishedAt.toString());
         report.setDurationMillis(finishedAt.toEpochMilli() - startedAt.toEpochMilli());
         if (plugin.getLocalRepository() != null) {
-            report.setLocalRepository(plugin.getLocalRepository().toAbsolutePath().toString());
+            report.setLocalRepository(
+                    plugin.getLocalRepository().toAbsolutePath().toString());
         }
-        report.setModifiedFiles(plugin.getModifiedFiles().stream().sorted(Comparator.naturalOrder()).toList());
+        report.setModifiedFiles(plugin.getModifiedFiles().stream()
+                .sorted(Comparator.naturalOrder())
+                .toList());
         report.setErrors(List.copyOf(errors));
         return report;
     }
 
     private String messageOf(Exception e) {
-        return e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : e.getClass().getName();
+        return e.getMessage() != null && !e.getMessage().isBlank()
+                ? e.getMessage()
+                : e.getClass().getName();
     }
 }

@@ -43,8 +43,8 @@ class CampaignPluginSelectorTest {
         definition.setPlugins(pluginSource);
 
         CampaignPluginSelector selector = new CampaignPluginSelector(pluginService);
-        assertThrows(ModernizerException.class,
-                () -> selector.selectPlugins(definition, tempDir.resolve("campaign.yaml")));
+        assertThrows(
+                ModernizerException.class, () -> selector.selectPlugins(definition, tempDir.resolve("campaign.yaml")));
     }
 
     @Test
@@ -73,9 +73,7 @@ class CampaignPluginSelectorTest {
 
         Path localPlugin = tempDir.resolve("local-plugin");
         Files.createDirectories(localPlugin);
-        Files.writeString(
-                localPlugin.resolve("pom.xml"),
-                """
+        Files.writeString(localPlugin.resolve("pom.xml"), """
                 <project>
                   <modelVersion>4.0.0</modelVersion>
                   <groupId>test</groupId>

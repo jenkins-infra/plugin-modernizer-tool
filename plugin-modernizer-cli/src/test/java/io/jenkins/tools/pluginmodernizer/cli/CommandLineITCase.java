@@ -573,9 +573,7 @@ public class CommandLineITCase {
         Git.init().setDirectory(targetPath.toFile()).call().close();
 
         Path campaignFile = cachePath.resolve("campaign.yaml");
-        Files.writeString(
-                campaignFile,
-                """
+        Files.writeString(campaignFile, """
                 plugins:
                   localPaths:
                     - %s
@@ -588,8 +586,7 @@ public class CommandLineITCase {
                   skipMetadata: true
                 output:
                   reportJson: reports/campaign.json
-                """
-                        .formatted(targetPath.toAbsolutePath()));
+                """.formatted(targetPath.toAbsolutePath()));
 
         try (GitHubServerContainer gitRemote = new GitHubServerContainer(wmRuntimeInfo, keysPath, plugin, "main")) {
 
@@ -611,8 +608,7 @@ public class CommandLineITCase {
                     --jenkins-plugin-info %s
                     --plugin-health-score %s
                     --jenkins-plugins-stats-installations-url %s
-                    """
-                            .formatted(
+                    """.formatted(
                                     campaignFile.toAbsolutePath(),
                                     getModernizerMavenHome(),
                                     keysPath.resolve(plugin),
@@ -632,7 +628,8 @@ public class CommandLineITCase {
             assertAll(
                     () -> assertEquals(0, result.getExitCode()),
                     () -> assertTrue(Files.readAllLines(logFile).stream()
-                            .anyMatch(line -> line.matches("(.*)Campaign finished. Plugins: 1 success / 0 failed.(.*)"))),
+                            .anyMatch(
+                                    line -> line.matches("(.*)Campaign finished. Plugins: 1 success / 0 failed.(.*)"))),
                     () -> assertTrue(Files.exists(targetPath.resolve(".github").resolve("dependabot.yml"))),
                     () -> assertTrue(Files.exists(targetPath.resolve(ArchetypeCommonFile.WORKFLOW_SECURITY.getPath()))),
                     () -> assertTrue(Files.exists(reportPath)),

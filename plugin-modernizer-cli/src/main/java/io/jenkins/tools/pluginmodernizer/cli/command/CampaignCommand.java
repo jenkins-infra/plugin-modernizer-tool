@@ -19,8 +19,7 @@ import picocli.CommandLine;
  */
 @CommandLine.Command(
         name = "campaign",
-        description =
-                "Run a multi-stage modernization campaign in dry-run mode and emit a structured JSON report")
+        description = "Run a multi-stage modernization campaign in dry-run mode and emit a structured JSON report")
 public class CampaignCommand implements ICommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(CampaignCommand.class);
@@ -51,8 +50,8 @@ public class CampaignCommand implements ICommand {
     @Override
     public Integer call() {
         try {
-            CampaignService campaignService =
-                    Guice.createInjector(new GuiceModule(setup(Config.builder()))).getInstance(CampaignService.class);
+            CampaignService campaignService = Guice.createInjector(new GuiceModule(setup(Config.builder())))
+                    .getInstance(CampaignService.class);
             CampaignReport report = campaignService.run(file);
             LOG.info(
                     "Campaign finished. Plugins: {} success / {} failed. Report: {}",

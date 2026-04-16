@@ -19,9 +19,7 @@ class CampaignParserTest {
     @Test
     void shouldParseValidCampaignFile() throws Exception {
         Path campaignFile = tempDir.resolve("campaign.yaml");
-        Files.writeString(
-                campaignFile,
-                """
+        Files.writeString(campaignFile, """
                 plugins:
                   names:
                     - git
@@ -59,17 +57,14 @@ class CampaignParserTest {
     @Test
     void shouldRejectCampaignWithoutStages() throws Exception {
         Path campaignFile = tempDir.resolve("invalid-campaign.yaml");
-        Files.writeString(
-                campaignFile,
-                """
+        Files.writeString(campaignFile, """
                 plugins:
                   names:
                     - git
                 """);
 
         CampaignParser parser = new CampaignParser(new RecipeResolver());
-        ModernizerException exception =
-                assertThrows(ModernizerException.class, () -> parser.parse(campaignFile));
+        ModernizerException exception = assertThrows(ModernizerException.class, () -> parser.parse(campaignFile));
 
         assertTrue(exception.getMessage().contains("at least one stage"));
     }
@@ -77,16 +72,13 @@ class CampaignParserTest {
     @Test
     void shouldRejectCampaignWithNoPluginSource() throws Exception {
         Path campaignFile = tempDir.resolve("no-source.yaml");
-        Files.writeString(
-                campaignFile,
-                """
+        Files.writeString(campaignFile, """
                 stages:
                   - recipe: SetupDependabot
                 """);
 
         CampaignParser parser = new CampaignParser(new RecipeResolver());
-        ModernizerException exception =
-                assertThrows(ModernizerException.class, () -> parser.parse(campaignFile));
+        ModernizerException exception = assertThrows(ModernizerException.class, () -> parser.parse(campaignFile));
 
         assertTrue(exception.getMessage().contains("at least one plugin source"));
     }
@@ -94,9 +86,7 @@ class CampaignParserTest {
     @Test
     void shouldRejectCampaignWithZeroTopPlugins() throws Exception {
         Path campaignFile = tempDir.resolve("bad-top.yaml");
-        Files.writeString(
-                campaignFile,
-                """
+        Files.writeString(campaignFile, """
                 plugins:
                   topPlugins: 0
                 stages:
@@ -104,8 +94,7 @@ class CampaignParserTest {
                 """);
 
         CampaignParser parser = new CampaignParser(new RecipeResolver());
-        ModernizerException exception =
-                assertThrows(ModernizerException.class, () -> parser.parse(campaignFile));
+        ModernizerException exception = assertThrows(ModernizerException.class, () -> parser.parse(campaignFile));
 
         assertTrue(exception.getMessage().contains("topPlugins must be greater than zero"));
     }
@@ -113,9 +102,7 @@ class CampaignParserTest {
     @Test
     void shouldRejectCampaignWithUnknownRecipe() throws Exception {
         Path campaignFile = tempDir.resolve("bad-recipe.yaml");
-        Files.writeString(
-                campaignFile,
-                """
+        Files.writeString(campaignFile, """
                 plugins:
                   names:
                     - git

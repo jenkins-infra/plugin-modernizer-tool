@@ -19,9 +19,7 @@ class PluginPathResolverTest {
 
     @Test
     void shouldResolveSingleModulePlugin() throws Exception {
-        Files.writeString(
-                tempDir.resolve("pom.xml"),
-                """
+        Files.writeString(tempDir.resolve("pom.xml"), """
                 <project>
                   <modelVersion>4.0.0</modelVersion>
                   <groupId>test</groupId>
@@ -37,9 +35,7 @@ class PluginPathResolverTest {
 
     @Test
     void shouldResolveMultiModulePlugin() throws Exception {
-        Files.writeString(
-                tempDir.resolve("pom.xml"),
-                """
+        Files.writeString(tempDir.resolve("pom.xml"), """
                 <project>
                   <modelVersion>4.0.0</modelVersion>
                   <groupId>test</groupId>
@@ -50,9 +46,7 @@ class PluginPathResolverTest {
                 """);
         Path sub = tempDir.resolve("my-plugin");
         Files.createDirectories(sub);
-        Files.writeString(
-                sub.resolve("pom.xml"),
-                """
+        Files.writeString(sub.resolve("pom.xml"), """
                 <project>
                   <modelVersion>4.0.0</modelVersion>
                   <groupId>test</groupId>

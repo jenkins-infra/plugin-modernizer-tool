@@ -61,7 +61,8 @@ public class CampaignService {
     }
 
     private List<CampaignPluginReport> executePlugins(CampaignDefinition definition, List<Plugin> selectedPlugins) {
-        ExecutorService executorService = Executors.newFixedThreadPool(definition.getExecution().getConcurrency());
+        ExecutorService executorService =
+                Executors.newFixedThreadPool(definition.getExecution().getConcurrency());
         try {
             List<Future<CampaignPluginReport>> futures = selectedPlugins.stream()
                     .map(plugin -> executorService.submit(new CampaignPluginTask(definition, plugin)))
@@ -88,13 +89,16 @@ public class CampaignService {
             Instant startedAt,
             Instant finishedAt,
             List<CampaignPluginReport> pluginReports) {
-        int totalStages = pluginReports.stream().mapToInt(report -> report.getStages().size()).sum();
+        int totalStages = pluginReports.stream()
+                .mapToInt(report -> report.getStages().size())
+                .sum();
         int successfulStages = pluginReports.stream()
                 .flatMap(report -> report.getStages().stream())
                 .mapToInt(stage -> stage.isSuccess() ? 1 : 0)
                 .sum();
         int failedStages = totalStages - successfulStages;
-        int successfulPlugins = (int) pluginReports.stream().filter(CampaignPluginReport::isSuccess).count();
+        int successfulPlugins = (int)
+                pluginReports.stream().filter(CampaignPluginReport::isSuccess).count();
 
         CampaignReport report = new CampaignReport();
         report.setCampaignFile(campaignFile.toString());
@@ -210,9 +214,13 @@ public class CampaignService {
             CampaignPluginReport report = new CampaignPluginReport();
             report.setPluginName(initialPlugin.getName());
             report.setLocal(initialPlugin.isLocal());
-            report.setSource(initialPlugin.isLocal()
-                    ? initialPlugin.getLocalRepository().toAbsolutePath().toString()
-                    : initialPlugin.getName());
+            report.setSource(
+                    initialPlugin.isLocal()
+                            ? initialPlugin
+                                    .getLocalRepository()
+                                    .toAbsolutePath()
+                                    .toString()
+                            : initialPlugin.getName());
             if (currentPlugin.isLocal() && currentPlugin.getLocalRepository() != null) {
                 report.setFinalLocalRepository(
                         currentPlugin.getLocalRepository().toAbsolutePath().toString());

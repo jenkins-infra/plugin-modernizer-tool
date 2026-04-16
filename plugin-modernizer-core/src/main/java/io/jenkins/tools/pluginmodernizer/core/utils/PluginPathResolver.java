@@ -47,10 +47,12 @@ public class PluginPathResolver {
             LOG.info("Detected multi-module project, searching for Jenkins plugin module...");
             Path pluginPath = findJenkinsPluginModule(path);
             if (pluginPath != null) {
-                StaticPomParser pluginPomParser = new StaticPomParser(pluginPath.resolve("pom.xml").toString());
+                StaticPomParser pluginPomParser =
+                        new StaticPomParser(pluginPath.resolve("pom.xml").toString());
                 String artifactId = pluginPomParser.getArtifactId();
                 if (artifactId == null) {
-                    throw new IllegalArgumentException("Plugin module does not contain valid artifactId: " + pluginPath);
+                    throw new IllegalArgumentException(
+                            "Plugin module does not contain valid artifactId: " + pluginPath);
                 }
                 LOG.info("Found Jenkins plugin module '{}' at: {}", artifactId, pluginPath);
                 return Plugin.build(artifactId, pluginPath);
@@ -79,7 +81,8 @@ public class PluginPathResolver {
                     .filter(dir -> Files.exists(dir.resolve("pom.xml")))
                     .filter(dir -> {
                         try {
-                            StaticPomParser parser = new StaticPomParser(dir.resolve("pom.xml").toString());
+                            StaticPomParser parser =
+                                    new StaticPomParser(dir.resolve("pom.xml").toString());
                             String packaging = parser.getPackaging();
                             return "hpi".equals(packaging);
                         } catch (Exception e) {

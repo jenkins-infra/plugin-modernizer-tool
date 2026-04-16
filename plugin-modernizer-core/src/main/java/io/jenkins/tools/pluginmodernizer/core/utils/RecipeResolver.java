@@ -12,7 +12,9 @@ public class RecipeResolver {
     public Recipe resolve(String value) {
         return Settings.AVAILABLE_RECIPES.stream()
                 .filter(recipe -> recipe.getName().equals(value)
-                        || recipe.getName().replace(Settings.RECIPE_FQDN_PREFIX + ".", "").equals(value))
+                        || recipe.getName()
+                                .replace(Settings.RECIPE_FQDN_PREFIX + ".", "")
+                                .equals(value))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Invalid recipe name: " + value));
     }

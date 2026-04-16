@@ -74,7 +74,8 @@ class CampaignServiceTest {
             if (invocation == 2) {
                 Plugin plugin = stageConfig.getPlugins().get(0);
                 assertTrue(plugin.isLocal());
-                assertEquals(workspace.toAbsolutePath(), plugin.getLocalRepository().toAbsolutePath());
+                assertEquals(
+                        workspace.toAbsolutePath(), plugin.getLocalRepository().toAbsolutePath());
             }
             return report;
         };
@@ -87,7 +88,9 @@ class CampaignServiceTest {
         assertEquals(2, callCount.get());
         assertEquals(1, report.getSuccessfulPlugins());
         assertEquals(2, report.getSuccessfulStages());
-        assertEquals(workspace.toAbsolutePath().toString(), report.getPlugins().get(0).getFinalLocalRepository());
+        assertEquals(
+                workspace.toAbsolutePath().toString(),
+                report.getPlugins().get(0).getFinalLocalRepository());
     }
 
     @Test
