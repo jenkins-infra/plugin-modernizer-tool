@@ -59,7 +59,7 @@
     <asm.version>9.9.1</asm.version>
     <gson.version>2.13.2</gson.version>
     <jackson.version>2.21.2</jackson.version>
-    <maven.modernizer.version>3.9.14</maven.modernizer.version>
+    <maven.modernizer.version>3.9.15</maven.modernizer.version>
     <commons-codec.version>1.21.0</commons-codec.version>
     <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
     <jgit.version>7.6.0.202603022253-r</jgit.version>
