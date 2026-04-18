@@ -633,6 +633,21 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version
+displayName: Baseline a plugin to the minimum required Jenkins version for Java 21 (2.555.1)
+description: Baseline a plugin to the minimum required Jenkins version for Java 21 (2.555.1) in order to use Java 21 features.
+tags: ['dependencies', 'chore']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.UpgradeParent6Version
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
+      minimumVersion: 2.555.1
+  - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateStaplerAndJavaxToJakarta
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion:
+      javaVersion: 25
+      jdksToRemove: [8, 11, 17]
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava11CoreVersion
 displayName: Upgrade to latest LTS core version supporting Java 11
 description: Upgrade to latest LTS core version supporting Java 11.
