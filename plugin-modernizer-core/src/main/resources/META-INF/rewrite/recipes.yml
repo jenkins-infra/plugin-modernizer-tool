@@ -860,3 +860,13 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
       key: hpi.strictBundledArtifacts
       value: true
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.BanJavaxServletClasses
+displayName: Ensure the pom.xml contains the property `ban-deprecated-stapler.skip` set to `false`
+description: Ensure the pom.xml contains the property `ban-deprecated-stapler.skip` set to `false`.
+tags: ['dependencies', 'migration']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
+      key: ban-deprecated-stapler.skip
+      value: false
