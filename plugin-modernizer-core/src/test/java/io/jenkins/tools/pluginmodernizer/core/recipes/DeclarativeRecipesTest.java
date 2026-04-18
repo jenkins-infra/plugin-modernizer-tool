@@ -4386,6 +4386,83 @@ public class DeclarativeRecipesTest implements RewriteTest {
     }
 
     @Test
+    void shouldBaseLineToJenkinsMinimumRequiredJava21Version() {
+        rewriteRun(
+                spec -> spec.recipeFromResource(
+                        "/META-INF/rewrite/recipes.yml",
+                        "io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version"),
+                // language=groovy
+                groovy(
+                        EXPECTED_MODERN_JENKINSFILE,
+                        """
+                        /*
+                         See the documentation for more options:
+                         https://github.com/jenkins-infra/pipeline-library/
+                        */
+                        buildPlugin(
+                            forkCount: '1C', // Run a JVM per core in tests
+                            useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
+                          configurations: [
+                            [platform: 'linux', jdk: 25],
+                            [platform: 'windows', jdk: 21],
+                        ])
+                        """,
+                        s -> s.path(ArchetypeCommonFile.JENKINSFILE.getPath().getFileName())),
+                // language=xml
+                pomXml("""
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                      <modelVersion>4.0.0</modelVersion>
+                      <parent>
+                        <groupId>org.jenkins-ci.plugins</groupId>
+                        <artifactId>plugin</artifactId>
+                        <version>4.87</version>
+                        <relativePath />
+                      </parent>
+                      <artifactId>plugin</artifactId>
+                      <version>0.0.1-SNAPSHOT</version>
+                      <packaging>hpi</packaging>
+                      <name>Test Plugin</name>
+                      <properties>
+                          <jenkins.version>2.452.4</jenkins.version>
+                      </properties>
+                      <repositories>
+                          <repository>
+                              <id>repo.jenkins-ci.org</id>
+                              <url>https://repo.jenkins-ci.org/public/</url>
+                          </repository>
+                      </repositories>
+                  </project>
+                  """, """
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                      <modelVersion>4.0.0</modelVersion>
+                      <parent>
+                        <groupId>org.jenkins-ci.plugins</groupId>
+                        <artifactId>plugin</artifactId>
+                        <version>%s</version>
+                        <relativePath />
+                      </parent>
+                      <artifactId>plugin</artifactId>
+                      <version>0.0.1-SNAPSHOT</version>
+                      <packaging>hpi</packaging>
+                      <name>Test Plugin</name>
+                      <properties>
+                          <jenkins.version>2.555.1</jenkins.version>
+                      </properties>
+                      <repositories>
+                          <repository>
+                              <id>repo.jenkins-ci.org</id>
+                              <url>https://repo.jenkins-ci.org/public/</url>
+                          </repository>
+                      </repositories>
+                  </project>
+                  """.formatted(Settings.getJenkinsParentVersion())));
+    }
+
+    @Test
     void shouldSetBanJavaxServletProperty() {
         rewriteRun(
                 spec -> spec.recipeFromResource(

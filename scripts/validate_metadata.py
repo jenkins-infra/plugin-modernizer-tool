@@ -118,6 +118,7 @@ valid_migration_ids = [
     "io.jenkins.tools.pluginmodernizer.AutoMergeWorkflows",
     "io.jenkins.tools.pluginmodernizer.StrictBundledArtifacts",
     "io.jenkins.tools.pluginmodernizer.BanJavaxServletClasses",
+    "io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version",
 ]
 
 
