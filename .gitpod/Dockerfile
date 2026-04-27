@@ -10,7 +10,7 @@ ENV JDK8_PACKAGE=8.0.482-tem
 ENV JDK11_PACKAGE=11.0.30-tem
 ENV JDK17_PACKAGE=17.0.18-tem
 ENV JDK21_PACKAGE=21.0.10-tem
-ENV JDK25_PACKAGE=25.0.2-tem
+ENV JDK25_PACKAGE=25.0.3-tem
 
 # Update the package list and install Maven. Maven is required for building Java projects, including Jenkins plugins.
 # The `apt-get update` command updates the list of available packages and their versions, but it does not install or
