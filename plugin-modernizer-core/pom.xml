@@ -16,7 +16,7 @@
       <dependency>
         <groupId>io.jenkins.tools.bom</groupId>
         <artifactId>bom-2.528.x</artifactId>
-        <version>6269.v7a_159d68a_366</version>
+        <version>6329.v403d8c87a_5ce</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -254,7 +254,7 @@
                 <artifactItem>
                   <groupId>org.kohsuke.stapler</groupId>
                   <artifactId>stapler</artifactId>
-                  <version>2081.va_22f81039510</version>
+                  <version>2083.vdca_dc45fdb_0c</version>
                 </artifactItem>
                 <dependency>
                   <groupId>jakarta.servlet</groupId>
@@ -270,7 +270,7 @@
                 <dependency>
                   <groupId>org.testcontainers</groupId>
                   <artifactId>testcontainers</artifactId>
-                  <version>2.0.4</version>
+                  <version>2.0.5</version>
                 </dependency>
                 <dependency>
                   <groupId>org.jenkins-ci.test</groupId>

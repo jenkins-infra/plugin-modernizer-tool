@@ -505,7 +505,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: gson-api
-      pluginVersion: 2.13.2-173.va_a_092315913c
+      pluginVersion: 2.14.0-201.v8eefe5515533
       replaces:
         - groupId: com.google.code.gson
           artifactId: gson
@@ -521,7 +521,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: org.jenkins-ci.plugins
       pluginArtifactId: jsoup
-      pluginVersion: 1.22.1-76.v9cdb_2456c0e3
+      pluginVersion: 1.22.2-95.vc5d00f1eb_42d
       replaces:
         - groupId: org.jsoup
           artifactId: jsoup
@@ -631,6 +631,21 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version
+displayName: Baseline a plugin to the minimum required Jenkins version for Java 21 (2.555.1)
+description: Baseline a plugin to the minimum required Jenkins version for Java 21 (2.555.1) in order to use Java 21 features.
+tags: ['dependencies', 'chore']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.UpgradeParent6Version
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
+      minimumVersion: 2.555.1
+  - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateStaplerAndJavaxToJakarta
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion:
+      javaVersion: 25
+      jdksToRemove: [8, 11, 17]
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeToLatestJava11CoreVersion
@@ -860,3 +875,13 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
       key: hpi.strictBundledArtifacts
       value: true
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.BanJavaxServletClasses
+displayName: Ensure the pom.xml contains the property `ban-deprecated-stapler.skip` set to `false`
+description: Ensure the pom.xml contains the property `ban-deprecated-stapler.skip` set to `false`.
+tags: ['dependencies', 'migration']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
+      key: ban-deprecated-stapler.skip
+      value: false

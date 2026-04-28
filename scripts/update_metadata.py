@@ -47,12 +47,17 @@ def update_metadata(file_path):
             check.name: check.conclusion
             for check in sorted(check_runs, key=lambda c: c.name)
         }
-        # Only update if changed
+        # Only update checkRuns if the set of runs has changed
         if metadata.get('checkRuns') != sorted_checks:
             metadata['checkRuns'] = sorted_checks
-            metadata['checkRunsSummary'] = summarize_check_runs(sorted_checks)
             logging.info(f"Check runs updated for PR #{pr_num}: {sorted_checks}")
-            logging.info(f"Check runs summary updated for PR #{pr_num}: {metadata['checkRunsSummary']}")
+
+        # Always recalculate the summary so that fixes to summarize_check_runs()
+        # take effect even when the checkRuns dict itself hasn't changed.
+        new_summary = summarize_check_runs(sorted_checks)
+        if metadata.get('checkRunsSummary') != new_summary:
+            metadata['checkRunsSummary'] = new_summary
+            logging.info(f"Check runs summary updated for PR #{pr_num}: {new_summary}")
 
         # Get default branch and latest commit sha
         default_branch, latest_commit_sha = get_default_branch_info(repo)
@@ -81,16 +86,19 @@ def get_default_branch_info(repo):
 
 
 def summarize_check_runs(checks_summary):
-    conclusions = list(checks_summary.values())
+    conclusions = [c for c in checks_summary.values() if c is not None]
 
-    if any(c is None for c in conclusions):
-        return 'pending'
+    if not conclusions:
+        # All check runs have null conclusions (never triggered). Not a failure.
+        return 'success'
     elif any(c in ['failure', 'timed_out', 'cancelled'] for c in conclusions):
         return 'failure'
+    elif any(c == 'pending' for c in conclusions):
+        return 'pending'
     elif all(c == 'success' for c in conclusions):
         return 'success'
     else:
-        return 'neutral'  # fallback if mixed states like 'neutral', 'skipped', etc.
+        return 'neutral'  # fallback for 'neutral', 'skipped', 'action_required', etc.
 
 # Find all 'modernization-metadata' folders anywhere under root_dir
 def find_all_metadata_dirs(root_dir='.'):
@@ -102,19 +110,21 @@ def find_all_metadata_dirs(root_dir='.'):
                 matched_dirs.append(full_path)
     return matched_dirs
 
-root_dir = '.'  # or your project root path
-metadata_dirs = find_all_metadata_dirs(root_dir)
 
-if not metadata_dirs:
-    logging.error("No 'modernization-metadata' directories found.")
-    exit(1)
+if __name__ == '__main__':
+    root_dir = '.'  # or your project root path
+    metadata_dirs = find_all_metadata_dirs(root_dir)
 
-logging.info(f"Found {len(metadata_dirs)} 'modernization-metadata' directories.")
+    if not metadata_dirs:
+        logging.error("No 'modernization-metadata' directories found.")
+        exit(1)
 
-for metadata_dir in metadata_dirs:
-    logging.info(f"Processing directory: {metadata_dir}")
-    for root, _, files in os.walk(metadata_dir):
-        for file in files:
-            if file.endswith('.json'):
-                file_path = os.path.join(root, file)
-                update_metadata(file_path)
+    logging.info(f"Found {len(metadata_dirs)} 'modernization-metadata' directories.")
+
+    for metadata_dir in metadata_dirs:
+        logging.info(f"Processing directory: {metadata_dir}")
+        for root, _, files in os.walk(metadata_dir):
+            for file in files:
+                if file.endswith('.json'):
+                    file_path = os.path.join(root, file)
+                    update_metadata(file_path)

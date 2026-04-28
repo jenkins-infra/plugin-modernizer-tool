@@ -188,10 +188,10 @@ public class JDKTest {
         assertEquals(JDK.JAVA_21, JDK.get("2.541.1").get(1));
         assertEquals(JDK.JAVA_25, JDK.get("2.541.1").get(2));
 
-        // First LTS to drop JDK 17 (adapt when baseline is choosen)
-        assertEquals(2, JDK.get("2.550.1").size());
-        assertEquals(JDK.JAVA_21, JDK.get("2.550.1").get(0));
-        assertEquals(JDK.JAVA_25, JDK.get("2.550.1").get(1));
+        // First LTS to drop JDK 17
+        assertEquals(2, JDK.get("2.555.1").size());
+        assertEquals(JDK.JAVA_21, JDK.get("2.555.1").get(0));
+        assertEquals(JDK.JAVA_25, JDK.get("2.555.1").get(1));
     }
 
     @Test

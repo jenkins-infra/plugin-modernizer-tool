@@ -50,9 +50,30 @@ public final class PluginOptions implements IOption {
             converter = PluginPathConverter.class)
     private Plugin pluginPath;
 
+    /**
+     * Run the recipe on the N most-installed plugins according to Jenkins stats.
+     * Mutually exclusive with --plugins, --plugin-file, and --plugin-path.
+     */
+    @CommandLine.Option(
+            names = {"--top-plugins"},
+            description =
+                    "Run the recipe on the N most-installed plugins according to Jenkins installation stats instead of an explicit list.",
+            defaultValue = "0")
+    private int topPluginsCount = 0;
+
     @Override
     public void config(Config.Builder builder) {
-        builder.withPlugins(getEffectivePlugins());
+        if (topPluginsCount > 0
+                && ((plugins != null && !plugins.isEmpty())
+                        || (pluginsFromFile != null && !pluginsFromFile.isEmpty())
+                        || pluginPath != null)) {
+            throw new ModernizerException(
+                    "--top-plugins cannot be combined with --plugins, --plugin-file, or --plugin-path");
+        }
+        if (topPluginsCount <= 0) {
+            builder.withPlugins(getEffectivePlugins());
+        }
+        builder.withTopPluginsCount(topPluginsCount);
         if (pluginPath != null) {
             LOG.info("Running in dry-run because of local plugin: {}", pluginPath);
             builder.withDryRun(true);

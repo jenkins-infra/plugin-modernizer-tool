@@ -306,6 +306,27 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testFriendlyPrTitleBaseLineToJenkinsMinimumRequiredJava21Version() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("2.555.1").when(metadata).getJenkinsVersion();
+        doReturn("io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("feat(java): Require Jenkins core 2.555.1 and Java 21", result);
+    }
+
+    @Test
     public void testFriendlyPrTitleMigrateToJenkinsBaseLineProperty() {
 
         // Mocks
@@ -624,6 +645,69 @@ public class TemplateUtilsTest {
 
         // Assert
         assertEquals("Strict bundled artifacts", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyBanJavaxServletClasses() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.BanJavaxServletClasses")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+        assertTrue(result.contains("ban-deprecated-stapler.skip"), "Missing property name");
+    }
+
+    @Test
+    public void testFriendlyPrBodyBaseLineToJenkinsMinimumRequiredJava21Version() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(
+                result.contains("Use Java 21 feature and APIs on your plugin"),
+                "Missing 'Use Java 21 feature and APIs on your plugin' message");
+    }
+
+    @Test
+    public void testFriendlyPrTitleBanJavaxServletClasses() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.BanJavaxServletClasses")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Ban deprecated javax.servlet classes", result);
     }
 
     @Test

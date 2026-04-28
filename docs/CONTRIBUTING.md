@@ -10,7 +10,7 @@ To learn more about the architecture of the tool, see the [ARCHITECTURE](ARCHITE
 
    i. Java 21
 
-   ii. Maven 3.9.12
+   ii. Maven 3.9.14
 
 3) Open the project in your favorite IDE.
 

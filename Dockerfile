@@ -2,7 +2,7 @@
 ARG VERSION=999999-SNAPSHOT
 
 # Create the image using Maven and Eclipse Temurin JDK 25
-FROM maven:3.9.14-eclipse-temurin-25-noble AS result-image
+FROM maven:3.9.15-eclipse-temurin-25-noble AS result-image
 
 LABEL org.opencontainers.image.description="Using OpenRewrite Recipes for Plugin Modernization or Automation Plugin Build Metadata Updates"
 
@@ -14,9 +14,9 @@ RUN apt-get update && \
 # Set environment variables for JDK versions managed by SDKMAN
 ENV JDK8_PACKAGE=8.0.482-tem
 ENV JDK11_PACKAGE=11.0.30-tem
-ENV JDK17_PACKAGE=17.0.18-tem
-ENV JDK21_PACKAGE=21.0.10-tem
-ENV JDK25_PACKAGE=25.0.2-tem
+ENV JDK17_PACKAGE=17.0.19-tem
+ENV JDK21_PACKAGE=21.0.11-tem
+ENV JDK25_PACKAGE=25.0.3-tem
 ENV MVN_INSTALL_PLUGIN_VERSION=3.1.4
 
 # Replace the default shell with bash

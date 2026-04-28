@@ -73,7 +73,7 @@ public class Settings {
 
     public static final String ADOPTIUM_GITHUB_API_URL = "https://api.github.com/repos/adoptium";
 
-    public static final ComparableVersion MAVEN_MINIMAL_VERSION = new ComparableVersion("3.9.11");
+    public static final ComparableVersion MAVEN_MINIMAL_VERSION = new ComparableVersion("3.9.14");
 
     public static final String REMEDIATION_PLUGIN_PARENT_VERSION;
 
