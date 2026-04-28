@@ -262,14 +262,15 @@ public enum JDK {
 
     /**
      * Return the minimum JDK that is both declared in {@code jdks} and supported by
-     * {@code jenkinsVersion}. Falls back gracefully when either parameter is absent.
+     * {@code jenkinsVersion}. Falls back to {@code min(jdks)} when either parameter
+     * is absent, or when no declared JDK overlaps the version-supported set.
      *
      * @param jdks           JDKs declared by the plugin (e.g. from its Jenkinsfile). Can be null or empty.
-     * @param jenkinsVersion Jenkins core version the plugin targets. Can be null.
+     * @param jenkinsVersion Jenkins core version the plugin targets. Can be null or empty.
      * @return The minimum compatible JDK, never null.
      */
     public static JDK min(Set<JDK> jdks, String jenkinsVersion) {
-        if (jenkinsVersion == null) {
+        if (jenkinsVersion == null || jenkinsVersion.isEmpty()) {
             return min(jdks);
         }
         List<JDK> supportedByVersion = get(jenkinsVersion);
@@ -280,8 +281,7 @@ public enum JDK {
         return jdks.stream()
                 .filter(supportedByVersion::contains)
                 .min(JDK::compareMajor)
-                .orElseGet(
-                        () -> supportedByVersion.stream().min(JDK::compareMajor).orElse(JDK.min()));
+                .orElseGet(() -> min(jdks));
     }
 
     /**
