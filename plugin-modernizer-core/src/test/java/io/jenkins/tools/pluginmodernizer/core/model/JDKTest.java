@@ -65,6 +65,22 @@ public class JDKTest {
         assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.361.1"));
         assertEquals(JDK.JAVA_11, JDK.min(Set.of(JDK.values()), "2.462.3"));
         assertEquals(JDK.JAVA_17, JDK.min(Set.of(JDK.values()), "2.479.3"));
+        // jdks subset: the result must respect the declared JDKs, not just the Jenkins version range.
+        // Jenkins 2.479.3 supports Java 17 and 21; a plugin declaring [17,21] must yield 17, not 11.
+        assertEquals(JDK.JAVA_17, JDK.min(Set.of(JDK.JAVA_17, JDK.JAVA_21), "2.479.3"));
+        // Plugin declares only Java 21; Jenkins 2.462.3 supports up to Java 21, so the result is 21.
+        assertEquals(JDK.JAVA_21, JDK.min(Set.of(JDK.JAVA_21), "2.462.3"));
+        // null / empty jdks fall back to version-range minimum
+        assertEquals(JDK.JAVA_11, JDK.min(null, "2.387.3"));
+        assertEquals(JDK.JAVA_11, JDK.min(Set.of(), "2.387.3"));
+        // null version falls back to single-param min()
+        assertEquals(JDK.JAVA_8, JDK.min(null, null));
+        // empty version string is treated the same as null
+        assertEquals(JDK.JAVA_8, JDK.min(null, ""));
+        // no overlap: plugin declares only JAVA_8, but Jenkins 2.479.3 only supports 17+ → falls back to min(jdks)
+        assertEquals(JDK.JAVA_8, JDK.min(Set.of(JDK.JAVA_8), "2.479.3"));
+        // no overlap: plugin declares only JAVA_25, but Jenkins 2.346.1 supports 8-17 → falls back to min(jdks)
+        assertEquals(JDK.JAVA_25, JDK.min(Set.of(JDK.JAVA_25), "2.346.1"));
     }
 
     @Test
