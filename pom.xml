@@ -68,7 +68,7 @@
     <guava.version>33.6.0-jre</guava.version>
     <byte-buddy.version>1.18.5</byte-buddy.version>
     <wiremock.version>3.13.2</wiremock.version>
-    <jte.version>3.2.3</jte.version>
+    <jte.version>3.2.4</jte.version>
     <snakeyaml.version>2.6</snakeyaml.version>
     <guice.version>7.0.0</guice.version>
     <error.prone.version>2.49.0</error.prone.version>
