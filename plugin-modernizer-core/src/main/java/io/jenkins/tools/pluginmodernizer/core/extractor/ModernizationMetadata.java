@@ -82,6 +82,12 @@ public class ModernizationMetadata extends CacheEntry<ModernizationMetadata> {
     private String migrationStatus;
 
     /**
+     * Reasons why the migration failed, if any.
+     * Null when migration succeeded (omitted from JSON).
+     */
+    private List<String> failureReasons;
+
+    /**
      * Number of deprecated APIs removed by the migration
      */
     private Integer removedDeprecatedApis;
@@ -259,6 +265,14 @@ public class ModernizationMetadata extends CacheEntry<ModernizationMetadata> {
 
     public void setMigrationStatus(String migrationStatus) {
         this.migrationStatus = migrationStatus;
+    }
+
+    public List<String> getFailureReasons() {
+        return failureReasons;
+    }
+
+    public void setFailureReasons(List<String> failureReasons) {
+        this.failureReasons = failureReasons;
     }
 
     public String getJenkinsBaseline() {
