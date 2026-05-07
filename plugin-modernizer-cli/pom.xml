@@ -141,6 +141,21 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-help-plugin</artifactId>
+        <version>3.5.1</version>
+        <executions>
+          <execution>
+            <id>display-settings</id>
+            <goals>
+              <goal>effective-settings</goal>
+            </goals>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- The CLI is distributed via JRelease and published on the GitHub releases page -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
