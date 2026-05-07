@@ -11,6 +11,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.Platform;
 import io.jenkins.tools.pluginmodernizer.core.recipes.DeclarativeRecipesTest;
 import io.jenkins.tools.pluginmodernizer.core.recipes.FetchMetadata;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.Issue;
 import org.openrewrite.java.JavaParser;
+import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 
 /**
@@ -181,6 +183,11 @@ public class FetchMetadataTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """;
+
+    @Override
+    public void defaults(RecipeSpec spec) {
+        spec.executionContext(Utils.getMavenExecutionContext());
+    }
 
     @Test
     void testWithPomOnly(TestInfo testInfo) throws Exception {

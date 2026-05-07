@@ -3,6 +3,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 import static org.openrewrite.maven.Assertions.pomXml;
 
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -24,7 +25,8 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
     @Test
     void testPerformUpgradeWithoutBom() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -94,7 +96,8 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
     @Test
     void testPerformUpgradeWithBaselineWithoutBom() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -167,7 +170,8 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
     @Test
     void testPerformUpgradeWithoutBaselineWithBomAndUpgradeBomIfDoesntExistsForNewJenkinsVersion() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -262,7 +266,8 @@ public class UpgradeJenkinsVersionTest implements RewriteTest {
     @Test
     void testPerformUpgradeWithBaselineWithBomAndUpgradeBomIfDoesntExistsForNewJenkinsVersion() {
         rewriteRun(
-                spec -> spec.recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new UpgradeJenkinsVersion(Settings.getJenkinsMinimumVersion())),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>

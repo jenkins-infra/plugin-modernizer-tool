@@ -3,6 +3,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 import static org.openrewrite.maven.Assertions.pomXml;
 
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -25,16 +26,17 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
     @Test
     void replaceAsmByApiPluginWithBom() {
         rewriteRun(
-                spec -> spec.recipe(new ReplaceLibrariesWithApiPlugin(
-                        "io.jenkins.plugins",
-                        "asm-api",
-                        "9.8-135.vb_2239d08ee90",
-                        Set.of(
-                                new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm"),
-                                new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-analysis"),
-                                new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-commons"),
-                                new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-tree"),
-                                new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-util")))),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new ReplaceLibrariesWithApiPlugin(
+                                "io.jenkins.plugins",
+                                "asm-api",
+                                "9.8-135.vb_2239d08ee90",
+                                Set.of(
+                                        new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm"),
+                                        new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-analysis"),
+                                        new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-commons"),
+                                        new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-tree"),
+                                        new ReplaceLibrariesWithApiPlugin.Library("org.ow2.asm", "asm-util")))),
 
                 // language=xml
                 pomXml("""
@@ -161,11 +163,12 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
     @Test
     void replaceJsonByApiPluginWithBom() {
         rewriteRun(
-                spec -> spec.recipe(new ReplaceLibrariesWithApiPlugin(
-                        "io.jenkins.plugins",
-                        "json-api",
-                        "20250107-125.v28b_a_ffa_eb_f01",
-                        Set.of(new ReplaceLibrariesWithApiPlugin.Library("org.json", "json")))),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new ReplaceLibrariesWithApiPlugin(
+                                "io.jenkins.plugins",
+                                "json-api",
+                                "20250107-125.v28b_a_ffa_eb_f01",
+                                Set.of(new ReplaceLibrariesWithApiPlugin.Library("org.json", "json")))),
 
                 // language=xml
                 pomXml("""

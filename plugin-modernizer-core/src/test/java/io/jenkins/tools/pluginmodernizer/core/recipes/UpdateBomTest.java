@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -18,7 +19,7 @@ public class UpdateBomTest implements RewriteTest {
     @Test
     void shouldSkipIfNoBom() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateBom()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateBom()),
                 // language=xml
                 pomXml("""
                  <?xml version="1.0" encoding="UTF-8"?>
@@ -39,7 +40,7 @@ public class UpdateBomTest implements RewriteTest {
     @Test
     void shouldUpdateToLatestReleasedWithoutMavenConfig() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateBom()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateBom()),
                 // language=xml
                 pomXml("""
                  <?xml version="1.0" encoding="UTF-8"?>
@@ -109,6 +110,7 @@ public class UpdateBomTest implements RewriteTest {
     void shouldUpdateToLatestReleasedWithIncrementalsEnabled() {
         rewriteRun(
                 spec -> {
+                    spec.executionContext(Utils.getMavenExecutionContext());
                     spec.parser(MavenParser.builder().activeProfiles("consume-incrementals"));
                     spec.recipe(new UpdateBom());
                 },
@@ -191,7 +193,7 @@ public class UpdateBomTest implements RewriteTest {
     @Test
     void shouldSkipIfOnParentBom() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateBom()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateBom()),
                 // language=xml
                 pomXml("""
                  <?xml version="1.0" encoding="UTF-8"?>
@@ -221,7 +223,7 @@ public class UpdateBomTest implements RewriteTest {
     @Test
     void shouldUpgradePropertyForVersion() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateBom()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateBom()),
                 // language=xml
                 pomXml("""
                  <?xml version="1.0" encoding="UTF-8"?>

@@ -6,6 +6,7 @@ import static org.openrewrite.xml.Assertions.xml;
 
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -20,7 +21,7 @@ class AddIncrementalsTest implements RewriteTest {
     @Test
     void shouldAddIncrementalsToBasicPlugin() {
         rewriteRun(
-                spec -> spec.recipe(new AddIncrementals()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new AddIncrementals()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -113,7 +114,7 @@ class AddIncrementalsTest implements RewriteTest {
     @Test
     void shouldNotModifyIfAlreadyUsingIncrementals() {
         rewriteRun(
-                spec -> spec.recipe(new AddIncrementals()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new AddIncrementals()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -158,7 +159,7 @@ class AddIncrementalsTest implements RewriteTest {
     @Test
     void shouldNotCreateFilesIfAlreadyExist() {
         rewriteRun(
-                spec -> spec.recipe(new AddIncrementals()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new AddIncrementals()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>

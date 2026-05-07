@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -16,7 +17,8 @@ public class AddPropertyTest implements RewriteTest {
     @Test
     void shouldAddProperty() {
         rewriteRun(
-                spec -> spec.recipe(new AddProperty("ban-junit4-imports.skip", "false")),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new AddProperty("ban-junit4-imports.skip", "false")),
                 // language=xml
                 pomXml("""
                         <?xml version="1.0" encoding="UTF-8"?>
@@ -87,7 +89,8 @@ public class AddPropertyTest implements RewriteTest {
     @Test
     void shouldNotAddDuplicateProperty() {
         rewriteRun(
-                spec -> spec.recipe(new AddProperty("ban-junit4-imports.skip", "false")),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new AddProperty("ban-junit4-imports.skip", "false")),
                 // language=xml
                 pomXml("""
                         <?xml version="1.0" encoding="UTF-8"?>

@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -16,7 +17,7 @@ public class UpdateScmUrlTest implements RewriteTest {
     @Test
     void updateScmUrls() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateScmUrl()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateScmUrl()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -68,7 +69,7 @@ public class UpdateScmUrlTest implements RewriteTest {
     @Test
     void updateScmUrlsForSSH() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateScmUrl()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateScmUrl()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -120,7 +121,7 @@ public class UpdateScmUrlTest implements RewriteTest {
     @Test
     void keepExistingHttpsUrls() {
         rewriteRun(
-                spec -> spec.recipe(new UpdateScmUrl()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new UpdateScmUrl()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>

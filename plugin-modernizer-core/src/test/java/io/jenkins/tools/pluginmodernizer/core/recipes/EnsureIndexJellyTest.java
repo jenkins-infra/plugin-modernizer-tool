@@ -6,6 +6,7 @@ import static org.openrewrite.maven.Assertions.pomXml;
 import static org.openrewrite.test.SourceSpecs.text;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -19,15 +20,17 @@ public class EnsureIndexJellyTest implements RewriteTest {
 
     @Test
     void shouldNotReplaceJellyFile() {
-        rewriteRun(spec -> spec.recipe(new EnsureIndexJelly()), text("jelly", sourceSpecs -> {
-            sourceSpecs.path(ArchetypeCommonFile.INDEX_JELLY.getPath());
-        }));
+        rewriteRun(
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureIndexJelly()),
+                text("jelly", sourceSpecs -> {
+                    sourceSpecs.path(ArchetypeCommonFile.INDEX_JELLY.getPath());
+                }));
     }
 
     @Test
     void createFromDescription() {
         rewriteRun(
-                spec -> spec.recipe(new EnsureIndexJelly()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureIndexJelly()),
                 // language=xml
                 pomXml("""
                           <project>
@@ -58,7 +61,7 @@ public class EnsureIndexJellyTest implements RewriteTest {
     @Test
     void createNoCreateIfNotAPlugin() {
         rewriteRun(
-                spec -> spec.recipe(new EnsureIndexJelly()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureIndexJelly()),
                 // language=xml
                 pomXml("""
                           <project>
@@ -73,7 +76,7 @@ public class EnsureIndexJellyTest implements RewriteTest {
     @Test
     void createFromArtifactIdEmptyDescription() {
         rewriteRun(
-                spec -> spec.recipe(new EnsureIndexJelly()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureIndexJelly()),
                 // language=xml
                 pomXml("""
                           <project>
@@ -104,7 +107,7 @@ public class EnsureIndexJellyTest implements RewriteTest {
     @Test
     void createFromArtifactIdNoDescription() {
         rewriteRun(
-                spec -> spec.recipe(new EnsureIndexJelly()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureIndexJelly()),
                 // language=xml
                 pomXml("""
                           <project>
@@ -134,7 +137,7 @@ public class EnsureIndexJellyTest implements RewriteTest {
     @Test
     void shouldCreateMultipleNestedIndexJellies() {
         rewriteRun(
-                spec -> spec.recipe(new EnsureIndexJelly()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureIndexJelly()),
                 mavenProject(
                         "parent",
                         // language=xml

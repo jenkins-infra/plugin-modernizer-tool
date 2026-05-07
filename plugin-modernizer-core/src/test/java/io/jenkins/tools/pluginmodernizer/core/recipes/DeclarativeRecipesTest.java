@@ -15,6 +15,7 @@ import io.github.yamlpath.YamlPath;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.recipes.code.ReplaceRemovedSSHLauncherConstructorTest;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.java.JavaParser;
 import org.openrewrite.maven.MavenParser;
+import org.openrewrite.test.RecipeSpec;
 import org.openrewrite.test.RewriteTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,6 +97,11 @@ public class DeclarativeRecipesTest implements RewriteTest {
      * LOGGER.
      */
     private static final Logger LOG = LoggerFactory.getLogger(DeclarativeRecipesTest.class);
+
+    @Override
+    public void defaults(RecipeSpec spec) {
+        spec.executionContext(Utils.getMavenExecutionContext());
+    }
 
     /**
      * Test declarative recipe

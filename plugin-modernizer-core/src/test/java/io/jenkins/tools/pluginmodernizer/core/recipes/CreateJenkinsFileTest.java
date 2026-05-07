@@ -4,6 +4,7 @@ import static org.openrewrite.groovy.Assertions.groovy;
 import static org.openrewrite.maven.Assertions.pomXml;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.test.RewriteTest;
 
@@ -12,7 +13,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     @Test
     void shouldAddJenkinsfileFromPomVersion() {
         rewriteRun(
-                spec -> spec.recipe(new CreateJenkinsFile()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new CreateJenkinsFile()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -58,7 +59,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     @Test
     void shouldNotAddJenkinsfileIfAlreadyPresent() {
         rewriteRun(
-                spec -> spec.recipe(new CreateJenkinsFile()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new CreateJenkinsFile()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -91,7 +92,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     @Test
     void shouldNotAddJenkinsfileIfNoJenkinsVersion() {
         rewriteRun(
-                spec -> spec.recipe(new CreateJenkinsFile()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new CreateJenkinsFile()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -109,7 +110,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     @Test
     void shouldHandleDifferentJenkinsVersions() {
         rewriteRun(
-                spec -> spec.recipe(new CreateJenkinsFile()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new CreateJenkinsFile()),
                 // language=xml
                 pomXml("""
             <?xml version="1.0" encoding="UTF-8"?>
@@ -155,7 +156,7 @@ class CreateJenkinsFileTest implements RewriteTest {
     @Test
     void shouldHandleOlderJenkinsVersions() {
         rewriteRun(
-                spec -> spec.recipe(new CreateJenkinsFile()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new CreateJenkinsFile()),
                 // language=xml
                 pomXml("""
             <?xml version="1.0" encoding="UTF-8"?>

@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -16,7 +17,8 @@ public class MigrateToJenkinsBaseLinePropertyTest implements RewriteTest {
     @Test
     void testNoChanges() {
         rewriteRun(
-                spec -> spec.recipe(new MigrateToJenkinsBaseLineProperty()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new MigrateToJenkinsBaseLineProperty()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -68,7 +70,8 @@ public class MigrateToJenkinsBaseLinePropertyTest implements RewriteTest {
     @Test
     void testAddBaseline() {
         rewriteRun(
-                spec -> spec.recipe(new MigrateToJenkinsBaseLineProperty()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new MigrateToJenkinsBaseLineProperty()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -162,7 +165,8 @@ public class MigrateToJenkinsBaseLinePropertyTest implements RewriteTest {
     @Test
     void testAddComment() {
         rewriteRun(
-                spec -> spec.recipe(new MigrateToJenkinsBaseLineProperty()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new MigrateToJenkinsBaseLineProperty()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -257,7 +261,8 @@ public class MigrateToJenkinsBaseLinePropertyTest implements RewriteTest {
     @Test
     void testAddBaselineWithOtherProperties() {
         rewriteRun(
-                spec -> spec.recipe(new MigrateToJenkinsBaseLineProperty()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new MigrateToJenkinsBaseLineProperty()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -357,7 +362,8 @@ public class MigrateToJenkinsBaseLinePropertyTest implements RewriteTest {
     @Test
     void testFixBom() {
         rewriteRun(
-                spec -> spec.recipe(new MigrateToJenkinsBaseLineProperty()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new MigrateToJenkinsBaseLineProperty()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -451,7 +457,8 @@ public class MigrateToJenkinsBaseLinePropertyTest implements RewriteTest {
     @Test
     void testNoChangesWithWeekly() {
         rewriteRun(
-                spec -> spec.recipe(new MigrateToJenkinsBaseLineProperty()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new MigrateToJenkinsBaseLineProperty()),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>

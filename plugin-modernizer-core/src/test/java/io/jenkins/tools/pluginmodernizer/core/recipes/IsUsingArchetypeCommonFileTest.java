@@ -5,6 +5,7 @@ import static org.openrewrite.maven.Assertions.pomXml;
 import static org.openrewrite.yaml.Assertions.yaml;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -19,7 +20,8 @@ public class IsUsingArchetypeCommonFileTest implements RewriteTest {
     @Test
     void testNotUsingCommonFile() {
         rewriteRun(
-                spec -> spec.recipe(new IsUsingArchetypeCommonFile(ArchetypeCommonFile.DEPENDABOT)),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new IsUsingArchetypeCommonFile(ArchetypeCommonFile.DEPENDABOT)),
                 // language=yml
                 yaml("""
                     name: Empty
@@ -46,7 +48,8 @@ public class IsUsingArchetypeCommonFileTest implements RewriteTest {
     @Test
     void testUsingCommonFile() {
         rewriteRun(
-                spec -> spec.recipe(new IsUsingArchetypeCommonFile(ArchetypeCommonFile.DEPENDABOT)),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new IsUsingArchetypeCommonFile(ArchetypeCommonFile.DEPENDABOT)),
                 // For some reason the search marker is not being written to the output
                 // language=yaml
                 yaml("""
@@ -63,7 +66,8 @@ public class IsUsingArchetypeCommonFileTest implements RewriteTest {
     @Test
     void testCompareFullPath() {
         rewriteRun(
-                spec -> spec.recipe(new IsUsingArchetypeCommonFile(ArchetypeCommonFile.DEPENDABOT)),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new IsUsingArchetypeCommonFile(ArchetypeCommonFile.DEPENDABOT)),
                 // language=yml
                 yaml("""
                     ---

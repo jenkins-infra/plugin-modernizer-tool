@@ -4,6 +4,7 @@ import static org.openrewrite.maven.Assertions.pomXml;
 import static org.openrewrite.yaml.Assertions.yaml;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -15,7 +16,7 @@ public class EnsureRelativePathTest implements RewriteTest {
 
     @Override
     public void defaults(RecipeSpec spec) {
-        spec.recipe(new EnsureRelativePath());
+        spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnsureRelativePath());
     }
 
     @Test

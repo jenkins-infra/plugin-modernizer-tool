@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.recipes;
 
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -16,7 +17,8 @@ public class RemovePropertyTest implements RewriteTest {
     @Test
     void shouldRemoveProperty() {
         rewriteRun(
-                spec -> spec.recipe(new RemoveProperty("json-api.version")),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new RemoveProperty("json-api.version")),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -97,7 +99,8 @@ public class RemovePropertyTest implements RewriteTest {
     @Test
     void shouldNotRemoveProperty() {
         rewriteRun(
-                spec -> spec.recipe(new RemoveProperty("json-api.version")),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new RemoveProperty("json-api.version")),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>

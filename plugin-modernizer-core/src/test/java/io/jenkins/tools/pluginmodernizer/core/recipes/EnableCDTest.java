@@ -5,6 +5,7 @@ import static org.openrewrite.test.SourceSpecs.text;
 import static org.openrewrite.yaml.Assertions.yaml;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -76,7 +77,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldEnableCDForBasicPlugin() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -163,7 +164,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldEnableCDWithRevisionPrefix() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -236,7 +237,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldNotModifyIfAlreadyUsingCD() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -278,7 +279,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldUpdateExistingMavenConfig() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -352,7 +353,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldSkipIfNoPropertiesSection() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -387,7 +388,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldDeleteReleaseDrafterWorkflow() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -474,7 +475,7 @@ class EnableCDTest implements RewriteTest {
     @Test
     void shouldConvertRevisionChangelistToChangelist() {
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -551,7 +552,7 @@ class EnableCDTest implements RewriteTest {
         // Test for API plugins like asm-api that use ${revision}-${changelist} format
         // This is a valid CD format and should NOT be modified
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>
@@ -596,7 +597,7 @@ class EnableCDTest implements RewriteTest {
         // Test for plugins that use ${revision}.${changelist} format
         // This is a valid CD format and should NOT be modified
         rewriteRun(
-                spec -> spec.recipe(new EnableCD()),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new EnableCD()),
                 // language=xml
                 pomXml("""
                     <?xml version="1.0" encoding="UTF-8"?>

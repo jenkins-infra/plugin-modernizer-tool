@@ -5,6 +5,7 @@ import static org.openrewrite.java.Assertions.srcMainJava;
 import static org.openrewrite.java.Assertions.srcTestJava;
 import static org.openrewrite.maven.Assertions.pomXml;
 
+import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -26,7 +27,8 @@ public class AddDetachedPluginDependencyTest implements RewriteTest {
     @Test
     void detectsDetachedPluginUsageAndAddsDependencyWithoutBom() {
         rewriteRun(
-                spec -> spec.recipe(new AddDetachedPluginDependency("2.440.3")), // language=xml
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new AddDetachedPluginDependency("2.440.3")), // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -375,7 +377,8 @@ public class AddDetachedPluginDependencyTest implements RewriteTest {
     @Test
     void detectsDetachedPluginUsageAndAddsDependencyWithBom() {
         rewriteRun(
-                spec -> spec.recipe(new AddDetachedPluginDependency("2.346.3")),
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new AddDetachedPluginDependency("2.346.3")),
                 // language=xml
                 pomXml("""
                 <?xml version="1.0" encoding="UTF-8"?>
