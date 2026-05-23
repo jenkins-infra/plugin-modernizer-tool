@@ -4529,6 +4529,67 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   """));
     }
 
+    @Test
+    void shouldSetBanObsoleteDependencyOverridesProperty() {
+        rewriteRun(
+                spec -> spec.recipeFromResource(
+                        "/META-INF/rewrite/recipes.yml",
+                        "io.jenkins.tools.pluginmodernizer.BanObsoleteDependencyOverrides"),
+                // language=xml
+                pomXml("""
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                     <modelVersion>4.0.0</modelVersion>
+                     <parent>
+                       <groupId>org.jenkins-ci.plugins</groupId>
+                       <artifactId>plugin</artifactId>
+                       <version>4.87</version>
+                       <relativePath />
+                     </parent>
+                     <artifactId>plugin</artifactId>
+                     <version>0.0.1-SNAPSHOT</version>
+                     <packaging>hpi</packaging>
+                     <name>Test Plugin</name>
+                     <properties>
+                         <jenkins.version>2.452.4</jenkins.version>
+                     </properties>
+                     <repositories>
+                         <repository>
+                             <id>repo.jenkins-ci.org</id>
+                             <url>https://repo.jenkins-ci.org/public/</url>
+                         </repository>
+                     </repositories>
+                  </project>
+                  """, """
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                     <modelVersion>4.0.0</modelVersion>
+                     <parent>
+                       <groupId>org.jenkins-ci.plugins</groupId>
+                       <artifactId>plugin</artifactId>
+                       <version>4.87</version>
+                       <relativePath />
+                     </parent>
+                     <artifactId>plugin</artifactId>
+                     <version>0.0.1-SNAPSHOT</version>
+                     <packaging>hpi</packaging>
+                     <name>Test Plugin</name>
+                     <properties>
+                         <jenkins.version>2.452.4</jenkins.version>
+                         <banObsoleteDependencyOverrides.skip>false</banObsoleteDependencyOverrides.skip>
+                     </properties>
+                     <repositories>
+                         <repository>
+                             <id>repo.jenkins-ci.org</id>
+                             <url>https://repo.jenkins-ci.org/public/</url>
+                         </repository>
+                     </repositories>
+                  </project>
+                  """));
+    }
+
     /**
      * Note this test need to be adapted to fix the .gitignore to ensure entries are merged
      */

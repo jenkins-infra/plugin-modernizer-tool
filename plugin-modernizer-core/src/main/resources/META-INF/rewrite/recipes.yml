@@ -885,3 +885,13 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
       key: ban-deprecated-stapler.skip
       value: false
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.BanObsoleteDependencyOverrides
+displayName: Ensure the pom.xml contains the property `banObsoleteDependencyOverrides.skip` set to `false`
+description: Ensure the pom.xml contains the property `banObsoleteDependencyOverrides.skip` set to `false`.
+tags: ['dependencies', 'migration']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
+      key: banObsoleteDependencyOverrides.skip
+      value: false

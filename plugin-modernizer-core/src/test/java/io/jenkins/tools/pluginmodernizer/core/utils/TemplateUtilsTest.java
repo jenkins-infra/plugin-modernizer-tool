@@ -711,6 +711,48 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testFriendlyPrBodyBanObsoleteDependencyOverrides() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.BanObsoleteDependencyOverrides")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertTrue(result.contains("Why is this important?"), "Missing 'Why is this important?' section");
+        assertTrue(result.contains("banObsoleteDependencyOverrides.skip"), "Missing property name");
+        assertTrue(result.contains("https://github.com/jenkinsci/plugin-pom/pull/1381"), "Missing or invalid link");
+    }
+
+    @Test
+    public void testFriendlyPrTitleBanObsoleteDependencyOverrides() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn(metadata).when(plugin).getMetadata();
+        doReturn("io.jenkins.tools.pluginmodernizer.BanObsoleteDependencyOverrides")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertEquals("Fail the build if there are obsolete dependency management overrides", result);
+    }
+
+    @Test
     public void testFriendlyPrTitleEnsureRelativePath() {
 
         // Mocks
