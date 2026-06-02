@@ -20,7 +20,7 @@ jobs:
 
       - name: Download generate_reports.py script
         run: |
-          mkdir scripts
+          mkdir -p scripts
           curl -sSL https://raw.githubusercontent.com/jenkins-infra/plugin-modernizer-tool/main/scripts/generate_reports.py -o scripts/generate_reports.py
 
       - name: Generate report script

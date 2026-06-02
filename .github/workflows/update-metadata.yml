@@ -20,7 +20,7 @@ jobs:
 
       - name: Download update_metadata.py script
         run: |
-          mkdir scripts
+          mkdir -p scripts
           curl -sSL https://raw.githubusercontent.com/jenkins-infra/plugin-modernizer-tool/main/scripts/update_metadata.py -o scripts/update_metadata.py
 
       - name: Run updation script

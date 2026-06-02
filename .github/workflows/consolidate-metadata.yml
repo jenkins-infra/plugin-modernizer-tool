@@ -17,7 +17,7 @@ jobs:
 
       - name: Download consolidate_metadata.py script
         run: |
-          mkdir scripts
+          mkdir -p scripts
           curl -sSL https://raw.githubusercontent.com/jenkins-infra/plugin-modernizer-tool/main/scripts/consolidate_metadata.py -o scripts/consolidate_metadata.py
 
 
