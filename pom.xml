@@ -77,7 +77,7 @@
     <jwt.version>0.13.0</jwt.version>
     <bouncycastle.version>1.84</bouncycastle.version>
     <maven.surefire.version>3.5.5</maven.surefire.version>
-    <maven.failsafe.version>3.5.5</maven.failsafe.version>
+    <maven.failsafe.version>3.5.6</maven.failsafe.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <testcontainers.git.version>0.15.0</testcontainers.git.version>
     <apache.mina.version>2.17.1</apache.mina.version>
