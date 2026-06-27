@@ -3,11 +3,11 @@ package io.jenkins.tools.pluginmodernizer.cli.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.sparsick.testcontainers.gitserver.GitServerVersions;
-import com.github.sparsick.testcontainers.gitserver.plain.GitServerContainer;
-import com.github.sparsick.testcontainers.gitserver.plain.SshIdentity;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import dev.parsick.testcontainers.gitserver.GitServerVersions;
+import dev.parsick.testcontainers.gitserver.plain.GitServerContainer;
+import dev.parsick.testcontainers.gitserver.plain.SshIdentity;
 import io.jenkins.tools.pluginmodernizer.core.model.HealthScoreData;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
@@ -57,7 +57,7 @@ public class GitHubServerContainer extends GitServerContainer {
      * Create a GitHub server container
      */
     public GitHubServerContainer(WireMockRuntimeInfo wmRuntimeInfo, Path keysPath, String plugin, String branch) {
-        super(GitServerVersions.V2_47.getDockerImageName());
+        super(GitServerVersions.V2_52.getDockerImageName());
         this.plugin = plugin;
         this.wmRuntimeInfo = wmRuntimeInfo;
         this.branch = branch;
