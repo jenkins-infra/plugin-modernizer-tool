@@ -2354,7 +2354,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <properties>
                             <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                             <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                            <jenkins.baseline>2.528</jenkins.baseline>
+                            <jenkins.baseline>2.541</jenkins.baseline>
                             <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                             <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
                           </properties>
@@ -2570,7 +2570,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <properties>
                     <jenkins-test-harness.version>%s</jenkins-test-harness.version>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.528</jenkins.baseline>
+                    <jenkins.baseline>2.541</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.3</jenkins.version>
                     <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
                   </properties>
@@ -2902,7 +2902,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.528.3</jenkins.version>
+                    <jenkins.version>2.541.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2985,7 +2985,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.528.3</jenkins.version>
+                    <jenkins.version>2.541.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>

@@ -328,9 +328,9 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
   - io.jenkins.tools.pluginmodernizer.UpgradeParent6Version
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.528.3
+      minimumVersion: 2.541.3
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
-      jenkinsVersion: 2.528.3
+      jenkinsVersion: 2.541.3
   - org.openrewrite.java.ChangePackage:  #deprecating
       oldPackageName: com.gargoylesoftware.htmlunit
       newPackageName: org.htmlunit

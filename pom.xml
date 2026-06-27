@@ -46,7 +46,7 @@
     <spotless.check.skip>false</spotless.check.skip>
 
     <!-- Version -->
-    <jenkins.core.minimum.version>2.528.3</jenkins.core.minimum.version>
+    <jenkins.core.minimum.version>2.541.3</jenkins.core.minimum.version>
     <openrewrite.bom.version>3.31.0</openrewrite.bom.version>
     <openrewrite.maven.plugin.version>6.41.0</openrewrite.maven.plugin.version>
     <micrometer.version>1.17.0</micrometer.version>
