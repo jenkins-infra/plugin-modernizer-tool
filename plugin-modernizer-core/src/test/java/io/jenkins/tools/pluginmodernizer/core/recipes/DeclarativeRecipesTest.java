@@ -3868,7 +3868,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     }
 
                     @Test
-                    void testException()throws Exception {
+                    void testException() throws Exception {
                         assertThrows(IllegalArgumentException.class, () -> {
                             throw new IllegalArgumentException("Expected");
                         });

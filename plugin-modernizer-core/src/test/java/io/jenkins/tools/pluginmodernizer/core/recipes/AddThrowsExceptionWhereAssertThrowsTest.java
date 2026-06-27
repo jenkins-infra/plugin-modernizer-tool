@@ -36,7 +36,7 @@ public class AddThrowsExceptionWhereAssertThrowsTest implements RewriteTest {
 
                     public class MyTest {
                         @Test
-                        public void testSomething()throws Exception {
+                        public void testSomething() throws Exception {
                             assertThrows(Exception.class, () -> {
                                 //someMethod()
                              });
@@ -68,7 +68,7 @@ public class AddThrowsExceptionWhereAssertThrowsTest implements RewriteTest {
 
                         public class MyTest {
                             @Test
-                            public void testSomething()throws Exception {
+                            public void testSomething() throws Exception {
                                 Assertions.assertThrows(Exception.class, () -> {
                                   //someMethod();
                                 });
