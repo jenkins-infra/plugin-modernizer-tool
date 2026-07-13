@@ -66,7 +66,7 @@
     <github-api.version>2.0-rc.6</github-api.version>
     <commons-compress.version>1.28.0</commons-compress.version>
     <guava.version>33.6.0-jre</guava.version>
-    <byte-buddy.version>1.18.5</byte-buddy.version>
+    <byte-buddy.version>1.18.11-jdk5</byte-buddy.version>
     <wiremock.version>3.13.2</wiremock.version>
     <jte.version>3.2.4</jte.version>
     <snakeyaml.version>2.6</snakeyaml.version>
