@@ -433,7 +433,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: json-api
-      pluginVersion: 20260522-217.v0b_18b_8cd4672
+      pluginVersion: 20260719-223.va_81f828cdb_58
       replaces:
         - groupId: org.json
           artifactId: json
