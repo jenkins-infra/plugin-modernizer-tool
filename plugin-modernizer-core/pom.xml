@@ -269,7 +269,7 @@
                 <artifactItem>
                   <groupId>org.kohsuke.stapler</groupId>
                   <artifactId>stapler</artifactId>
-                  <version>2098.vb_b_6e4c15415b_</version>
+                  <version>2106.v1557700a_33da_</version>
                 </artifactItem>
                 <dependency>
                   <groupId>jakarta.servlet</groupId>
