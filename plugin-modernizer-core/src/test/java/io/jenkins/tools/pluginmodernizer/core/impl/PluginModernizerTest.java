@@ -367,4 +367,149 @@ class PluginModernizerTest {
         when(recipe.getDescription()).thenReturn(description);
         return recipe;
     }
+
+    @Test
+    void testCollectMetadata_WithExistingJdks_ShouldUseMinimumJdk() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata metadata =
+                mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
+        when(plugin.getMetadata()).thenReturn(metadata);
+        when(plugin.getName()).thenReturn("test-plugin");
+
+        // Plugin metadata has JDK 8 and JDK 11
+        when(metadata.getJdks())
+                .thenReturn(java.util.Set.of(
+                        io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8,
+                        io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_11));
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Execute - Invoke collectMetadata using reflection
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, false);
+
+        // Verify that plugin was set to use JDK 8 (minimum of 8 and 11)
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
+        verify(plugin).collectMetadata(mavenInvoker);
+        verify(plugin).copyMetadata(cacheManager);
+        verify(plugin).loadMetadata(cacheManager);
+        verify(plugin).enrichMetadata(pluginService);
+    }
+
+    @Test
+    void testCollectMetadata_WithNoJdks_ShouldUseJdk25() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata metadata =
+                mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
+        when(plugin.getMetadata()).thenReturn(metadata);
+        when(plugin.getName()).thenReturn("test-plugin");
+
+        // Plugin metadata has no JDKs initially
+        when(metadata.getJdks()).thenReturn(java.util.Set.of());
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Execute
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, false);
+
+        // Verify that plugin was set to use JDK 25 (default for initial collection)
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).collectMetadata(mavenInvoker);
+    }
+
+    @Test
+    void testCollectMetadata_WithRetry_ShouldUseMinimumJdkAfterJdk8Build() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata metadata =
+                mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
+        when(plugin.getMetadata()).thenReturn(metadata);
+        when(plugin.getName()).thenReturn("test-plugin");
+
+        // Initially empty, then has JDK 8 after verifyQuickBuild
+        // Return empty for first few calls, then JDK 8 for subsequent calls
+        java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> emptySet = java.util.Set.of();
+        java.util.Set<io.jenkins.tools.pluginmodernizer.core.model.JDK> jdk8Set =
+                java.util.Set.of(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
+
+        when(metadata.getJdks())
+                .thenReturn(emptySet) // First check in collectMetadata
+                .thenReturn(emptySet) // Second part of isEmpty check
+                .thenReturn(jdk8Set) // After verifyQuickBuild, min() call
+                .thenReturn(jdk8Set); // Any additional calls
+
+        // hasErrors() is checked after verifyQuickBuild
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Mock the exception on first collectMetadata attempt
+        doThrow(new io.jenkins.tools.pluginmodernizer.core.model.ModernizerException("Build failed"))
+                .doNothing()
+                .when(plugin)
+                .collectMetadata(mavenInvoker);
+
+        // Execute - with retry flag
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, true);
+
+        // Verify sequence:
+        // 1. First try with JDK 25 (empty metadata)
+        // 2. Build with JDK 8 to generate classes
+        // 3. Then collect metadata with JDK 8 (minimum from metadata)
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).verifyQuickBuild(mavenInvoker, io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_8);
+        verify(plugin, times(2)).collectMetadata(mavenInvoker);
+    }
+
+    @Test
+    void testCollectMetadata_WithEmptyJdksInRetry_ShouldUseMavenDefault() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata metadata =
+                mock(io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata.class);
+        when(plugin.getMetadata()).thenReturn(metadata);
+        when(plugin.getName()).thenReturn("test-plugin");
+
+        // getJdks() returns empty throughout (simulating a plugin with no JDK info)
+        when(metadata.getJdks()).thenReturn(java.util.Set.of());
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Execute
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, false);
+
+        // Verify that plugin defaults to JDK 25 when no JDK info exists
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).collectMetadata(mavenInvoker);
+    }
+
+    @Test
+    void testCollectMetadata_WithNullMetadata_ShouldUseJdk25() throws Exception {
+        // Setup
+        Plugin plugin = mock(Plugin.class);
+        when(plugin.getName()).thenReturn("test-plugin");
+
+        // Plugin metadata is null (simulating first collection before metadata exists)
+        when(plugin.getMetadata()).thenReturn(null);
+        when(plugin.hasErrors()).thenReturn(false);
+
+        // Execute
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectMetadata", Plugin.class, boolean.class);
+        method.setAccessible(true);
+        method.invoke(pluginModernizer, plugin, false);
+
+        // Verify that plugin defaults to JDK 25 when metadata is null
+        verify(plugin).withJDK(io.jenkins.tools.pluginmodernizer.core.model.JDK.JAVA_25);
+        verify(plugin).collectMetadata(mavenInvoker);
+    }
 }
