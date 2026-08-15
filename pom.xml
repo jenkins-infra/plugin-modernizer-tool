@@ -314,7 +314,7 @@
         <version>${snakeyaml.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.github.sparsick.testcontainers.gitserver</groupId>
+        <groupId>dev.parsick.testcontainers.gitserver</groupId>
         <artifactId>testcontainers-gitserver</artifactId>
         <version>${testcontainers.git.version}</version>
         <scope>test</scope>
