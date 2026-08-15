@@ -82,7 +82,7 @@
     </dependency>
     <!-- Test dependencies -->
     <dependency>
-      <groupId>io.github.sparsick.testcontainers.gitserver</groupId>
+      <groupId>dev.parsick.testcontainers.gitserver</groupId>
       <artifactId>testcontainers-gitserver</artifactId>
       <scope>test</scope>
     </dependency>
