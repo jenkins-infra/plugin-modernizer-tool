@@ -73,7 +73,7 @@ With over 2000 plugins in Jenkins, keeping them updated manually is a daunting t
 ## Getting Started
 
 ### Requirements
-- Maven version 3.9.14 or later, or mvnd
+- Maven 3.9.14 or later, or mvnd
 - Java 25 ([Eclipse Temurin](https://adoptium.net/temurin/releases) recommended)
 
 ### Build
@@ -217,13 +217,10 @@ source <(plugin-modernizer generate-completion)
 - `--cache-path`: (optional) Custom path to the cache directory. Defaults to `${user.home}/.cache/jenkins-plugin-modernizer-cli`.
 
 
-- `--maven-home`: (optional) Path to the Maven home directory. Required if both `MAVEN_HOME` and `M2_HOME` environment variables are not set. The minimum required version is 3.9.11.
+- `--maven-home`: (optional) Path to the Maven home directory. Required if both `MAVEN_HOME` and `M2_HOME` environment variables are not set. The minimum required version is 3.9.14.
 
 
-- `--clean-local-data` (optional) Deletes the local plugin directory before running the tool.
-
-
-- `--version` or `-v`: (optional) Displays the version of the Plugin Modernizer tool.
+- `--version` or `-V`: (optional) Displays the version of the Plugin Modernizer tool.
 
 
 - `--help` or `-h`: (optional) Displays the help
@@ -291,7 +288,7 @@ Pass the plugin names directly using the `-p` or `--plugins option`. The expecte
 ```shell
 plugin-modernizer --plugins git,git-client,jobcacher --recipe AddPluginsBom
 ```
-Here, `git`, `git-client`, and `jobcacher` are plugin artifact IDs (also known as plugin names), while `AddPluginsBom` and `AddCodeOwners` are recipe names. For more details about available recipes, refer to the [recipe_data.yaml](plugin-modernizer-core/src/main/resources/recipe_data.yaml) file.
+Here, `git`, `git-client`, and `jobcacher` are plugin artifact IDs (also known as plugin names), while `AddPluginsBom` is a recipe name. For more details about available recipes, refer to the [recipes.yml](plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml) file or run `plugin-modernizer recipes`.
 
 ### Plugin file option
 
@@ -315,9 +312,9 @@ plugin-modernizer run --plugin-file path/to/plugin-file --recipe AddPluginsBom
 
 - `OPT_OUT_PLUGINS_URL`: (optional) Opt Out Plugins URL (.json file containing list of plugins that have opted out for receiving PRs). Can also be passed through the CLI option `--opt-out-plugins-url`. Defaults to this [url](https://raw.githubusercontent.com/jenkins-infra/metadata-plugin-modernizer/main/opt-out-plugins.json) .
 
-- `MAVEN_HOME` or `M2_HOME`: (required) Path to Maven home directory. Can also be passed through the CLI option `-m` or `--maven-home`.
+- `MAVEN_HOME` or `M2_HOME`: (required) Path to Maven home directory. Can also be passed through the CLI option `--maven-home`.
 
-- `CACHE_DIR`: (optional) Path to cache directory. Can also be passed through the CLI option `-c` or `--cache-path`.
+- `CACHE_DIR`: (optional) Path to cache directory. Can also be passed through the CLI option `--cache-path`.
 
 ## Examples
 
