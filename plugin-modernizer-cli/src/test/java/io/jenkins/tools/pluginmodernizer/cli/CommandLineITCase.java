@@ -176,6 +176,31 @@ public class CommandLineITCase {
     @Test
     @Tag("Slow")
     @Execution(ExecutionMode.CONCURRENT)
+    public void testSubcommandHelp() throws Exception {
+        Invoker invoker = buildInvoker();
+
+        // Test --help on all subcommands
+        for (String subcommand : List.of("validate", "run", "dry-run", "cleanup", "recipes", "build-metadata", "version")) {
+            Path logFile = setupLogs("testSubcommandHelp-" + subcommand);
+            InvocationResult result = invoker.execute(buildRequest(subcommand + " --help", logFile));
+            assertAll(
+                    () -> assertEquals(0, result.getExitCode(), subcommand + " --help should exit 0"),
+                    () -> assertTrue(
+                            Files.readAllLines(logFile).stream()
+                                    .anyMatch(line -> line.contains("Usage:")
+                                            || line.contains("plugin-modernizer " + subcommand)),
+                            subcommand + " --help should print usage"));
+        }
+
+        // Test -h on validate
+        Path logFileShort = setupLogs("testSubcommandHelp-validate-h");
+        InvocationResult resultShort = invoker.execute(buildRequest("validate -h", logFileShort));
+        assertEquals(0, resultShort.getExitCode(), "validate -h should exit 0");
+    }
+
+    @Test
+    @Tag("Slow")
+    @Execution(ExecutionMode.CONCURRENT)
     public void testCleanupWithDryRun() throws Exception {
         Path logFile = setupLogs("testCleanupWithDryRun");
         Invoker invoker = buildInvoker();

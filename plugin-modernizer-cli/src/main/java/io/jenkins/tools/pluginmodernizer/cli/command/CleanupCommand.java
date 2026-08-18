@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.cli.command;
 
+import io.jenkins.tools.pluginmodernizer.cli.VersionProvider;
 import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.impl.PluginModernizer;
@@ -10,7 +11,7 @@ import picocli.CommandLine;
 /**
  * Cleanup command
  */
-@CommandLine.Command(name = "cleanup", description = "Cleanup local cache data")
+@CommandLine.Command(name = "cleanup", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Cleanup local cache data")
 public class CleanupCommand implements ICommand {
 
     /**

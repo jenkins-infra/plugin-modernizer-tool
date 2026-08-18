@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.cli.command;
 
+import io.jenkins.tools.pluginmodernizer.cli.VersionProvider;
 import io.jenkins.tools.pluginmodernizer.cli.converter.RecipeConverter;
 import io.jenkins.tools.pluginmodernizer.cli.options.EnvOptions;
 import io.jenkins.tools.pluginmodernizer.cli.options.GitHubOptions;
@@ -16,7 +17,7 @@ import picocli.CommandLine;
 /**
  * Dry Run command
  */
-@CommandLine.Command(name = "dry-run", description = "Dry Run")
+@CommandLine.Command(name = "dry-run", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Dry Run")
 public class DryRunCommand implements ICommand {
 
     /**
