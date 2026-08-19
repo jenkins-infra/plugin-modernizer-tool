@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.cli.command;
 
+import io.jenkins.tools.pluginmodernizer.cli.VersionProvider;
 import io.jenkins.tools.pluginmodernizer.cli.converter.RecipeConverter;
 import io.jenkins.tools.pluginmodernizer.cli.options.EnvOptions;
 import io.jenkins.tools.pluginmodernizer.cli.options.GitHubOptions;
@@ -16,7 +17,7 @@ import picocli.CommandLine;
 /**
  * Run command
  */
-@CommandLine.Command(name = "run", description = "Run")
+@CommandLine.Command(name = "run", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Run")
 public class RunCommand implements ICommand {
 
     /**

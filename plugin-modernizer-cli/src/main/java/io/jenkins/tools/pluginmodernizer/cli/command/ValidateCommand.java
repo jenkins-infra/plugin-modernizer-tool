@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.cli.command;
 
+import io.jenkins.tools.pluginmodernizer.cli.VersionProvider;
 import io.jenkins.tools.pluginmodernizer.cli.options.EnvOptions;
 import io.jenkins.tools.pluginmodernizer.cli.options.GitHubOptions;
 import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
@@ -15,7 +16,7 @@ import picocli.CommandLine;
 /**
  * Validate command
  */
-@CommandLine.Command(name = "validate", description = "Validate")
+@CommandLine.Command(name = "validate", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Validate")
 public class ValidateCommand implements ICommand {
 
     /**

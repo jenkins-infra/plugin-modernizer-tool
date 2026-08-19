@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.cli.command;
 
+import io.jenkins.tools.pluginmodernizer.cli.VersionProvider;
 import io.jenkins.tools.pluginmodernizer.cli.options.EnvOptions;
 import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
 import io.jenkins.tools.pluginmodernizer.cli.options.PluginOptions;
@@ -18,6 +19,8 @@ import picocli.CommandLine;
 @CommandLine.Command(
         name = "build-metadata",
         aliases = {"fetch-metadata"},
+        mixinStandardHelpOptions = true,
+        versionProvider = VersionProvider.class,
         description = "Build local metadata")
 public class BuildMetadataCommand implements ICommand {
 

@@ -10,7 +10,7 @@ import picocli.CommandLine;
 /**
  * Version command
  */
-@CommandLine.Command(name = "version", description = "Display version information")
+@CommandLine.Command(name = "version", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Display version information")
 @SuppressFBWarnings(value = "CRLF_INJECTION_LOGS", justification = "safe because versions from pom.xml")
 public class VersionCommand implements ICommand {
 
