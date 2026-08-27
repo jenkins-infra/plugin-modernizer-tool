@@ -16,7 +16,11 @@ import picocli.CommandLine;
 /**
  * Validate command
  */
-@CommandLine.Command(name = "validate", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Validate")
+@CommandLine.Command(
+        name = "validate",
+        mixinStandardHelpOptions = true,
+        versionProvider = VersionProvider.class,
+        description = "Validate")
 public class ValidateCommand implements ICommand {
 
     /**

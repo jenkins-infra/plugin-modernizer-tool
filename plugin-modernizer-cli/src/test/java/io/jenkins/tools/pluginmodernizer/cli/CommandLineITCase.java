@@ -180,7 +180,8 @@ public class CommandLineITCase {
         Invoker invoker = buildInvoker();
 
         // Test --help on all subcommands
-        for (String subcommand : List.of("validate", "run", "dry-run", "cleanup", "recipes", "build-metadata", "version")) {
+        for (String subcommand :
+                List.of("validate", "run", "dry-run", "cleanup", "recipes", "build-metadata", "version")) {
             Path logFile = setupLogs("testSubcommandHelp-" + subcommand);
             InvocationResult result = invoker.execute(buildRequest(subcommand + " --help", logFile));
             assertAll(

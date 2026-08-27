@@ -9,7 +9,11 @@ import picocli.CommandLine;
 /**
  * A command to list available recipes
  */
-@CommandLine.Command(name = "recipes", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "List recipes")
+@CommandLine.Command(
+        name = "recipes",
+        mixinStandardHelpOptions = true,
+        versionProvider = VersionProvider.class,
+        description = "List recipes")
 public class ListRecipesCommand implements ICommand {
 
     @CommandLine.Mixin

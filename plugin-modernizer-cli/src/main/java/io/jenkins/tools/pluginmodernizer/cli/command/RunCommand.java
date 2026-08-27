@@ -17,7 +17,11 @@ import picocli.CommandLine;
 /**
  * Run command
  */
-@CommandLine.Command(name = "run", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Run")
+@CommandLine.Command(
+        name = "run",
+        mixinStandardHelpOptions = true,
+        versionProvider = VersionProvider.class,
+        description = "Run")
 public class RunCommand implements ICommand {
 
     /**

@@ -11,7 +11,11 @@ import picocli.CommandLine;
 /**
  * Cleanup command
  */
-@CommandLine.Command(name = "cleanup", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Cleanup local cache data")
+@CommandLine.Command(
+        name = "cleanup",
+        mixinStandardHelpOptions = true,
+        versionProvider = VersionProvider.class,
+        description = "Cleanup local cache data")
 public class CleanupCommand implements ICommand {
 
     /**
