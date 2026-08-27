@@ -17,7 +17,11 @@ import picocli.CommandLine;
 /**
  * Dry Run command
  */
-@CommandLine.Command(name = "dry-run", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class, description = "Dry Run")
+@CommandLine.Command(
+        name = "dry-run",
+        mixinStandardHelpOptions = true,
+        versionProvider = VersionProvider.class,
+        description = "Dry Run")
 public class DryRunCommand implements ICommand {
 
     /**
