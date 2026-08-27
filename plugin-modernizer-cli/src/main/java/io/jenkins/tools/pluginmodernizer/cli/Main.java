@@ -1,6 +1,7 @@
 package io.jenkins.tools.pluginmodernizer.cli;
 
 import io.jenkins.tools.pluginmodernizer.cli.command.BuildMetadataCommand;
+import io.jenkins.tools.pluginmodernizer.cli.command.CampaignCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.CleanupCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.DryRunCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.ListRecipesCommand;
@@ -22,6 +23,7 @@ import picocli.CommandLine.Command;
             ValidateCommand.class,
             ListRecipesCommand.class,
             BuildMetadataCommand.class,
+            CampaignCommand.class,
             DryRunCommand.class,
             RunCommand.class,
             CleanupCommand.class,
