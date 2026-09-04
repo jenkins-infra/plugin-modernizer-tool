@@ -12,7 +12,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import picocli.CommandLine;
 
 /**
- * Verify that every subcommand exposes --help/-h and --version/-V.
+ * Verify that every project subcommand exposed by {@link Main} (except the picocli-provided
+ * {@code generate-completion}) exposes --help/-h and --version/-V.
  */
 public class SubcommandHelpOptionsTest {
 
@@ -74,9 +75,13 @@ public class SubcommandHelpOptionsTest {
     public void shouldRegisterBuildMetadataAlias() {
         // Resolve both names from the same CommandLine, otherwise the specs are distinct instances
         CommandLine main = new CommandLine(new Main());
+        CommandLine buildMetadata = main.getSubcommands().get("build-metadata");
+        CommandLine fetchMetadata = main.getSubcommands().get("fetch-metadata");
+        assertNotNull(buildMetadata, "Subcommand 'build-metadata' is not registered on Main");
+        assertNotNull(fetchMetadata, "Subcommand 'fetch-metadata' is not registered on Main");
         assertSame(
-                main.getSubcommands().get("build-metadata").getCommandSpec(),
-                main.getSubcommands().get("fetch-metadata").getCommandSpec(),
+                buildMetadata.getCommandSpec(),
+                fetchMetadata.getCommandSpec(),
                 "fetch-metadata must remain an alias of build-metadata");
     }
 }
