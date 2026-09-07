@@ -26,7 +26,7 @@ jobs:
       should_release: ${{ steps.verify-ci-status.outputs.result == 'success' && steps.interesting-categories.outputs.interesting == 'true' }}
     steps:
       - name: Verify CI status
-        uses: jenkins-infra/verify-ci-status-action@v1.2.2
+        uses: jenkins-infra/verify-ci-status-action@7d194d0c5785a12623f350581db5243063542f90 # v1.2.2
         id: verify-ci-status
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Check interesting categories
-        uses: jenkins-infra/interesting-category-action@v1.2.1
+        uses: jenkins-infra/interesting-category-action@78f4b74509528c18790d9c36b2cccb5b21ed3451 # v1.2.1
         id: interesting-categories
         if: steps.verify-ci-status.outputs.result == 'success'
         with:
@@ -58,13 +58,13 @@ jobs:
     steps:
 
       - name: Check out
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           submodules: false
 
       - name: Set up JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: 25
@@ -86,7 +86,7 @@ jobs:
           CHECKSUM: 831a8591fe20c8243b1dbe7d71e3244f31d1665b0804b2e825e38cbbe5ce0cafb8338851f90780735568773e0a6cd07bbec107cda0b896b008b861075358b6f6
 
       - name: Release
-        uses: jenkins-infra/jenkins-maven-cd-action@v1.4.1
+        uses: jenkins-infra/jenkins-maven-cd-action@6d01e3d3f0d952c7ed2fa88df031de46426299c6 # v1.4.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
@@ -103,13 +103,13 @@ jobs:
         with:
           arguments: release
           setup-java: false
-        uses: jreleaser/release-action@2.5.0
+        uses: jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5 # 2.5.0
         env:
           JRELEASER_PROJECT_VERSION: ${{ steps.extract-version.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate token
-        uses: tibdex/github-app-token@v2
+        uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2
         id: generate_token
         with:
           app_id: ${{ secrets.GORELEASER_APP_ID }}
@@ -119,7 +119,7 @@ jobs:
         with:
           arguments: publish
           setup-java: false
-        uses: jreleaser/release-action@2.5.0
+        uses: jreleaser/release-action@90ac653bb9c79d11179e65d81499f3f34527dcd5 # 2.5.0
         env:
           JRELEASER_PROJECT_VERSION: ${{ steps.extract-version.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -128,7 +128,7 @@ jobs:
 
       - name: Archive output
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: jreleaser-release
           path: |
@@ -136,7 +136,7 @@ jobs:
             out/jreleaser/output.properties
 
       - name: Upload built jar
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: built-jar
           retention-days: 1
@@ -149,7 +149,7 @@ jobs:
     needs: [release]
     steps:
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be # main
         # Required: Free up ~6GB for Docker build
         with:
           # this might remove tools that are actually needed,
@@ -164,25 +164,25 @@ jobs:
           swap-storage: true
           
       - name: Check out
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           submodules: false
 
       - name: Download built jar
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: built-jar
           path: .  # Explicitly set to root to match Dockerfile COPY paths
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a # v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v4
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -190,7 +190,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v6
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -199,7 +199,7 @@ jobs:
 
       - name: Build and push Docker image
         id: push
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
         with:
           context: .
           push: true
