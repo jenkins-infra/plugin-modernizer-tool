@@ -35,8 +35,10 @@ cd "$current_dir" || exit
 # Initialize SDKMAN
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-# Find and output the Temurin JDK version identifier for the given major version
-identifier=$(PAGER=cat sdk list java | grep -E " $major_version(\.[0-9]+)*-tem" | awk -v ver="$major_version" '$0 ~ " " ver "(\\.[0-9]+)*-tem" {print $NF}' | head -n 1)
+# Find and output the Temurin JDK version identifier for the given major version.
+# Identifiers may carry a build suffix after a "+", for example "21.0.12+1.1-tem",
+# so the optional (\+[0-9.]+) group is required to match those as well as "21.0.12-tem".
+identifier=$(PAGER=cat sdk list java | grep -E " $major_version(\.[0-9]+)*(\+[0-9.]+)?-tem" | awk -v ver="$major_version" '$0 ~ " " ver "(\\.[0-9]+)*(\\+[0-9.]+)?-tem" {print $NF}' | head -n 1)
 
 if [ -n "$identifier" ]; then
     echo "$identifier"
