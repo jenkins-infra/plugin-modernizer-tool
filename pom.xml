@@ -49,8 +49,8 @@
     <jenkins.core.minimum.version>2.541.3</jenkins.core.minimum.version>
     <openrewrite.bom.version>3.37.0</openrewrite.bom.version>
     <openrewrite.maven.plugin.version>6.46.1</openrewrite.maven.plugin.version>
-    <micrometer.version>1.17.0</micrometer.version>
-    <slf4j.version>2.0.18</slf4j.version>
+    <micrometer.version>1.17.1</micrometer.version>
+    <slf4j.version>2.0.19</slf4j.version>
     <logback.version>1.6.3</logback.version>
     <picocli.version>4.7.6</picocli.version>
     <common.io.version>2.22.0</common.io.version>
@@ -72,12 +72,12 @@
     <snakeyaml.version>2.6</snakeyaml.version>
     <guice.version>7.0.0</guice.version>
     <error.prone.version>2.50.0</error.prone.version>
-    <checker.qual.version>4.2.2</checker.qual.version>
+    <checker.qual.version>4.2.3</checker.qual.version>
     <jakarta.inject.version>2.0.1</jakarta.inject.version>
     <jwt.version>0.13.0</jwt.version>
     <bouncycastle.version>1.85</bouncycastle.version>
     <maven.surefire.version>3.5.6</maven.surefire.version>
-    <maven.failsafe.version>3.5.6</maven.failsafe.version>
+    <maven.failsafe.version>3.6.0</maven.failsafe.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <testcontainers.git.version>0.16.0</testcontainers.git.version>
     <apache.mina.version>2.19.0</apache.mina.version>

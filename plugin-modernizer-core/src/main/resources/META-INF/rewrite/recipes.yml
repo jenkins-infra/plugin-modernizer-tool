@@ -537,7 +537,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-compress-api
-      pluginVersion: 1.28.0-89.v706d5e672f99
+      pluginVersion: 1.28.0-91.vf86a_34dfa_c1d
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-compress
@@ -572,7 +572,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: byte-buddy-api
-      pluginVersion: 1.18.12-254.vb_933fb_ce06b_4
+      pluginVersion: 1.18.13-258.vb_0a_1833e80e8
       replaces:
         - groupId: net.bytebuddy
           artifactId: byte-buddy
