@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -289,7 +290,7 @@ public class JdkFetcher {
             TarArchiveEntry entry;
             while ((entry = tarStream.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
-                    extractFile(entry.getName(), tarStream, extractionDir);
+                    extractFile(entry.getName(), tarStream, extractionDir, entry.getMode());
                 }
             }
         }
@@ -305,6 +306,22 @@ public class JdkFetcher {
      * @throws IOException If an I/O error occurs.
      */
     private void extractFile(String entryName, InputStream inputStream, Path extractionDir) throws IOException {
+        extractFile(entryName, inputStream, extractionDir, null);
+    }
+
+    /**
+     * Extracts a file from an input stream to the specified directory without nested directories.
+     *
+     * @param entryName     The name of the entry in the archive.
+     * @param inputStream   The input stream from which the file data will be read.
+     * @param extractionDir The directory to extract the file into.
+     * @param unixMode      Optional POSIX mode from the archive entry (for example {@link TarArchiveEntry#getMode()}).
+     *                      When present, those permissions are applied after copy so executables such as
+     *                      {@code lib/jspawnhelper} keep the {@code +x} bit stored in the tarball.
+     * @throws IOException If an I/O error occurs.
+     */
+    private void extractFile(String entryName, InputStream inputStream, Path extractionDir, Integer unixMode)
+            throws IOException {
         Path entryPath = Paths.get(entryName);
         Path strippedPath = entryPath.subpath(1, entryPath.getNameCount());
 
@@ -314,10 +331,67 @@ public class JdkFetcher {
             Files.createDirectories(parentPath);
         }
         Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+        if (unixMode != null) {
+            applyPosixPermissions(filePath, unixMode);
+        }
     }
 
     /**
-     * Sets executable permissions on all binaries located in the /bin folder of the JDK.
+     * Applies POSIX permission bits from a Unix file mode (as stored in a tar header).
+     *
+     * @param filePath The extracted file.
+     * @param unixMode The mode from {@link TarArchiveEntry#getMode()}, which may include file-type bits.
+     * @throws IOException If permissions cannot be set on a POSIX file system.
+     */
+    private void applyPosixPermissions(Path filePath, int unixMode) throws IOException {
+        if (!filePath.getFileSystem().supportedFileAttributeViews().contains("posix")) {
+            return;
+        }
+        Files.setPosixFilePermissions(filePath, posixPermissionsFromUnixMode(unixMode));
+    }
+
+    /**
+     * Converts a Unix mode (octal permission bits, optionally with file-type bits) to NIO POSIX permissions.
+     *
+     * @param unixMode The mode from a tar entry.
+     * @return The corresponding permission set.
+     */
+    private static Set<PosixFilePermission> posixPermissionsFromUnixMode(int unixMode) {
+        int mode = unixMode & 0777;
+        Set<PosixFilePermission> permissions = EnumSet.noneOf(PosixFilePermission.class);
+        if ((mode & 0400) != 0) {
+            permissions.add(PosixFilePermission.OWNER_READ);
+        }
+        if ((mode & 0200) != 0) {
+            permissions.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((mode & 0100) != 0) {
+            permissions.add(PosixFilePermission.OWNER_EXECUTE);
+        }
+        if ((mode & 0040) != 0) {
+            permissions.add(PosixFilePermission.GROUP_READ);
+        }
+        if ((mode & 0020) != 0) {
+            permissions.add(PosixFilePermission.GROUP_WRITE);
+        }
+        if ((mode & 0010) != 0) {
+            permissions.add(PosixFilePermission.GROUP_EXECUTE);
+        }
+        if ((mode & 0004) != 0) {
+            permissions.add(PosixFilePermission.OTHERS_READ);
+        }
+        if ((mode & 0002) != 0) {
+            permissions.add(PosixFilePermission.OTHERS_WRITE);
+        }
+        if ((mode & 0001) != 0) {
+            permissions.add(PosixFilePermission.OTHERS_EXECUTE);
+        }
+        return permissions;
+    }
+
+    /**
+     * Sets executable permissions on all binaries located in the /bin folder of the JDK,
+     * and on {@code lib/jspawnhelper} which the JVM uses to posix_spawn child processes.
      *
      * @param jdkPath The path to the JDK directory.
      */
@@ -343,15 +417,31 @@ public class JdkFetcher {
         Set<PosixFilePermission> executablePermissions = PosixFilePermissions.fromString("rwxr-xr-x");
 
         try (Stream<Path> files = Files.list(binDir)) {
-            files.filter(Files::isRegularFile).forEach(file -> {
-                try {
-                    Files.setPosixFilePermissions(file, executablePermissions);
-                } catch (IOException e) {
-                    LOG.error("Failed to set executable permissions for {}: {}", file, e.getMessage());
-                }
-            });
+            files.filter(Files::isRegularFile).forEach(file -> setExecutablePermissions(file, executablePermissions));
         } catch (IOException e) {
             LOG.error("Failed to list files in directory {}: {}", binDir, e.getMessage());
+        }
+
+        Path jdkHome = binDir.getParent();
+        if (jdkHome != null) {
+            Path jspawnhelper = jdkHome.resolve("lib").resolve("jspawnhelper");
+            if (Files.isRegularFile(jspawnhelper)) {
+                setExecutablePermissions(jspawnhelper, executablePermissions);
+            }
+        }
+    }
+
+    /**
+     * Sets POSIX permissions on a file, logging and continuing if the operation fails.
+     *
+     * @param file        The file to update.
+     * @param permissions The permissions to apply.
+     */
+    private void setExecutablePermissions(Path file, Set<PosixFilePermission> permissions) {
+        try {
+            Files.setPosixFilePermissions(file, permissions);
+        } catch (IOException e) {
+            LOG.error("Failed to set executable permissions for {}: {}", file, e.getMessage());
         }
     }
 }
