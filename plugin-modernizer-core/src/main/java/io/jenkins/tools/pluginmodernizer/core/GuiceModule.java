@@ -1,6 +1,8 @@
 package io.jenkins.tools.pluginmodernizer.core;
 
 import com.google.inject.AbstractModule;
+import io.jenkins.tools.pluginmodernizer.core.campaign.CampaignModernizerRunner;
+import io.jenkins.tools.pluginmodernizer.core.campaign.DefaultCampaignModernizerRunner;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.github.GHService;
 import io.jenkins.tools.pluginmodernizer.core.impl.CacheManager;
@@ -21,6 +23,7 @@ public class GuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(Invoker.class).to(DefaultInvoker.class);
+        bind(CampaignModernizerRunner.class).to(DefaultCampaignModernizerRunner.class);
         bind(Config.class).toInstance(config);
         bind(CacheManager.class).toInstance(new CacheManager(config.getCachePath()));
         bind(PluginService.class).toInstance(new PluginService());
