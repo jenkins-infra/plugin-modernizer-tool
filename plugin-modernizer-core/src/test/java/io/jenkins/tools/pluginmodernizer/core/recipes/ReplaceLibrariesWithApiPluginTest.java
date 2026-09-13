@@ -54,7 +54,7 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.541</jenkins.baseline>
+                    <jenkins.baseline>2.555</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.1</jenkins.version>
                   </properties>
                   <dependencyManagement>
@@ -111,7 +111,7 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <properties>
                     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-                    <jenkins.baseline>2.541</jenkins.baseline>
+                    <jenkins.baseline>2.555</jenkins.baseline>
                     <jenkins.version>${jenkins.baseline}.1</jenkins.version>
                   </properties>
                   <dependencyManagement>
