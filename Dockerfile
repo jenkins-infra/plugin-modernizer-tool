@@ -17,7 +17,7 @@ ENV JDK11_PACKAGE=11.0.32+1.1-tem
 ENV JDK17_PACKAGE=17.0.20-tem
 ENV JDK21_PACKAGE=21.0.12+1.1-tem
 ENV JDK25_PACKAGE=25.0.4-tem
-ENV MVN_INSTALL_PLUGIN_VERSION=3.1.4
+ENV MVN_INSTALL_PLUGIN_VERSION=3.2.0
 
 # Replace the default shell with bash
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
