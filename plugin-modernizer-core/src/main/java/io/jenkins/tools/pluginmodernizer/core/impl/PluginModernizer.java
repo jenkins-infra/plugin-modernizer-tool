@@ -380,8 +380,12 @@ public class PluginModernizer {
             }
 
             // Recollect metadata after modernization
-            if (!config.isFetchMetadataOnly()) {
-                plugin.withJDK(JDK.JAVA_25);
+            if (!config.isFetchMetadataOnly() && plugin.getMetadata() != null) {
+                // Use the minimum JDK from metadata that was successfully used to build the plugin
+                // If no JDKs in metadata, determine based on Jenkins version
+                JDK jdkForMetadata = JDK.min(
+                        plugin.getMetadata().getJdks(), plugin.getMetadata().getJenkinsVersion());
+                plugin.withJDK(jdkForMetadata);
                 plugin.clean(mavenInvoker);
                 collectMetadata(plugin, false);
                 LOG.debug(
@@ -461,7 +465,21 @@ public class PluginModernizer {
      */
     private void collectMetadata(Plugin plugin, boolean retryAfterFirstCompile) {
         LOG.trace("Collecting metadata for plugin {}... Please be patient", plugin.getName());
-        plugin.withJDK(JDK.JAVA_25);
+        // Use JDK 25 for initial metadata collection if no metadata exists yet
+        // If metadata already has JDKs, use minimum but ensure at least JDK 17 for OpenRewrite compatibility
+        PluginMetadata metadata = plugin.getMetadata();
+        if (metadata == null || metadata.getJdks() == null || metadata.getJdks().isEmpty()) {
+            plugin.withJDK(JDK.JAVA_25);
+        } else {
+            // Use minimum JDK from metadata, but ensure it supports OpenRewrite (JDK 17+)
+            JDK minJdk = JDK.min(metadata.getJdks());
+            if (minJdk.getMajor() < 17) {
+                // If minimum JDK is less than 17, use JDK 17 or higher based on Jenkins version
+                plugin.withJDK(JDK.min(metadata.getJdks(), metadata.getJenkinsVersion()));
+            } else {
+                plugin.withJDK(minJdk);
+            }
+        }
         try {
             plugin.collectMetadata(mavenInvoker);
             if (plugin.hasErrors()) {
@@ -480,7 +498,19 @@ public class PluginModernizer {
                             plugin.getName());
                     plugin.raiseLastError();
                 }
-                plugin.withJDK(JDK.JAVA_25);
+                // After successful build with JDK 8, use the minimum JDK from metadata for collection
+                // Ensure metadata exists and use Jenkins version compatibility if needed
+                PluginMetadata retryMetadata = plugin.getMetadata();
+                JDK jdkForRetry;
+                if (retryMetadata != null
+                        && retryMetadata.getJdks() != null
+                        && !retryMetadata.getJdks().isEmpty()) {
+                    jdkForRetry = JDK.min(retryMetadata.getJdks(), retryMetadata.getJenkinsVersion());
+                } else {
+                    // Fallback: use the JDK that was used for the quick build retry
+                    jdkForRetry = JDK.JAVA_8;
+                }
+                plugin.withJDK(jdkForRetry);
                 plugin.collectMetadata(mavenInvoker);
             } else {
                 LOG.info("Failed to collect metadata for plugin {}. Not retrying.", plugin.getName());
