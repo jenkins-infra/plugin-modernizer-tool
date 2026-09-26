@@ -11,10 +11,12 @@ import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.ModernizerException;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
+import io.jenkins.tools.pluginmodernizer.core.model.PreconditionError;
 import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -537,6 +539,12 @@ public class PluginModernizer {
         modernizationMetadata.setChangedFiles(diffStats.changedFiles());
         if (plugin.hasErrors() || plugin.hasPreconditionErrors()) {
             modernizationMetadata.setMigrationStatus("fail");
+            List<String> reasons = new ArrayList<>();
+            plugin.getPreconditionErrors().stream()
+                    .map(PreconditionError::getError)
+                    .forEach(reasons::add);
+            plugin.getErrors().stream().map(Throwable::getMessage).forEach(reasons::add);
+            modernizationMetadata.setFailureReasons(reasons);
         } else {
             modernizationMetadata.setMigrationStatus("success");
         }
