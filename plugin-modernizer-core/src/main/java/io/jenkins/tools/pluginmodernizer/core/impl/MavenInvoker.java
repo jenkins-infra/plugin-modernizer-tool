@@ -119,7 +119,8 @@ public class MavenInvoker {
      */
     private String[] getSingleRecipeArgs(Recipe recipe) {
         List<String> goals = new ArrayList<>();
-        goals.add("org.openrewrite.maven:rewrite-maven-plugin:" + Settings.MAVEN_REWRITE_PLUGIN_VERSION + ":run");
+        String goal = recipe.isSkipVerification() ? "runNoFork" : "run";
+        goals.add("org.openrewrite.maven:rewrite-maven-plugin:" + Settings.MAVEN_REWRITE_PLUGIN_VERSION + ":" + goal);
         goals.add("-Denforcer.skip=true");
         goals.add("-Dhpi.validate.skip=true");
         goals.add("-Dmaven.antrun.skip=true");
