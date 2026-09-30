@@ -756,6 +756,7 @@ tags: ['chore', 'skip-verification']
 recipeList:
   - org.openrewrite.jenkins.CreateIndexJelly
   - org.openrewrite.jenkins.AddJellyXmlDeclaration
+  - org.openrewrite.text.EndOfLineAtEndOfFile
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
@@ -777,8 +778,8 @@ recipeList:
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.conditions.IsUsingCoreVersionWithCommonsCompressRemoved
-displayName: Check if the plugin using using a version with commons-compress removed
-description: Check if the plugin using using a version with commons-compress removed
+displayName: Check if the plugin is using a version with commons-compress removed
+description: Check if the plugin is using a version with commons-compress removed
 tags: ['condition']
 recipeList:
   - org.openrewrite.jenkins.IsJenkinsPlugin:

@@ -8,7 +8,7 @@ To learn more about the architecture of the tool, see the [ARCHITECTURE](ARCHITE
 
 2) Install tools
 
-   i. Java 21
+   i. Java 25
 
    ii. Maven 3.9.15
 
