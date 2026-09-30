@@ -16,8 +16,7 @@ import org.openrewrite.test.RewriteTest;
 @Execution(ExecutionMode.CONCURRENT)
 class FixJellyIssuesTest implements RewriteTest {
 
-    private static final String PLUGIN_POM =
-            """
+    private static final String PLUGIN_POM = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
               <modelVersion>4.0.0</modelVersion>
@@ -39,22 +38,19 @@ class FixJellyIssuesTest implements RewriteTest {
               </repositories>
             </project>""";
 
-    private static final String JELLY_WITHOUT_DECLARATION =
-            """
+    private static final String JELLY_WITHOUT_DECLARATION = """
             <div>
                Report info plugin
             </div>
             """;
 
-    private static final String JELLY_WITH_DECLARATION_AND_NEWLINE =
-            """
+    private static final String JELLY_WITH_DECLARATION_AND_NEWLINE = """
             <?jelly escape-by-default='true'?>
             <div>
                Report info plugin
             </div>""" + "\n";
 
-    private static final String JELLY_WITH_DECLARATION_WITHOUT_NEWLINE =
-            """
+    private static final String JELLY_WITH_DECLARATION_WITHOUT_NEWLINE = """
             <?jelly escape-by-default='true'?>
             <div>
                Report info plugin
@@ -73,10 +69,9 @@ class FixJellyIssuesTest implements RewriteTest {
                         .expectedCyclesThatMakeChanges(2),
                 // language=xml
                 pomXml(PLUGIN_POM, PLUGIN_POM + "\n", s -> s.noTrim()),
-                text(
-                        JELLY_WITHOUT_DECLARATION,
-                        JELLY_WITH_DECLARATION_AND_NEWLINE,
-                        s -> s.path(ArchetypeCommonFile.INDEX_JELLY.getPath()).noTrim()));
+                text(JELLY_WITHOUT_DECLARATION, JELLY_WITH_DECLARATION_AND_NEWLINE, s -> s.path(
+                                ArchetypeCommonFile.INDEX_JELLY.getPath())
+                        .noTrim()));
     }
 
     /**
@@ -90,7 +85,10 @@ class FixJellyIssuesTest implements RewriteTest {
                         .recipe(new org.openrewrite.jenkins.AddJellyXmlDeclaration()),
                 // language=xml
                 pomXml(PLUGIN_POM),
-                text(JELLY_WITHOUT_DECLARATION, JELLY_WITH_DECLARATION_WITHOUT_NEWLINE, s -> s.path(ArchetypeCommonFile.INDEX_JELLY.getPath())));
+                text(
+                        JELLY_WITHOUT_DECLARATION,
+                        JELLY_WITH_DECLARATION_WITHOUT_NEWLINE,
+                        s -> s.path(ArchetypeCommonFile.INDEX_JELLY.getPath())));
     }
 
     /**
@@ -101,9 +99,8 @@ class FixJellyIssuesTest implements RewriteTest {
         rewriteRun(
                 spec -> spec.executionContext(Utils.getMavenExecutionContext())
                         .recipe(new org.openrewrite.text.EndOfLineAtEndOfFile()),
-                text(
-                        JELLY_WITH_DECLARATION_WITHOUT_NEWLINE,
-                        JELLY_WITH_DECLARATION_AND_NEWLINE,
-                        s -> s.path(ArchetypeCommonFile.INDEX_JELLY.getPath()).noTrim()));
+                text(JELLY_WITH_DECLARATION_WITHOUT_NEWLINE, JELLY_WITH_DECLARATION_AND_NEWLINE, s -> s.path(
+                                ArchetypeCommonFile.INDEX_JELLY.getPath())
+                        .noTrim()));
     }
 }
