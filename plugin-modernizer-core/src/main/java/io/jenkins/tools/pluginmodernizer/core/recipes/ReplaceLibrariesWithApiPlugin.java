@@ -1,7 +1,5 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.openrewrite.ExecutionContext;
 import org.openrewrite.Option;
@@ -11,8 +9,6 @@ import org.openrewrite.maven.AddDependencyVisitor;
 import org.openrewrite.maven.MavenVisitor;
 import org.openrewrite.maven.RemoveDependency;
 import org.openrewrite.maven.tree.ResolvedDependency;
-import org.openrewrite.xml.AddToTagVisitor;
-import org.openrewrite.xml.XPathMatcher;
 import org.openrewrite.xml.tree.Xml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +18,6 @@ public class ReplaceLibrariesWithApiPlugin extends Recipe {
      * Logger
      */
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceLibrariesWithApiPlugin.class);
-
-    private static final XPathMatcher DEPENDENCIES_MATCHER = new XPathMatcher("/project/dependencies");
 
     @Option(
             displayName = "API Plugin's groupId",
@@ -114,57 +108,10 @@ public class ReplaceLibrariesWithApiPlugin extends Recipe {
                                     false,
                                     null));
                             doAfterVisit(new RemoveDependency(groupId, artifactId, null).getVisitor());
-                            // transitive dependency
-                            if (found != dependency) {
-                                if (isApiProvidedLibrary(groupId, artifactId)) {
-                                    continue; // Skip exclusions if the library is already part of the API plugin
-                                }
-                                Optional<Xml.Tag> maybeExclusions = tag.getChild("exclusions");
-                                if (maybeExclusions.isPresent()) {
-                                    Xml.Tag exclusions = maybeExclusions.get();
-
-                                    List<Xml.Tag> individualExclusions = exclusions.getChildren("exclusion");
-                                    boolean alreadyExcluded = individualExclusions.stream()
-                                            .anyMatch(exclusion -> groupId.equals(exclusion
-                                                            .getChildValue("groupId")
-                                                            .orElse(null))
-                                                    && artifactId.equals(exclusion
-                                                            .getChildValue("artifactId")
-                                                            .orElse(null)));
-                                    if (!alreadyExcluded) {
-                                        doAfterVisit(new AddToTagVisitor<>(
-                                                exclusions,
-                                                Xml.Tag.build("<exclusion>\n"
-                                                        + "<!-- brought in by " + pluginGroupId + ":" + pluginArtifactId
-                                                        + " -->\n"
-                                                        + "<groupId>" + groupId + "</groupId>\n"
-                                                        + "<artifactId>" + artifactId + "</artifactId>\n"
-                                                        + "</exclusion>")));
-                                    }
-                                } else {
-                                    doAfterVisit(new AddToTagVisitor<>(
-                                            tag,
-                                            Xml.Tag.build("<exclusions>\n"
-                                                    + "<exclusion>\n"
-                                                    + "<!-- brought in by " + pluginGroupId + ":" + pluginArtifactId
-                                                    + " -->\n"
-                                                    + "<groupId>" + groupId + "</groupId>\n"
-                                                    + "<artifactId>" + artifactId + "</artifactId>\n"
-                                                    + "</exclusion>\n"
-                                                    + "</exclusions>")));
-                                }
-                                maybeUpdateModel();
-                            }
                         }
                     }
                 }
                 return super.visitTag(tag, ctx);
-            }
-
-            private boolean isApiProvidedLibrary(String groupId, String artifactId) {
-                return replaces.stream()
-                        .anyMatch(
-                                replaced -> replaced.groupId.equals(groupId) && replaced.artifactId.equals(artifactId));
             }
 
             private boolean isApiPlugin(ResolvedDependency dependency) {
