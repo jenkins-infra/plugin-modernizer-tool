@@ -90,7 +90,7 @@ public class UpdateJenkinsfileForJavaVersion extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Update Jenkinsfile for specefied Java Version";
+        return "Update Jenkinsfile for specified Java Version";
     }
 
     @Override

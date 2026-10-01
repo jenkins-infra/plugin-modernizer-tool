@@ -45,12 +45,12 @@ public class IsUsingBom extends Recipe {
 
     @Override
     public String getDisplayName() {
-        return "Is the project a using Jenkins bom?";
+        return "Is the project using a Jenkins BOM?";
     }
 
     @Override
     public String getDescription() {
-        return "Checks if the project is a using a Jenkins BOM.";
+        return "Checks if the project is using a Jenkins BOM.";
     }
 
     /**

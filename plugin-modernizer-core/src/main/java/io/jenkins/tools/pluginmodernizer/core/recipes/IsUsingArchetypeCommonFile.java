@@ -35,7 +35,7 @@ public class IsUsingArchetypeCommonFile extends Recipe {
 
     @Override
     public String getDescription() {
-        return "Checks if the project is a using a comment file.";
+        return "Checks if the project is using a common file.";
     }
 
     @Override
