@@ -95,6 +95,16 @@ recipeList:
               # java-version: 21  # Optionally specify what version of Java to set up for the build, or remove to use a recent default.
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.RemoveSecurityScanJavaVersion
+displayName: Remove hardcoded java-version from jenkins-security-scan workflow
+description: Remove hardcoded java-version from jenkins-security-scan.yml so the workflow uses the recent default, aligned with the Jenkins plugin archetype.
+tags: ['chore', 'skip-verification']
+recipeList:
+  - org.openrewrite.yaml.DeleteProperty:
+      propertyKey: jobs.security-scan.with.java-version
+      filePattern: "**/jenkins-security-scan.y*ml"
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.AddPluginsBom
 displayName: Add plugins BOM
 description: Add the Jenkins BOM to the dependenciesManagement section of the pom.xml.
@@ -345,6 +355,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
+  - io.jenkins.tools.pluginmodernizer.RemoveSecurityScanJavaVersion
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
