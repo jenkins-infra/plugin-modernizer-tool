@@ -2126,7 +2126,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                             """.formatted(
                                 Settings.getJenkinsParentVersion(),
                                 Settings.getJenkinsTestHarnessVersion(),
-                                Settings.getJenkinsMinimumVersion(),
+                                "2.555.1",
                                 Settings.getWiremockVersion())),
                 srcMainResources(
                         // language=java
@@ -2902,7 +2902,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.555.1</jenkins.version>
+                    <jenkins.version>2.555.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
@@ -2985,7 +2985,7 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   <packaging>hpi</packaging>
                   <name>Empty Plugin</name>
                   <properties>
-                    <jenkins.version>2.555.1</jenkins.version>
+                    <jenkins.version>2.555.3</jenkins.version>
                   </properties>
                   <dependencies>
                     <dependency>
