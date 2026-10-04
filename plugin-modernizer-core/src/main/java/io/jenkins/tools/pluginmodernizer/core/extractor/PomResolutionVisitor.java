@@ -17,10 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A pom visitor that accumulate PluginMetadata using maven resolution result.
- * Maven resolution might not get updated if the tree is modified by other visitor
- * So it's best used in preconditons recipes to avoid side effect
- * An other implementation of this visitor could be extraction from the tree instead of maven resolution result
+ * A pom visitor that accumulates PluginMetadata using maven resolution results.
+ * Maven resolution might not get updated if the tree is modified by other visitors.
+ * So it's best used in precondition recipes to avoid side effects.
+ * Another implementation of this visitor could be extraction from the tree instead of maven resolution results.
  */
 public class PomResolutionVisitor extends MavenIsoVisitor<PluginMetadata> {
 
