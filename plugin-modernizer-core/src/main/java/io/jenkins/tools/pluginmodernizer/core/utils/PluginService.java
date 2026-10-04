@@ -115,7 +115,7 @@ public class PluginService {
     }
 
     /**
-     * Retgurn if a plugin is for adoption
+     * Return if a plugin is for adoption
      * @param plugin Plugin
      * @return True if for adoption
      */
