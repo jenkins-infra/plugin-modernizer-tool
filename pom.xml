@@ -80,7 +80,7 @@
     <maven.failsafe.version>3.6.0</maven.failsafe.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <testcontainers.git.version>0.16.0</testcontainers.git.version>
-    <apache.mina.version>2.19.0</apache.mina.version>
+    <apache.mina.version>2.20.0</apache.mina.version>
     <maven.invoker.version>3.3.0</maven.invoker.version>
   </properties>
 
