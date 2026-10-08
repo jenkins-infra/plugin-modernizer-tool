@@ -328,9 +328,9 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl
   - io.jenkins.tools.pluginmodernizer.UpgradeParent6Version
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.555.1
+      minimumVersion: ${jenkins.core.minimum.version}
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsTestHarnessVersion:
-      jenkinsVersion: 2.555.1
+      jenkinsVersion: ${jenkins.core.minimum.version}
   - org.openrewrite.java.ChangePackage:  #deprecating
       oldPackageName: com.gargoylesoftware.htmlunit
       newPackageName: org.htmlunit
@@ -634,13 +634,13 @@ recipeList:
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version
-displayName: Baseline a plugin to the minimum required Jenkins version for Java 21 (2.555.1)
-description: Baseline a plugin to the minimum required Jenkins version for Java 21 (2.555.1) in order to use Java 21 features.
+displayName: Baseline a plugin to the minimum required Jenkins version for Java 21
+description: Baseline a plugin to the minimum required Jenkins version for Java 21 in order to use Java 21 features.
 tags: ['dependencies', 'chore']
 recipeList:
   - io.jenkins.tools.pluginmodernizer.UpgradeParent6Version
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
-      minimumVersion: 2.555.1
+      minimumVersion: ${jenkins.core.minimum.version}
   - io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
   - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateStaplerAndJavaxToJakarta
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion:
