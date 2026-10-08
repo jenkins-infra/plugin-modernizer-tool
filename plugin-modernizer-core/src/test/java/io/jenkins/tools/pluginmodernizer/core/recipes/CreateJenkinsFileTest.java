@@ -1,12 +1,17 @@
 package io.jenkins.tools.pluginmodernizer.core.recipes;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openrewrite.groovy.Assertions.groovy;
 import static org.openrewrite.maven.Assertions.pomXml;
 
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
+import java.util.Collection;
 import org.junit.jupiter.api.Test;
+import org.openrewrite.SourceFile;
 import org.openrewrite.test.RewriteTest;
+import org.openrewrite.text.PlainText;
 
 class CreateJenkinsFileTest implements RewriteTest {
 
@@ -197,5 +202,21 @@ class CreateJenkinsFileTest implements RewriteTest {
                     [platform: 'windows', jdk: 8]
                 ]
             )""", spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
+    }
+
+    @Test
+    void shouldUseSameJdkForBothPlatformsWhenOnlyOneIsSupported() {
+        CreateJenkinsFile recipe = new CreateJenkinsFile();
+        CreateJenkinsFile.ConfigState state = new CreateJenkinsFile.ConfigState();
+        state.setJenkinsVersion("2.164.0");
+
+        Collection<SourceFile> files = recipe.generate(state, Utils.getMavenExecutionContext());
+
+        assertEquals(1, files.size());
+        PlainText jenkinsfile = (PlainText) files.iterator().next();
+        assertEquals(ArchetypeCommonFile.JENKINSFILE.getPath(), jenkinsfile.getSourcePath());
+        String content = jenkinsfile.getText();
+        assertTrue(content.contains("[platform: 'linux', jdk: 8]"), content);
+        assertTrue(content.contains("[platform: 'windows', jdk: 8]"), content);
     }
 }

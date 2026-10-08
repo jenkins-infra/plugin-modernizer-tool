@@ -2395,12 +2395,11 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """.formatted(
-                        Settings.getJenkinsParentVersion(),
-                        Settings.getJenkinsTestHarnessVersion(),
-                        Settings.getJenkinsMinimumVersion()
-                                .substring(Settings.getJenkinsMinimumVersion().lastIndexOf('.') + 1),
-                        Settings.getBomVersion(),
-                        Settings.getWiremockVersion())),
+                                Settings.getJenkinsParentVersion(),
+                                Settings.getJenkinsTestHarnessVersion(),
+                                Settings.getJenkinsMinimumPatchVersion(),
+                                Settings.getBomVersion(),
+                                Settings.getWiremockVersion())),
                 srcTestJava(java(
                         // language=java
                         """
@@ -2607,11 +2606,10 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   </pluginRepositories>
                 </project>
                 """.formatted(
-                        Settings.getJenkinsParentVersion(),
-                        Settings.getJenkinsTestHarnessVersion(),
-                        Settings.getJenkinsMinimumVersion()
-                                .substring(Settings.getJenkinsMinimumVersion().lastIndexOf('.') + 1),
-                        Settings.getBomVersion())),
+                                Settings.getJenkinsParentVersion(),
+                                Settings.getJenkinsTestHarnessVersion(),
+                                Settings.getJenkinsMinimumPatchVersion(),
+                                Settings.getBomVersion())),
 
                 // language=java
                 java("""
