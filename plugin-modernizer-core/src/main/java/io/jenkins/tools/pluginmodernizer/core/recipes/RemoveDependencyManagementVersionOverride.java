@@ -21,8 +21,6 @@ public class RemoveDependencyManagementVersionOverride extends Recipe {
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoveDependencyManagementVersionOverride.class);
 
-    private static final String BOM_GROUP_ID = "io.jenkins.tools.bom";
-
     @Override
     public @NlsRewrite.DisplayName String getDisplayName() {
         return "Remove dependencyManagement version overrides";
@@ -55,8 +53,8 @@ public class RemoveDependencyManagementVersionOverride extends Recipe {
         }
 
         private static boolean isBomImport(Xml.Tag dependency) {
-            return BOM_GROUP_ID.equals(dependency.getChildValue("groupId").orElse(""))
-                    && "pom".equals(dependency.getChildValue("type").orElse(""));
+            return "pom".equals(dependency.getChildValue("type").orElse(""))
+                    && "import".equals(dependency.getChildValue("scope").orElse(""));
         }
     }
 }
