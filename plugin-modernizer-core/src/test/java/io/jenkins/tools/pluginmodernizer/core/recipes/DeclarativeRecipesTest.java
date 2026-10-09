@@ -2750,11 +2750,8 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     </pluginRepository>
                   </pluginRepositories>
                 </project>
-                """.formatted(
-                        Settings.getJenkinsParentVersion(),
-                        Settings.getJenkinsMinimumVersion())));
+                """.formatted(Settings.getJenkinsParentVersion(), Settings.getJenkinsMinimumVersion())));
     }
-
 
     @Test
     void addPluginBomTest() {
