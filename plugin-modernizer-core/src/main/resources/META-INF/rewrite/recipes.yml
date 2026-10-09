@@ -365,6 +365,7 @@ tags: ['dependencies']
 recipeList:
   - org.openrewrite.maven.RemoveRedundantDependencyVersions:
       onlyIfVersionsMatch: false # Keep newer dependencies
+  - io.jenkins.tools.pluginmodernizer.core.recipes.RemoveDependencyManagementVersionOverride
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.RemoveDevelopersTag
