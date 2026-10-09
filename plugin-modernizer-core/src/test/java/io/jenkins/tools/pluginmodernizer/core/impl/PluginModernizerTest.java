@@ -1,6 +1,8 @@
 package io.jenkins.tools.pluginmodernizer.core.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,9 +10,14 @@ import static org.mockito.Mockito.*;
 
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
+import io.jenkins.tools.pluginmodernizer.core.extractor.ModernizationMetadata;
+import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
 import io.jenkins.tools.pluginmodernizer.core.github.GHService;
+import io.jenkins.tools.pluginmodernizer.core.model.DiffStats;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
+import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
+import io.jenkins.tools.pluginmodernizer.core.model.PreconditionError;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import java.net.URL;
@@ -18,9 +25,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -359,6 +368,109 @@ class PluginModernizerTest {
         verify(plugin, never()).commitMetadata(any());
         verify(plugin, never()).pushMetadata(any());
         verify(plugin, never()).openMetadataPullRequest(any());
+    }
+
+    @Test
+    void testCollectModernizationMetadata_WithPreconditionErrors_ShouldRecordFailureReasons() throws Exception {
+        // Arrange
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata pluginMetadata = mock(PluginMetadata.class);
+        Config pluginConfig = mock(Config.class);
+        Recipe recipe = mock(Recipe.class);
+
+        when(plugin.getName()).thenReturn("test-plugin");
+        when(plugin.getMetadata()).thenReturn(pluginMetadata);
+        when(pluginMetadata.getPluginName()).thenReturn("test-plugin");
+        when(pluginMetadata.getJenkinsVersion()).thenReturn(null);
+        when(plugin.getJenkinsBaseline()).thenReturn("2.361");
+        when(plugin.getJenkinsVersion()).thenReturn("2.361.1");
+        when(plugin.getEffectiveBaseline()).thenReturn("2.361");
+        when(plugin.getConfig()).thenReturn(pluginConfig);
+        when(pluginConfig.getRecipe()).thenReturn(recipe);
+        when(recipe.getDisplayName()).thenReturn("Test Recipe");
+        when(recipe.getDescription()).thenReturn("Test description");
+        when(recipe.getTags()).thenReturn(Set.of());
+        when(recipe.getName()).thenReturn("test-recipe");
+        when(plugin.getPullRequestUrl()).thenReturn(null);
+        when(pluginService.extractVersion(plugin)).thenReturn("1.0");
+        when(config.isDryRun()).thenReturn(false);
+        when(plugin.getDiffStats(ghService, false)).thenReturn(new DiffStats(0, 0, 0));
+        when(plugin.hasErrors()).thenReturn(false);
+        when(plugin.hasPreconditionErrors()).thenReturn(true);
+        when(plugin.getPreconditionErrors()).thenReturn(Set.of(PreconditionError.PARENT_POM_1X));
+        when(plugin.getErrors()).thenReturn(List.of());
+        // GHService is not needed here; the existing try-catch in collectModernizationMetadata handles this
+        doThrow(new PluginProcessingException("no gh", plugin)).when(ghService).getRepository(any(), any());
+        // Allow save() to proceed without NPE
+        when(cacheManager.getLocation()).thenReturn(Path.of("target/test-cache"));
+
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectModernizationMetadata", Plugin.class);
+        method.setAccessible(true);
+
+        // Act
+        method.invoke(pluginModernizer, plugin);
+
+        // Assert
+        ArgumentCaptor<ModernizationMetadata> captor = ArgumentCaptor.forClass(ModernizationMetadata.class);
+        verify(plugin).setModernizationMetadata(captor.capture());
+        ModernizationMetadata saved = captor.getValue();
+
+        assertEquals("fail", saved.getMigrationStatus());
+        assertNotNull(saved.getFailureReasons());
+        assertTrue(saved.getFailureReasons().contains(PreconditionError.PARENT_POM_1X.getError()));
+    }
+
+    @Test
+    void testCollectModernizationMetadata_WithRuntimeErrors_ShouldRecordFailureReasons() throws Exception {
+        // Arrange
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata pluginMetadata = mock(PluginMetadata.class);
+        Config pluginConfig = mock(Config.class);
+        Recipe recipe = mock(Recipe.class);
+
+        when(plugin.getName()).thenReturn("test-plugin");
+        when(plugin.getMetadata()).thenReturn(pluginMetadata);
+        when(pluginMetadata.getPluginName()).thenReturn("test-plugin");
+        when(pluginMetadata.getJenkinsVersion()).thenReturn(null);
+        when(plugin.getJenkinsBaseline()).thenReturn("2.361");
+        when(plugin.getJenkinsVersion()).thenReturn("2.361.1");
+        when(plugin.getEffectiveBaseline()).thenReturn("2.361");
+        when(plugin.getConfig()).thenReturn(pluginConfig);
+        when(pluginConfig.getRecipe()).thenReturn(recipe);
+        when(recipe.getDisplayName()).thenReturn("Test Recipe");
+        when(recipe.getDescription()).thenReturn("Test description");
+        when(recipe.getTags()).thenReturn(Set.of());
+        when(recipe.getName()).thenReturn("test-recipe");
+        when(plugin.getPullRequestUrl()).thenReturn(null);
+        when(pluginService.extractVersion(plugin)).thenReturn("1.0");
+        when(config.isDryRun()).thenReturn(false);
+        when(plugin.getDiffStats(ghService, false)).thenReturn(new DiffStats(0, 0, 0));
+        when(plugin.hasErrors()).thenReturn(true);
+        when(plugin.hasPreconditionErrors()).thenReturn(false);
+        when(plugin.getPreconditionErrors()).thenReturn(Set.of());
+        when(plugin.getErrors())
+                .thenReturn(List.of(new PluginProcessingException("Build failed with code: 1", plugin)));
+        // GHService is not needed here; the existing try-catch in collectModernizationMetadata handles this
+        doThrow(new PluginProcessingException("no gh", plugin)).when(ghService).getRepository(any(), any());
+        // Allow save() to proceed without NPE
+        when(cacheManager.getLocation()).thenReturn(Path.of("target/test-cache"));
+
+        java.lang.reflect.Method method =
+                PluginModernizer.class.getDeclaredMethod("collectModernizationMetadata", Plugin.class);
+        method.setAccessible(true);
+
+        // Act
+        method.invoke(pluginModernizer, plugin);
+
+        // Assert
+        ArgumentCaptor<ModernizationMetadata> captor = ArgumentCaptor.forClass(ModernizationMetadata.class);
+        verify(plugin).setModernizationMetadata(captor.capture());
+        ModernizationMetadata saved = captor.getValue();
+
+        assertEquals("fail", saved.getMigrationStatus());
+        assertNotNull(saved.getFailureReasons());
+        assertTrue(saved.getFailureReasons().contains("Build failed with code: 1"));
     }
 
     private Recipe createMockRecipe(String name, String description) {
