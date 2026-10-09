@@ -61,6 +61,89 @@ public class MigrateStaplerAndJavaxToJakartaTest implements RewriteTest {
                         """)));
     }
 
+    /**
+     * Regression test for <a href="https://github.com/jenkins-infra/plugin-modernizer-tool/issues/826">#826</a>.
+     */
+    @Test
+    void migrateMockitoHttpSessionInTestCode() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipe(new MigrateStaplerAndJavaxToJakarta()).parser(parser);
+                },
+                srcTestJava(
+                        // language=java
+                        java("""
+                                import javax.servlet.http.HttpSession;
+                                import org.kohsuke.stapler.StaplerRequest;
+
+                                import static org.mockito.Mockito.*;
+
+                                public class TuleapAuthorizationCodeUrlBuilderImplTest {
+                                    public void testItShouldReturnTheAuthorizationCodeUriWithTheRightParameters() {
+                                        StaplerRequest request = mock(StaplerRequest.class);
+                                        HttpSession session = spy(HttpSession.class);
+                                        when(request.getSession()).thenReturn(session);
+                                    }
+                                }
+                                """, """
+                                import jakarta.servlet.http.HttpSession;
+                                import org.kohsuke.stapler.StaplerRequest2;
+
+                                import static org.mockito.Mockito.*;
+
+                                public class TuleapAuthorizationCodeUrlBuilderImplTest {
+                                    public void testItShouldReturnTheAuthorizationCodeUriWithTheRightParameters() {
+                                        StaplerRequest2 request = mock(StaplerRequest2.class);
+                                        HttpSession session = spy(HttpSession.class);
+                                        when(request.getSession()).thenReturn(session);
+                                    }
+                                }
+                                """)));
+    }
+
+    /**
+     * Regression test for <a href="https://github.com/jenkins-infra/plugin-modernizer-tool/issues/826">#826</a>
+     * when javax servlet types are fully qualified.
+     */
+    @Test
+    void migrateMockitoHttpSessionWithFullyQualifiedTypeNames() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipe(new MigrateStaplerAndJavaxToJakarta()).parser(parser);
+                },
+                srcTestJava(
+                        // language=java
+                        java("""
+                                import org.kohsuke.stapler.StaplerRequest;
+
+                                import static org.mockito.Mockito.*;
+
+                                public class TuleapAuthorizationCodeUrlBuilderImplTest {
+                                    public void testItShouldReturnTheAuthorizationCodeUriWithTheRightParameters() {
+                                        StaplerRequest request = mock(StaplerRequest.class);
+                                        javax.servlet.http.HttpSession session = spy(javax.servlet.http.HttpSession.class);
+                                        when(request.getSession()).thenReturn(session);
+                                    }
+                                }
+                                """, """
+                                import org.kohsuke.stapler.StaplerRequest2;
+
+                                import static org.mockito.Mockito.*;
+
+                                public class TuleapAuthorizationCodeUrlBuilderImplTest {
+                                    public void testItShouldReturnTheAuthorizationCodeUriWithTheRightParameters() {
+                                        StaplerRequest2 request = mock(StaplerRequest2.class);
+                                        jakarta.servlet.http.HttpSession session = spy(jakarta.servlet.http.HttpSession.class);
+                                        when(request.getSession()).thenReturn(session);
+                                    }
+                                }
+                                """)));
+    }
+
     @Test
     void notMigrateStaplerAndJavaxToJakartaAsChartUtilIsUsed() {
         rewriteRun(
