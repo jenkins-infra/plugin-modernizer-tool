@@ -345,6 +345,9 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion:
+      javaVersion: 21
+      jdksToRemove: [8, 11, 17]
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
