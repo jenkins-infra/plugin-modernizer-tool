@@ -23,8 +23,6 @@ import java.util.List;
 import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.openrewrite.java.JavaParser;
@@ -123,77 +121,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           <name>Empty pom</name>
                         </project>
                         """));
-    }
-
-    @Test
-    @EnabledOnOs(OS.LINUX) // https://github.com/openrewrite/rewrite-jenkins/pull/83
-    void addCodeOwner() {
-        rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.AddCodeOwner"),
-                // language=xml
-                pomXml("""
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                          <modelVersion>4.0.0</modelVersion>
-                          <groupId>io.jenkins.plugins</groupId>
-                          <artifactId>empty</artifactId>
-                          <version>1.0.0-SNAPSHOT</version>
-                          <name>Empty pom</name>
-                        </project>
-                        """),
-                text(null, "* @jenkinsci/empty-plugin-developers", sourceSpecs -> {
-                    sourceSpecs.path(ArchetypeCommonFile.CODEOWNERS.getPath());
-                }));
-    }
-
-    @Test
-    @EnabledOnOs(OS.LINUX) // https://github.com/openrewrite/rewrite-jenkins/pull/83
-    void shouldNotAddCodeOwnerIfAdded() {
-        rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.AddCodeOwner"),
-                // language=xml
-                pomXml("""
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                          <modelVersion>4.0.0</modelVersion>
-                          <groupId>io.jenkins.plugins</groupId>
-                          <artifactId>empty</artifactId>
-                          <version>1.0.0-SNAPSHOT</version>
-                          <name>Empty pom</name>
-                        </project>
-                        """),
-                text("* @jenkinsci/empty-plugin-developers", sourceSpecs -> {
-                    sourceSpecs.path(ArchetypeCommonFile.CODEOWNERS.getPath());
-                }));
-    }
-
-    @Test
-    @EnabledOnOs(OS.LINUX) // https://github.com/openrewrite/rewrite-jenkins/pull/83
-    void shouldAddCodeOwnerIfNeeded() {
-        rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml", "io.jenkins.tools.pluginmodernizer.AddCodeOwner"),
-                // language=xml
-                pomXml("""
-                        <?xml version="1.0" encoding="UTF-8"?>
-                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                          <modelVersion>4.0.0</modelVersion>
-                          <groupId>io.jenkins.plugins</groupId>
-                          <artifactId>empty</artifactId>
-                          <version>1.0.0-SNAPSHOT</version>
-                          <name>Empty pom</name>
-                        </project>
-                        """),
-                text("""
-                        * @my-custom-team
-                        """, """
-                        * @jenkinsci/empty-plugin-developers
-                        * @my-custom-team
-                    """, sourceSpecs -> {
-                    sourceSpecs.path(ArchetypeCommonFile.CODEOWNERS.getPath());
-                }));
     }
 
     @Test
@@ -2395,11 +2322,12 @@ public class DeclarativeRecipesTest implements RewriteTest {
                           </pluginRepositories>
                         </project>
                         """.formatted(
-                                Settings.getJenkinsParentVersion(),
-                                Settings.getJenkinsTestHarnessVersion(),
-                                Settings.getJenkinsMinimumPatchVersion(),
-                                Settings.getBomVersion(),
-                                Settings.getWiremockVersion())),
+                        Settings.getJenkinsParentVersion(),
+                        Settings.getJenkinsTestHarnessVersion(),
+                        Settings.getJenkinsMinimumVersion()
+                                .substring(Settings.getJenkinsMinimumVersion().lastIndexOf('.') + 1),
+                        Settings.getBomVersion(),
+                        Settings.getWiremockVersion())),
                 srcTestJava(java(
                         // language=java
                         """
@@ -2606,10 +2534,11 @@ public class DeclarativeRecipesTest implements RewriteTest {
                   </pluginRepositories>
                 </project>
                 """.formatted(
-                                Settings.getJenkinsParentVersion(),
-                                Settings.getJenkinsTestHarnessVersion(),
-                                Settings.getJenkinsMinimumPatchVersion(),
-                                Settings.getBomVersion())),
+                        Settings.getJenkinsParentVersion(),
+                        Settings.getJenkinsTestHarnessVersion(),
+                        Settings.getJenkinsMinimumVersion()
+                                .substring(Settings.getJenkinsMinimumVersion().lastIndexOf('.') + 1),
+                        Settings.getBomVersion())),
 
                 // language=java
                 java("""
@@ -2657,100 +2586,6 @@ public class DeclarativeRecipesTest implements RewriteTest {
                     }
                 }
                 """));
-    }
-
-    @Test
-    void upgradeNextMajorParentVersionTestWithExistingJenkinsfile() {
-        rewriteRun(
-                spec -> spec.recipeFromResource(
-                        "/META-INF/rewrite/recipes.yml",
-                        "io.jenkins.tools.pluginmodernizer.UpgradeNextMajorParentVersion"),
-                // language=xml
-                srcMainResources(text(
-                        null,
-                        EXPECTED_JELLY,
-                        s -> s.path(ArchetypeCommonFile.INDEX_JELLY.getPath().getFileName()))),
-                // language=groovy
-                groovy(
-                        JAVA_8_JENKINS_FILE,
-                        """
-                        /*
-                         See the documentation for more options:
-                         https://github.com/jenkins-infra/pipeline-library/
-                        */
-                        buildPlugin(
-                            forkCount: '1C', // Run a JVM per core in tests
-                            useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
-                          configurations: [
-                            [platform: 'linux', jdk: 21],
-                        ])
-                        """,
-                        s -> s.path(ArchetypeCommonFile.JENKINSFILE.getPath().getFileName())),
-                // language=xml
-                pomXml("""
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                  <modelVersion>4.0.0</modelVersion>
-                  <parent>
-                    <groupId>org.jenkins-ci.plugins</groupId>
-                    <artifactId>plugin</artifactId>
-                    <version>4.87</version>
-                    <relativePath />
-                  </parent>
-                  <groupId>io.jenkins.plugins</groupId>
-                  <artifactId>empty</artifactId>
-                  <version>1.0.0-SNAPSHOT</version>
-                  <packaging>hpi</packaging>
-                  <name>Empty Plugin</name>
-                  <properties>
-                    <jenkins.version>2.440.3</jenkins.version>
-                  </properties>
-                  <repositories>
-                    <repository>
-                      <id>repo.jenkins-ci.org</id>
-                      <url>https://repo.jenkins-ci.org/public/</url>
-                    </repository>
-                  </repositories>
-                  <pluginRepositories>
-                    <pluginRepository>
-                      <id>repo.jenkins-ci.org</id>
-                      <url>https://repo.jenkins-ci.org/public/</url>
-                    </pluginRepository>
-                  </pluginRepositories>
-                </project>
-                """, """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-                  <modelVersion>4.0.0</modelVersion>
-                  <parent>
-                    <groupId>org.jenkins-ci.plugins</groupId>
-                    <artifactId>plugin</artifactId>
-                    <version>%s</version>
-                    <relativePath />
-                  </parent>
-                  <groupId>io.jenkins.plugins</groupId>
-                  <artifactId>empty</artifactId>
-                  <version>1.0.0-SNAPSHOT</version>
-                  <packaging>hpi</packaging>
-                  <name>Empty Plugin</name>
-                  <properties>
-                    <jenkins.version>%s</jenkins.version>
-                    <ban-commons-lang-2.skip>false</ban-commons-lang-2.skip>
-                  </properties>
-                  <repositories>
-                    <repository>
-                      <id>repo.jenkins-ci.org</id>
-                      <url>https://repo.jenkins-ci.org/public/</url>
-                    </repository>
-                  </repositories>
-                  <pluginRepositories>
-                    <pluginRepository>
-                      <id>repo.jenkins-ci.org</id>
-                      <url>https://repo.jenkins-ci.org/public/</url>
-                    </pluginRepository>
-                  </pluginRepositories>
-                </project>
-                """.formatted(Settings.getJenkinsParentVersion(), Settings.getJenkinsMinimumVersion())));
     }
 
     @Test

@@ -69,6 +69,12 @@ public class Plugin {
     private Path localRepository;
 
     /**
+     * Maven module path for multi-module plugins. When set, Maven goals run against this module
+     * while {@link #getLocalRepository()} continues to point at the repository root.
+     */
+    private Path mavenModulePath;
+
+    /**
      * Repository name under the jenkinsci organization
      */
     private String repositoryName;
@@ -588,6 +594,17 @@ public class Plugin {
             return localRepository;
         }
         return Settings.getPluginsDirectory(this).resolve("sources");
+    }
+
+    /**
+     * Directory containing the pom.xml Maven should use when running goals for this plugin.
+     * @return Maven module directory
+     */
+    public Path getMavenPomDirectory() {
+        if (mavenModulePath != null) {
+            return mavenModulePath;
+        }
+        return getLocalRepository();
     }
 
     /**
@@ -1261,10 +1278,11 @@ public class Plugin {
     }
 
     /**
-     * Adjusts the localRepository path if this is a multi-module Maven project.
-     * For multi-module projects (packaging=pom), searches for the actual Jenkins plugin module
-     * (packaging=hpi) and updates the localRepository to point to that module.
-     * This ensures that OpenRewrite recipes operate on the correct pom.xml with the correct artifactId.
+     * Adjusts Maven paths if this is a multi-module project.
+     * For multi-module projects (packaging=pom), searches for the Jenkins plugin module
+     * (packaging=hpi) and records it as {@link #getMavenPomDirectory()}.
+     * Local plugins also update {@link #getLocalRepository()} to that module; remote plugins
+     * keep the repository root for git operations.
      */
     public void adjustForMultiModule() {
         // Get the actual local repository path (handles both local and remote plugins)
@@ -1292,17 +1310,12 @@ public class Plugin {
 
                 if (pluginModule != null) {
                     LOG.info("Found Jenkins plugin module at: {}", pluginModule);
-
-                    // For non-local plugins, we need to make them "local" so getLocalRepository()
-                    // uses our custom path instead of calculating it
-                    if (!isLocal()) {
-                        withLocal(true);
-                        localRepository = pluginModule;
-                        LOG.info("Adjusted to plugin module at: {}", localRepository);
-                    } else {
-                        // For local plugins, just update the path
+                    mavenModulePath = pluginModule;
+                    if (isLocal()) {
                         localRepository = pluginModule;
                         LOG.info("Adjusted local plugin to module at: {}", localRepository);
+                    } else {
+                        LOG.info("Adjusted Maven module path to: {}", mavenModulePath);
                     }
                 } else {
                     LOG.warn(
@@ -1326,7 +1339,7 @@ public class Plugin {
      */
     private Path findJenkinsPluginModule(Path rootPath) {
         try (Stream<Path> paths = Files.walk(rootPath, 2)) { // Search up to 2 levels deep
-            return paths.filter(Files::isDirectory)
+            List<Path> pluginModules = paths.filter(Files::isDirectory)
                     .filter(dir -> !dir.equals(rootPath)) // Skip root directory
                     .filter(dir -> Files.exists(dir.resolve("pom.xml")))
                     .filter(dir -> {
@@ -1340,11 +1353,26 @@ public class Plugin {
                             return false;
                         }
                     })
+                    .toList();
+            return pluginModules.stream()
+                    .filter(this::moduleArtifactIdMatchesPluginName)
                     .findFirst()
+                    .or(() -> pluginModules.stream().findFirst())
                     .orElse(null);
         } catch (IOException e) {
             LOG.warn("Error searching for plugin module in {}: {}", rootPath, e.getMessage());
             return null;
+        }
+    }
+
+    private boolean moduleArtifactIdMatchesPluginName(Path modulePath) {
+        try {
+            StaticPomParser parser =
+                    new StaticPomParser(modulePath.resolve("pom.xml").toString());
+            return name.equals(parser.getArtifactId());
+        } catch (Exception e) {
+            LOG.debug("Failed to parse pom.xml in {}: {}", modulePath, e.getMessage());
+            return false;
         }
     }
 

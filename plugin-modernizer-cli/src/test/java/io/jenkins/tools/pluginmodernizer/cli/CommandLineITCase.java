@@ -714,9 +714,9 @@ public class CommandLineITCase {
                     () -> assertTrue(Files.readAllLines(logFile).stream()
                             .anyMatch(line -> line.matches("(.*)Dry run mode. Changes were made on (.*)"))));
 
-            // Check that CODEOWNERS file was created in the plugin module subdirectory
-            Path codeownersPath = targetPath.resolve("test-plugin").resolve(ArchetypeCommonFile.CODEOWNERS.getPath());
-            assertTrue(Files.exists(codeownersPath), "Code owner file was not created in plugin module subdirectory");
+            // Check that CODEOWNERS file was created at the repository root
+            Path codeownersPath = targetPath.resolve(ArchetypeCommonFile.CODEOWNERS.getPath());
+            assertTrue(Files.exists(codeownersPath), "Code owner file was not created at repository root");
 
             // Verify correct team name is used (plugin artifactId, not parent artifactId)
             List<String> codeownersLines = Files.readAllLines(codeownersPath);

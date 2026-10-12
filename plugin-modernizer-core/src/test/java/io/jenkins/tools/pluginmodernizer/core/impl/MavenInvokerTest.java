@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,7 +65,8 @@ public class MavenInvokerTest {
         Files.createDirectories(tempDir.resolve("maven/bin"));
         Files.writeString(tempDir.resolve("maven/bin/mvn.cmd"), "");
 
-        when(plugin.getLocalRepository()).thenReturn(sources);
+        lenient().when(plugin.getLocalRepository()).thenReturn(sources);
+        lenient().when(plugin.getMavenPomDirectory()).thenReturn(sources);
         when(config.getConfiguredMavenHome()).thenReturn(tempDir.resolve("maven"));
         when(config.getMavenLocalRepo()).thenReturn(tempDir.resolve("repo"));
         when(config.getVersion()).thenReturn("999999-SNAPSHOT");
@@ -112,5 +114,25 @@ public class MavenInvokerTest {
 
         assertThat(Settings.FETCH_METADATA_RECIPE.isSkipVerification()).isFalse();
         assertThat(capturedRewriteGoal()).endsWith(":run");
+    }
+
+    @Test
+    void passesPluginNameForAddCodeOwnerRecipe() throws MavenInvocationException {
+        when(config.getRecipe())
+                .thenReturn(recipe("io.jenkins.tools.pluginmodernizer.AddCodeOwner", "chore", "skip-verification"));
+        when(plugin.getLocalRepository()).thenReturn(sources);
+        when(plugin.getName()).thenReturn("openstack-cloud");
+
+        mavenInvoker.invokeRewrite(plugin);
+
+        assertThat(capturedRewriteGoal()).endsWith(":runNoFork");
+        assertThat(capturedRewriteArgs())
+                .contains("-Drewrite.activeRecipes=io.jenkins.tools.pluginmodernizer.AddCodeOwner.local");
+    }
+
+    private java.util.List<String> capturedRewriteArgs() throws MavenInvocationException {
+        ArgumentCaptor<InvocationRequest> captor = ArgumentCaptor.forClass(InvocationRequest.class);
+        verify(invoker).execute(captor.capture());
+        return captor.getValue().getArgs();
     }
 }
