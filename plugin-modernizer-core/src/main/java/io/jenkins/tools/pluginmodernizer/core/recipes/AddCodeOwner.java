@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -71,8 +72,12 @@ public class AddCodeOwner extends ScanningRecipe<AddCodeOwner.Scanned> {
             @Override
             public Tree visit(@Nullable Tree tree, ExecutionContext ctx, Cursor parent) {
                 SourceFile sourceFile = (SourceFile) requireNonNull(tree);
-                if ("CODEOWNERS".equals(sourceFile.getSourcePath().getFileName().toString())) {
-                    acc.foundFile = true;
+                Path sourcePath = sourceFile.getSourcePath();
+                if (sourcePath != null) {
+                    Path fileNamePath = sourcePath.getFileName();
+                    if (fileNamePath != null && "CODEOWNERS".equals(fileNamePath.toString())) {
+                        acc.foundFile = true;
+                    }
                 }
                 return sourceFile;
             }
@@ -154,7 +159,7 @@ public class AddCodeOwner extends ScanningRecipe<AddCodeOwner.Scanned> {
         }
 
         boolean presentIn(String text) {
-            Pattern p = Pattern.compile("^\\*\\s+" + teamName() + "\\s*$");
+            Pattern p = Pattern.compile("^\\*\\s+" + Pattern.quote(teamName()) + "\\s*$");
             try (Scanner s = new Scanner(text)) {
                 while (s.hasNextLine()) {
                     String line = s.nextLine();
