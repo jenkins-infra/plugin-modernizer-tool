@@ -17,14 +17,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
+import org.openrewrite.CsvDataTableStore;
+import org.openrewrite.table.SourcesFileResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +100,7 @@ public class MavenInvoker {
      */
     public void collectMetadata(Plugin plugin) {
         LOG.info("Collecting metadata for plugin {}... Please be patient", plugin);
-        invokeGoals(plugin, getSingleRecipeArgs(Settings.FETCH_METADATA_RECIPE));
+        invokeGoals(plugin, getSingleRecipeArgs(Settings.FETCH_METADATA_RECIPE, false));
         LOG.info("Done");
     }
 
@@ -109,15 +114,22 @@ public class MavenInvoker {
                 "Running recipes {} for plugin {}... Please be patient",
                 config.getRecipe().getName(),
                 plugin);
-        invokeGoals(plugin, getSingleRecipeArgs(config.getRecipe()));
+        plugin.setAppliedRecipes(null);
+        Set<Path> previousDatatables = findDatatableDirectories(plugin);
+        invokeGoals(plugin, getSingleRecipeArgs(config.getRecipe(), true));
+        if (!plugin.hasErrors() && previousDatatables != null) {
+            collectAppliedRecipes(plugin, previousDatatables);
+        }
         LOG.info("Done");
     }
 
     /**
-     * Get the rewrite arguments to be executed for metadata collection
+     * Build arguments for a rewrite invocation.
+     * @param recipe The recipe to run
+     * @param exportDatatables Whether to export recipe results
      * @return The list of arguments to be passed to the rewrite plugin
      */
-    private String[] getSingleRecipeArgs(Recipe recipe) {
+    private String[] getSingleRecipeArgs(Recipe recipe, boolean exportDatatables) {
         List<String> goals = new ArrayList<>();
         String goal = recipe.isSkipVerification() ? "runNoFork" : "run";
         goals.add("org.openrewrite.maven:rewrite-maven-plugin:" + Settings.MAVEN_REWRITE_PLUGIN_VERSION + ":" + goal);
@@ -126,9 +138,50 @@ public class MavenInvoker {
         goals.add("-Dmaven.antrun.skip=true");
         goals.add("-Dmaven.repo.local=%s".formatted(config.getMavenLocalRepo()));
         goals.add("-Drewrite.activeRecipes=" + recipe.getName());
+        if (exportDatatables) {
+            goals.add("-Drewrite.exportDatatables=true");
+        }
         goals.add("-Drewrite.recipeArtifactCoordinates=io.jenkins.plugin-modernizer:plugin-modernizer-core:"
                 + config.getVersion());
         return goals.toArray(String[]::new);
+    }
+
+    @Nullable
+    private Set<Path> findDatatableDirectories(Plugin plugin) {
+        Path directory = plugin.getLocalRepository().resolve("target/rewrite/datatables");
+        if (!Files.exists(directory)) {
+            return Set.of();
+        }
+        try (var directories = Files.list(directory)) {
+            return directories.filter(Files::isDirectory).collect(Collectors.toSet());
+        } catch (IOException e) {
+            LOG.warn("Could not locate recipe results for {}. Keeping the full PR description.", plugin, e);
+            return null;
+        }
+    }
+
+    private void collectAppliedRecipes(Plugin plugin, Set<Path> previousDatatables) {
+        Set<Path> directories = findDatatableDirectories(plugin);
+        if (directories == null) {
+            return;
+        }
+        Set<String> recipes = new HashSet<>();
+        try {
+            for (Path directory : directories) {
+                if (previousDatatables.contains(directory)) {
+                    continue;
+                }
+                try (var store = new CsvDataTableStore(directory);
+                        var rows = store.getRows(SourcesFileResults.class, null)) {
+                    rows.forEach(row -> recipes.add(row.getRecipe()));
+                }
+            }
+            if (!recipes.isEmpty()) {
+                plugin.setAppliedRecipes(recipes);
+            }
+        } catch (RuntimeException e) {
+            LOG.warn("Could not read recipe results for {}. Keeping the full PR description.", plugin, e);
+        }
     }
 
     /**

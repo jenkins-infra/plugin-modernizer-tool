@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.core.model;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
 import io.jenkins.tools.pluginmodernizer.core.extractor.MetadataFlag;
@@ -144,6 +145,9 @@ public class Plugin {
      * List of modified files(added, modified, deleted) in the plugin
      */
     private final List<String> modifiedFiles = new LinkedList<>();
+
+    @Nullable
+    private Set<String> appliedRecipes;
 
     /**
      * Tags to apply on pull request for the applied changes
@@ -1193,6 +1197,20 @@ public class Plugin {
      */
     public Set<String> getModifiedFiles() {
         return Set.of(modifiedFiles.toArray(new String[0]));
+    }
+
+    /**
+     * Null means recipe results are unavailable.
+     */
+    public void setAppliedRecipes(@Nullable Set<String> recipes) {
+        appliedRecipes = recipes == null ? null : Set.copyOf(recipes);
+    }
+
+    /**
+     * Include the section if a recipe applied or results are unavailable.
+     */
+    public boolean shouldDescribeRecipe(String... recipeNames) {
+        return appliedRecipes == null || Arrays.stream(recipeNames).anyMatch(appliedRecipes::contains);
     }
 
     /**
