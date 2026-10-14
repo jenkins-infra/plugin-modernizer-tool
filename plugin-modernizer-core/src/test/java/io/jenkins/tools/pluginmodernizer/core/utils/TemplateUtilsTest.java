@@ -1,5 +1,6 @@
 package io.jenkins.tools.pluginmodernizer.core.utils;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1119,5 +1120,30 @@ public class TemplateUtilsTest {
         assertNotNull(result);
         assertTrue(result.contains("jackson2-api"));
         assertTrue(result.contains("jackson3-api"));
+    }
+
+    @Test
+    void parentUpgradeDescriptionIncludesOnlyAppliedSections() {
+        Plugin plugin = Plugin.build("example");
+        Recipe recipe = new Recipe();
+        recipe.setName("io.jenkins.tools.pluginmodernizer.UpgradeNextMajorParentVersion");
+        recipe.setDisplayName("Upgrade parent version");
+        recipe.setDescription("Upgrade the plugin parent and Jenkins baseline.");
+
+        plugin.setAppliedRecipes(Set.of("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion"));
+        String body = TemplateUtils.renderPullRequestBody(plugin, recipe);
+        assertThat(body).contains("#### Jenkins baseline and build requirements");
+        assertThat(body).doesNotContain("#### Removing", "#### JEP-227", "Java 17 LTS");
+
+        plugin.setAppliedRecipes(
+                Set.of("io.jenkins.tools.pluginmodernizer.core.recipes.MigrateAcegiSecurityToSpringSecurity"));
+        body = TemplateUtils.renderPullRequestBody(plugin, recipe);
+        assertThat(body).contains("#### JEP-227");
+        assertThat(body).doesNotContain("#### Jenkins baseline", "#### Removing");
+
+        plugin.setAppliedRecipes(Set.of("io.jenkins.tools.pluginmodernizer.core.recipes.UpdateScmUrl"));
+        body = TemplateUtils.renderPullRequestBody(plugin, recipe);
+        assertThat(body).contains("<summary>Upgrade parent version</summary>");
+        assertThat(body).doesNotContain("#### Jenkins baseline", "#### Removing", "#### JEP-227");
     }
 }
