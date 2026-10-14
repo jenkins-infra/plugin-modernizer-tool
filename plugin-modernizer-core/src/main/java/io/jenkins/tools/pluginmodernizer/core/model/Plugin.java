@@ -1200,17 +1200,14 @@ public class Plugin {
     }
 
     /**
-     * Record recipes that changed files, or null when results are unavailable.
-     * @param recipes Fully qualified recipe names
+     * Null means recipe results are unavailable.
      */
     public void setAppliedRecipes(@Nullable Set<String> recipes) {
         appliedRecipes = recipes == null ? null : Set.copyOf(recipes);
     }
 
     /**
-     * Keep the full description when recipe results are unavailable.
-     * @param recipeNames Recipes associated with a description section
-     * @return Whether any of these recipes changed files
+     * Include the section if a recipe applied or results are unavailable.
      */
     public boolean shouldDescribeRecipe(String... recipeNames) {
         return appliedRecipes == null || Arrays.stream(recipeNames).anyMatch(appliedRecipes::contains);
