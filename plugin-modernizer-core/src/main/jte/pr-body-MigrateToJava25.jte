@@ -11,13 +11,13 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-## What's Changed?
+## Java 25 migration
 
-We have introduced changes to improve the plugin's compatibility with `Java 25` and align it with modern Jenkins development standards
+This recipe can make the following changes:
 
-- Replaced deprecated API calls with their current equivalents where a clear migration path exists.
-- Upgrade build files to use `Java 25` as the target/source.
-- Upgrade plugins to versions that are compatible with `Java 25`.
-- Add `Java 25` configuration in `Jenkinsfile` for testing on `ci.jenkins.io`.
-
-
+@if(plugin.shouldDescribeRecipe("org.openrewrite.java.migrate.UpgradeToJava17", "org.openrewrite.java.migrate.lang.ThreadStopUnsupported", "org.openrewrite.java.migrate.net.URLConstructorToURICreate", "org.openrewrite.java.migrate.util.SequencedCollection", "org.openrewrite.java.migrate.util.UseLocaleOf", "org.openrewrite.java.migrate.DeleteDeprecatedFinalize", "org.openrewrite.java.migrate.RemovedSubjectMethods", "org.openrewrite.java.migrate.AccessController", "org.openrewrite.java.migrate.RemoveSecurityPolicy", "org.openrewrite.java.migrate.RemoveSecurityManager", "org.openrewrite.java.migrate.SystemGetSecurityManagerToNull", "org.openrewrite.staticanalysis.RemoveExtraSemicolons", "org.openrewrite.staticanalysis.ReplaceDeprecatedRuntimeExecMethods"))- Update Java code or compatibility settings
+@endif@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpdateParent", "io.jenkins.tools.pluginmodernizer.core.recipes.EnsureRelativePath"))- Update Maven parent configuration
+@endif@if(plugin.shouldDescribeRecipe("org.openrewrite.java.migrate.UpgradePluginsForJava21"))- Update build plugins for Java compatibility
+@endif@if(plugin.shouldDescribeRecipe("org.openrewrite.github.SetupJavaUpgradeJavaVersion"))- Update Java versions in GitHub Actions
+@endif@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.CreateJenkinsFile", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion"))- Update Jenkinsfile Java configuration
+@endif

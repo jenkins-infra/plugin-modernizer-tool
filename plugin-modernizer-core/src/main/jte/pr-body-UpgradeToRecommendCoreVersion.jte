@@ -11,31 +11,15 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-## Why is this important?
+@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion"))## Jenkins baseline
 
-Jenkins plugins declare a minimum supported Jenkins version.
-The minimum Jenkins version is a useful way for plugin developers to indicate the range of Jenkins versions they are willing to support and test.
-See the [developer documentation](https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline) to learn more about the recommended minimum Jenkins version.
-The current minimum required Jenkins version is `${plugin.getMetadata().getJenkinsVersion()}`, which is why this pull request has been made.
+The minimum Jenkins version is updated to `${plugin.getMetadata().getJenkinsVersion()}`. See the [developer documentation](https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline) for guidance on choosing a baseline.
 
-If the plugin is already using the plugin bill of materials, then the bill of materials also needs to be updated with the matching `artifactId` for the minimum required Jenkins version.
+@endif@if(plugin.shouldDescribeRecipe("org.openrewrite.jenkins.AddPluginsBom", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateBom"))## Plugin dependencies
 
-## I can't see any change to the Jenkins version, how come?
+The Jenkins plugin BOM is added or updated to match the baseline.
 
-This means your plugin POM was already using the `${plugin.getMetadata().getJenkinsVersion()}` version but still required a few adjustments.
+@endif@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.CreateJenkinsFile", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion"))## Jenkinsfile changes
 
-## The checks fail, why?
-
-For security reasons, the Jenkins infrastructure does not execute Jenkinsfiles proposed in pull requests.
-Instead, it builds the code using the Jenkinsfile from the default branch.
-
-In this case, the existing Jenkinsfile specifies Java 8, not Java 17, which is causing the check to fail.
-To resolve this,
-a maintainer can replay the failed build
-by substituting the current Jenkinsfile content with our proposed changes using the "replay the build"
-feature in Jenkins.
-
-Please let us know if you need any assistance with this process.
-
-Thanks for taking the time to review this PR.
-:pray:
+Jenkins infrastructure builds pull requests using the Jenkinsfile from the default branch. If checks fail because they need the proposed Java configuration, a maintainer can replay the build with the updated Jenkinsfile.
+@endif
