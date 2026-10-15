@@ -11,7 +11,7 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion"))#### Jenkins baseline
+@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateBom"))#### Jenkins baseline or plugin BOM
 
-The Jenkins baseline is updated to support Java 21 features and APIs. Check `pom.xml` for the required Jenkins version.
+This recipe targets a baseline supporting Java 21 features and APIs. The Jenkins baseline or plugin BOM is updated; check `pom.xml` for the changes.
 @endif

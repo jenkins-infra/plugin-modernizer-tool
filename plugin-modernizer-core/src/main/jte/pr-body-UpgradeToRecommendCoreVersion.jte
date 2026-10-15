@@ -11,9 +11,9 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion"))## Jenkins baseline
+@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion"))## Jenkins baseline or plugin BOM
 
-The minimum Jenkins version is updated to `${plugin.getMetadata().getJenkinsVersion()}`. See the [developer documentation](https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline) for guidance on choosing a baseline.
+The Jenkins baseline or plugin BOM is updated. Check `pom.xml` for the baseline and dependency changes. See the [developer documentation](https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline) for guidance on choosing a baseline.
 
 @endif@if(plugin.shouldDescribeRecipe("org.openrewrite.jenkins.AddPluginsBom", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateBom"))## Plugin dependencies
 

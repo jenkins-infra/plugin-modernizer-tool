@@ -686,7 +686,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
 
         // Assert
-        assertTrue(result.contains("support Java 21 features and APIs"));
+        assertTrue(result.contains("supporting Java 21 features and APIs"));
     }
 
     @Test
@@ -1152,7 +1152,10 @@ public class TemplateUtilsTest {
                 .containsExactly(
                         "- Upgrade to the latest parent version",
                         "- Remove public visibility from test classes and methods");
-        assertThat(body).contains("- Upgrade to the latest parent version\n- Remove public visibility");
+        assertThat(body.lines())
+                .containsSequence(
+                        "- Upgrade to the latest parent version",
+                        "- Remove public visibility from test classes and methods");
         assertThat(body).doesNotContain("large changeset", "Minor clean-up");
     }
 
@@ -1173,7 +1176,9 @@ public class TemplateUtilsTest {
                         "- Migrate `TemporaryFolder` to `@TempDir`",
                         "- Convert `Assert.*` to `Assertions.*`",
                         "- Add static imports for assertion methods");
-        assertThat(body).contains("- Migrate `TemporaryFolder` to `@TempDir`\n- Convert `Assert.*`");
+        assertThat(body.lines())
+                .containsSequence(
+                        "- Migrate `TemporaryFolder` to `@TempDir`", "- Convert `Assert.*` to `Assertions.*`");
     }
 
     @Test

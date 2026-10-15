@@ -53,14 +53,25 @@ class CompositeRecipeDescriptionTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"UpgradeToLatestJava11CoreVersion", "BaseLineToJenkinsMinimumRequiredJava21Version"})
-    void omitsBaselineExplanationWhenOnlyOtherRecipesApplied(String name) {
+    @CsvSource({
+        "UpgradeToRecommendCoreVersion, UpgradeJenkinsVersion",
+        "UpgradeToRecommendCoreVersion, UpdateBom",
+        "UpgradeToLatestJava11CoreVersion, UpgradeJenkinsVersion",
+        "UpgradeToLatestJava11CoreVersion, UpdateBom",
+        "BaseLineToJenkinsMinimumRequiredJava21Version, UpgradeJenkinsVersion",
+        "BaseLineToJenkinsMinimumRequiredJava21Version, UpdateBom"
+    })
+    void describesBomChangesWithoutClaimingTheBaselineChanged(String name, String appliedRecipe) {
         Plugin plugin = plugin();
-        plugin.setAppliedRecipes(Set.of("io.jenkins.tools.pluginmodernizer.core.recipes.UpdateBom"));
+        plugin.setAppliedRecipes(Set.of("io.jenkins.tools.pluginmodernizer.core.recipes." + appliedRecipe));
 
         String body = TemplateUtils.renderPullRequestBody(plugin, recipe(name));
 
-        assertThat(body).doesNotContain("# Jenkins baseline");
+        assertThat(body).contains("plugin BOM");
+        assertThat(body).doesNotContain("minimum Jenkins version is updated to", "Jenkins baseline is updated to");
+        if (appliedRecipe.equals("UpgradeJenkinsVersion")) {
+            assertThat(body).contains("Jenkins baseline or plugin BOM");
+        }
     }
 
     private Plugin plugin() {

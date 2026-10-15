@@ -11,7 +11,7 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion"))## Jenkins baseline
+@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateBom"))## Jenkins baseline or plugin BOM
 
-The minimum Jenkins version is updated to `2.462.3`, an LTS release supporting Java 11.
+This recipe targets Jenkins `2.462.3`, an LTS release supporting Java 11. The Jenkins baseline or plugin BOM is updated; check `pom.xml` for the changes.
 @endif
