@@ -25,11 +25,6 @@ sources:
     kind: shell
     spec:
       command: bash ./updatecli/scripts/jenkins-lts.sh 1
-  JenkinsRecommendedLTSMajorMinor:
-    name: Get the recommended Jenkins LTS version (major.minor only)
-    kind: shell
-    spec:
-      command: bash ./updatecli/scripts/jenkins-lts.sh 1 | awk -F. '{print $1"."$2}'
 
 # Condition to test that the previous LTS Jenkins version exists
 conditions:
@@ -47,16 +42,6 @@ targets:
       matchPattern: "<jenkins.core.minimum.version>.*</jenkins.core.minimum.version>" # Regex pattern to match the jenkins.core.minimum.version property
       replacePattern: '<jenkins.core.minimum.version>{{ source "JenkinsMinimalLTS" }}</jenkins.core.minimum.version>' # Replacement pattern to update the version
     sourceid: JenkinsMinimalLTS
-    scmid: default
-
-  update-jenkins-lts-version-in-pr-template:
-    name: "Update Jenkins LTS version in PR body template"
-    kind: file
-    spec:
-      file: ./plugin-modernizer-core/src/main/jte/pr-body-UpgradeNextMajorParentVersion.jte # Path to the JTE file
-      matchPattern: "Jenkins [0-9]+\\.[0-9]+\\.x" # Pattern to match any Jenkins version (e.g., 2.479.x, 2.500.x, etc.)
-      replacePattern: 'Jenkins {{ source "JenkinsRecommendedLTSMajorMinor" }}.x' # Replacement pattern with the new version
-    sourceid: JenkinsRecommendedLTSMajorMinor
     scmid: default
 
 # Action to create a GitHub pull request with the changes

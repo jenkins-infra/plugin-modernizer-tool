@@ -11,13 +11,12 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3`. Additionally, if the plugin uses `StringEscapeUtils` from Apache Commons Lang, it will be migrated to use `Apache Commons Text` instead.
-The `Apache Commons` community recommends using `Apache Commons Text` for string escaping operations, as it offers a more focused and feature-rich API for text processing.
+## Commons Lang and Text migration
 
-## What's Changed?
+This recipe can make the following changes:
 
-- Migrated from deprecated/EOL `Apache Commons Lang 2` to `Commons Lang 3`.
-- If applicable: Transitioned from deprecated/EOL `StringEscapeUtils` in `Apache Commons Lang` to `Commons Text`.
-
-
-
+@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpdateParent"))- Update the parent POM
+@endif@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty"))- Enable checks for remaining Commons Lang 2 usage
+@endif@if(plugin.shouldDescribeRecipe("org.openrewrite.maven.AddDependency"))- Add Commons API plugin dependencies
+@endif@if(plugin.shouldDescribeRecipe("org.openrewrite.java.ChangePackage", "org.openrewrite.java.ChangeType", "org.openrewrite.java.ChangeMethodName"))- Update Commons Lang or Commons Text usages
+@endif

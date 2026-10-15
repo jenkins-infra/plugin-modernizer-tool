@@ -13,9 +13,9 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
 
 ## Setup auto-merge workflows
 
-Setup the auto-merge workflows from Jenkins plugin archetype for safe dependencies updates (like parent pom or extensions).
+Add missing auto-merge workflows from the Jenkins plugin archetype for safe dependency updates (like parent POM or extensions).
 
-Workflows either merge or close the PRs depending on the dependency.
+Depending on the existing files, this recipe can add a workflow to merge safe dependency updates, a workflow to close passing BOM update PRs, or both.
 
 ## Why is this important?
 

@@ -17,12 +17,12 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
 
 This PR enables [JEP-229 Continuous Delivery](https://www.jenkins.io/doc/developer/publishing/releasing-cd/) for automated plugin releases.
 
-### Changes
+### Possible changes
 
-- Added `.github/workflows/cd.yml` workflow for automated releases
-- Updated `.mvn/maven.config` with `-Dchangelist.format=%d.v%s` for CD versioning
-- Modified `pom.xml` to use `${'$'}{changelist}` version format with `999999-SNAPSHOT` value
-- Configured Dependabot to keep GitHub Actions dependencies up to date
+- Add `.github/workflows/cd.yml` workflow for automated releases
+- Update `.mvn/maven.config` with `-Dchangelist.format=%d.v%s` for CD versioning
+- Modify `pom.xml` to use `${'$'}{changelist}` version format with `999999-SNAPSHOT` value
+- Configure Dependabot to keep GitHub Actions dependencies up to date
 
 ### Next Steps
 

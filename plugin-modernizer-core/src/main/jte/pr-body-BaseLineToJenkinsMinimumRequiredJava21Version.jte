@@ -11,6 +11,7 @@ This is an automated pull request created by the [Jenkins Plugin Modernizer](htt
     <blockquote>${recipe.getDescription()}</blockquote>
 </details>
 
-#### Why Upgrade to Java 21 and Jenkins 2.555.x?
+@if(plugin.shouldDescribeRecipe("io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion", "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateBom"))#### Jenkins baseline or plugin BOM
 
-- Use Java 21 feature and APIs on your plugin
+This recipe targets a baseline supporting Java 21 features and APIs. The Jenkins baseline or plugin BOM is updated; check `pom.xml` for the changes.
+@endif

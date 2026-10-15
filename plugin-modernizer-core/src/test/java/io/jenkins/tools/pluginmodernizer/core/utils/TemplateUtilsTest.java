@@ -673,11 +673,11 @@ public class TemplateUtilsTest {
     public void testFriendlyPrBodyBaseLineToJenkinsMinimumRequiredJava21Version() {
 
         // Mocks
-        Plugin plugin = mock(Plugin.class);
+        Plugin plugin = Plugin.build("example");
         PluginMetadata metadata = mock(PluginMetadata.class);
         Recipe recipe = mock(Recipe.class);
 
-        doReturn(metadata).when(plugin).getMetadata();
+        plugin.setMetadata(metadata);
         doReturn("io.jenkins.tools.pluginmodernizer.BaseLineToJenkinsMinimumRequiredJava21Version")
                 .when(recipe)
                 .getName();
@@ -686,9 +686,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
 
         // Assert
-        assertTrue(
-                result.contains("Use Java 21 feature and APIs on your plugin"),
-                "Missing 'Use Java 21 feature and APIs on your plugin' message");
+        assertTrue(result.contains("supporting Java 21 features and APIs"));
     }
 
     @Test
@@ -905,9 +903,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
 
         // Just ensure it's using some key overall text
-        assertTrue(
-                result.contains("This PR aims to migrate all tests to JUnit 5. Changes include:"),
-                "Missing This PR aims to migrate all tests to JUnit 5. Changes include: section");
+        assertTrue(result.contains("#### JUnit 5 migration"));
     }
 
     @Test
@@ -981,9 +977,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
 
         // Just ensure it's using some key overall text
-        assertTrue(
-                result.contains("We have introduced changes to improve the plugin's compatibility with `Java 25`"),
-                "What's Changed section");
+        assertTrue(result.contains("## Java 25 migration"));
     }
 
     @Test
@@ -1019,9 +1013,7 @@ public class TemplateUtilsTest {
         String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
 
         // Just ensure it's using some key overall text
-        assertTrue(
-                result.contains("This pull request upgrades `Apache Commons Lang 2` to `Apache Commons Lang 3`"),
-                "Description");
+        assertTrue(result.contains("## Commons Lang and Text migration"));
     }
 
     @Test
@@ -1145,5 +1137,68 @@ public class TemplateUtilsTest {
         body = TemplateUtils.renderPullRequestBody(plugin, recipe);
         assertThat(body).contains("<summary>Upgrade parent version</summary>");
         assertThat(body).doesNotContain("#### Jenkins baseline", "#### Removing", "#### JEP-227");
+    }
+
+    @Test
+    void junit5DescriptionIncludesOnlySmallMigrationChanges() {
+        Plugin plugin = Plugin.build("example");
+        plugin.setAppliedRecipes(Set.of(
+                "io.jenkins.tools.pluginmodernizer.core.recipes.UpdateParent",
+                "org.openrewrite.java.testing.cleanup.TestsShouldNotBePublic"));
+
+        String body = TemplateUtils.renderPullRequestBody(plugin, junit5Recipe());
+
+        assertThat(body.lines().filter(line -> line.startsWith("- ")))
+                .containsExactly(
+                        "- Upgrade to the latest parent version",
+                        "- Remove public visibility from test classes and methods");
+        assertThat(body.lines())
+                .containsSequence(
+                        "- Upgrade to the latest parent version",
+                        "- Remove public visibility from test classes and methods");
+        assertThat(body).doesNotContain("large changeset", "Minor clean-up");
+    }
+
+    @Test
+    void junit5DescriptionIncludesAppliedTestMigrations() {
+        Plugin plugin = Plugin.build("example");
+        plugin.setAppliedRecipes(Set.of(
+                "org.openrewrite.java.testing.junit5.UpdateTestAnnotation",
+                "org.openrewrite.java.testing.junit5.TemporaryFolderToTempDir",
+                "org.openrewrite.java.testing.junit5.AssertToAssertions",
+                "org.openrewrite.java.UseStaticImport"));
+
+        String body = TemplateUtils.renderPullRequestBody(plugin, junit5Recipe());
+
+        assertThat(body.lines().filter(line -> line.startsWith("- ")))
+                .containsExactly(
+                        "- Update `@Test` annotations to JUnit 5",
+                        "- Migrate `TemporaryFolder` to `@TempDir`",
+                        "- Convert `Assert.*` to `Assertions.*`",
+                        "- Add static imports for assertion methods");
+        assertThat(body.lines())
+                .containsSequence(
+                        "- Migrate `TemporaryFolder` to `@TempDir`", "- Convert `Assert.*` to `Assertions.*`");
+    }
+
+    @Test
+    void junit5DescriptionKeepsPossibleChangesWithoutResults() {
+        String body = TemplateUtils.renderPullRequestBody(Plugin.build("example"), junit5Recipe());
+
+        assertThat(body.lines().filter(line -> line.startsWith("- "))).hasSize(18);
+        assertThat(body)
+                .contains(
+                        "- Upgrade to the latest parent version",
+                        "- Migrate `TemporaryFolder` to `@TempDir`",
+                        "- Add static imports for assertion methods",
+                        "- Add `throws Exception` to test methods using `assertThrows`");
+    }
+
+    private Recipe junit5Recipe() {
+        Recipe recipe = new Recipe();
+        recipe.setName("io.jenkins.tools.pluginmodernizer.MigrateToJUnit5");
+        recipe.setDisplayName("Migrate to JUnit 5");
+        recipe.setDescription("Migrate tests to JUnit5.");
+        return recipe;
     }
 }
