@@ -63,7 +63,6 @@ public class AddDetachedPluginDependency extends ScanningRecipe<Set<String>> {
                 String importedClass = importStmt.getTypeName();
                 String importedPackage = importedClass.substring(0, importedClass.lastIndexOf('.'));
 
-                LOG.info("Detected import: {}", importedClass);
                 for (DetachedPlugins plugin : DetachedPlugins.values()) {
                     if (plugin.getPackageName().contains(importedPackage)
                             || plugin.getClassNames().contains(importedClass)) {
@@ -71,7 +70,7 @@ public class AddDetachedPluginDependency extends ScanningRecipe<Set<String>> {
                         if (new ComparableVersion(jenkinsVersion)
                                         .compareTo(new ComparableVersion(plugin.getLastCoreRelease()))
                                 > 0) {
-                            LOG.info("Detected usage of detached plugin: {}", plugin.getPluginId());
+                            LOG.debug("Detected usage of detached plugin: {}", plugin.getPluginId());
                             acc.add(plugin.getPluginId());
                         }
                     }
