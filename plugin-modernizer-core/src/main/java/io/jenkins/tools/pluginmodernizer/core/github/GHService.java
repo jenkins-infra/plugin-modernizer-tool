@@ -816,10 +816,11 @@ public class GHService {
         if ((plugin.isLocal() || config.isDryRun()) && repoType == RepoType.PLUGIN) {
             try (Git git = Git.open(localRepository.toFile())) {
                 Status status = git.status().call();
+                Set<String> submodulePaths = GitSubmoduleUtils.readSubmodulePaths(localRepository);
                 plugin.addModifiedFiles(status.getUntracked());
                 plugin.addModifiedFiles(status.getChanged());
                 plugin.addModifiedFiles(status.getModified());
-                plugin.addModifiedFiles(status.getMissing());
+                plugin.addModifiedFiles(GitSubmoduleUtils.excludeSubmodulePaths(status.getMissing(), submodulePaths));
                 plugin.addModifiedFiles(status.getRemoved());
 
                 LOG.debug("Adding untracked files: {}", status.getUntracked());
@@ -855,9 +856,11 @@ public class GHService {
             if (status.hasUncommittedChanges() || !status.getUntracked().isEmpty()) {
                 LOG.debug("Changed files before commit: {}", status.getChanged());
                 LOG.debug("Untracked before commit: {}", status.getUntracked());
-                LOG.debug("Missing before commit {}", status.getMissing());
+                Set<String> submodulePaths = GitSubmoduleUtils.readSubmodulePaths(localRepository);
+                Set<String> missingFiles = GitSubmoduleUtils.excludeSubmodulePaths(status.getMissing(), submodulePaths);
+                LOG.debug("Missing before commit {}", missingFiles);
                 // Stage deleted file
-                for (String file : status.getMissing()) {
+                for (String file : missingFiles) {
                     git.rm().addFilepattern(file).call();
                 }
                 // Add the rest of the files
