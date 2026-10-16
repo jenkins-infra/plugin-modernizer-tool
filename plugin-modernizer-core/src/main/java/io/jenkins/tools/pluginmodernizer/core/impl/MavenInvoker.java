@@ -11,6 +11,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.utils.JdkFetcher;
 import jakarta.inject.Inject;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -100,7 +101,7 @@ public class MavenInvoker {
      */
     public void collectMetadata(Plugin plugin) {
         LOG.info("Collecting metadata for plugin {}... Please be patient", plugin);
-        invokeGoals(plugin, getSingleRecipeArgs(Settings.FETCH_METADATA_RECIPE, false));
+        invokeGoals(plugin, getSingleRecipeArgs(plugin, Settings.FETCH_METADATA_RECIPE, false));
         LOG.info("Done");
     }
 
@@ -116,20 +117,35 @@ public class MavenInvoker {
                 plugin);
         plugin.setAppliedRecipes(null);
         Set<Path> previousDatatables = findDatatableDirectories(plugin);
-        invokeGoals(plugin, getSingleRecipeArgs(config.getRecipe(), true));
+        boolean addCodeOwner = ADD_CODE_OWNER_RECIPE.equals(config.getRecipe().getName());
+        try {
+            invokeGoals(
+                    plugin,
+                    getRewritePomFile(plugin, config.getRecipe()),
+                    getSingleRecipeArgs(plugin, config.getRecipe(), true));
+        } finally {
+            if (addCodeOwner) {
+                removeAddCodeOwnerRewriteConfig(plugin);
+            }
+        }
         if (!plugin.hasErrors() && previousDatatables != null) {
             collectAppliedRecipes(plugin, previousDatatables);
         }
         LOG.info("Done");
     }
 
+    private static final String ADD_CODE_OWNER_RECIPE = "io.jenkins.tools.pluginmodernizer.AddCodeOwner";
+
+    private static final String ADD_CODE_OWNER_LOCAL_RECIPE = "io.jenkins.tools.pluginmodernizer.AddCodeOwner.local";
+
     /**
      * Build arguments for a rewrite invocation.
+     * @param plugin The plugin to run the rewrite on
      * @param recipe The recipe to run
      * @param exportDatatables Whether to export recipe results
      * @return The list of arguments to be passed to the rewrite plugin
      */
-    private String[] getSingleRecipeArgs(Recipe recipe, boolean exportDatatables) {
+    private String[] getSingleRecipeArgs(Plugin plugin, Recipe recipe, boolean exportDatatables) {
         List<String> goals = new ArrayList<>();
         String goal = recipe.isSkipVerification() ? "runNoFork" : "run";
         goals.add("org.openrewrite.maven:rewrite-maven-plugin:" + Settings.MAVEN_REWRITE_PLUGIN_VERSION + ":" + goal);
@@ -137,7 +153,12 @@ public class MavenInvoker {
         goals.add("-Dhpi.validate.skip=true");
         goals.add("-Dmaven.antrun.skip=true");
         goals.add("-Dmaven.repo.local=%s".formatted(config.getMavenLocalRepo()));
-        goals.add("-Drewrite.activeRecipes=" + recipe.getName());
+        String activeRecipe = recipe.getName();
+        if (ADD_CODE_OWNER_RECIPE.equals(recipe.getName())) {
+            writeAddCodeOwnerRewriteConfig(plugin);
+            activeRecipe = ADD_CODE_OWNER_LOCAL_RECIPE;
+        }
+        goals.add("-Drewrite.activeRecipes=" + activeRecipe);
         if (exportDatatables) {
             goals.add("-Drewrite.exportDatatables=true");
         }
@@ -184,15 +205,46 @@ public class MavenInvoker {
         }
     }
 
+    private void writeAddCodeOwnerRewriteConfig(Plugin plugin) {
+        Path rewriteConfig = plugin.getLocalRepository().resolve("rewrite.yml");
+        String yaml = String.format(
+                "---%n"
+                        + "type: specs.openrewrite.org/v1beta/recipe%n"
+                        + "name: %s%n"
+                        + "recipeList:%n"
+                        + "  - io.jenkins.tools.pluginmodernizer.core.recipes.AddCodeOwner:%n"
+                        + "      artifactId: %s%n",
+                ADD_CODE_OWNER_LOCAL_RECIPE, plugin.getName());
+        try {
+            Files.writeString(rewriteConfig, yaml);
+            LOG.debug("Wrote AddCodeOwner rewrite config to {}", rewriteConfig);
+        } catch (IOException e) {
+            throw new ModernizerException(
+                    "Failed to write AddCodeOwner rewrite configuration for " + plugin.getName(), e);
+        }
+    }
+
+    private void removeAddCodeOwnerRewriteConfig(Plugin plugin) {
+        try {
+            Files.deleteIfExists(plugin.getLocalRepository().resolve("rewrite.yml"));
+        } catch (IOException e) {
+            LOG.warn("Failed to remove temporary rewrite.yml for {}", plugin.getName(), e);
+        }
+    }
+
     /**
      * Invoke a list of maven goal on the plugin
      * @param plugin The plugin to run the goals on
      * @param goals The list of goals to run
      */
     private void invokeGoals(Plugin plugin, String... goals) {
-        validatePom(plugin);
+        invokeGoals(plugin, getMavenPomFile(plugin), goals);
+    }
+
+    private void invokeGoals(Plugin plugin, File pomFile, String... goals) {
+        validatePom(plugin, pomFile);
         try {
-            InvocationRequest request = createInvocationRequest(plugin, goals);
+            InvocationRequest request = createInvocationRequest(pomFile, goals);
             JDK jdk = plugin.getJDK();
             if (jdk != null) {
                 Path jdkPath = jdk.getHome(jdkFetcher);
@@ -225,12 +277,23 @@ public class MavenInvoker {
      * Validate a pom exist for the given plugin
      * @param plugin The plugin to validate
      */
-    private void validatePom(Plugin plugin) {
-        LOG.debug("Check POM exist for plugin: {}", plugin);
-        if (!plugin.getLocalRepository().resolve("pom.xml").toFile().isFile()) {
+    private void validatePom(Plugin plugin, File pomFile) {
+        LOG.debug("Check POM exist for plugin {}: {}", plugin, pomFile);
+        if (!pomFile.isFile()) {
             plugin.addError("POM file not found");
             throw new PluginProcessingException("POM file not found", plugin);
         }
+    }
+
+    private File getMavenPomFile(Plugin plugin) {
+        return plugin.getMavenPomDirectory().resolve("pom.xml").toFile();
+    }
+
+    private File getRewritePomFile(Plugin plugin, Recipe recipe) {
+        Path pomDirectory = ADD_CODE_OWNER_RECIPE.equals(recipe.getName())
+                ? plugin.getLocalRepository()
+                : plugin.getMavenPomDirectory();
+        return pomDirectory.resolve("pom.xml").toFile();
     }
 
     /**
@@ -403,10 +466,10 @@ public class MavenInvoker {
      * @param args The list of args
      * @return The invocation request
      */
-    private InvocationRequest createInvocationRequest(Plugin plugin, String... args) {
+    private InvocationRequest createInvocationRequest(File pomFile, String... args) {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setMavenHome(getEffectiveMavenHome().toFile());
-        request.setPomFile(plugin.getLocalRepository().resolve("pom.xml").toFile());
+        request.setPomFile(pomFile);
         request.addArgs(List.of(args));
         if (Config.isDebug()) {
             request.addArg("-X");

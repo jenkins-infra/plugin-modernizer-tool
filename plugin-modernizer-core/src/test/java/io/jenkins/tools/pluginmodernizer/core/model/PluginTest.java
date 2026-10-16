@@ -526,11 +526,12 @@ public class PluginTest {
         // Verify it's not local initially
         assertFalse(plugin.isLocal());
 
-        // After adjustment, it should become local and point to plugin module
+        // After adjustment, Maven should target the plugin module while the repo root stays unchanged
         plugin.adjustForMultiModule();
 
-        assertTrue(plugin.isLocal());
-        assertEquals(pluginModule, plugin.getLocalRepository());
+        assertFalse(plugin.isLocal());
+        assertEquals(rootDir, plugin.getLocalRepository());
+        assertEquals(pluginModule, plugin.getMavenPomDirectory());
     }
 
     @Test
@@ -647,12 +648,9 @@ public class PluginTest {
             """;
         Files.writeString(module2.resolve("pom.xml"), module2Pom);
 
-        Plugin plugin = Plugin.build("parent", rootDir);
+        Plugin plugin = Plugin.build("plugin2", rootDir);
         plugin.adjustForMultiModule();
 
-        // Should find one of the plugin modules (first match)
-        assertTrue(plugin.isLocal());
-        assertTrue(plugin.getLocalRepository().equals(module1)
-                || plugin.getLocalRepository().equals(module2));
+        assertEquals(module2, plugin.getMavenPomDirectory());
     }
 }

@@ -277,12 +277,20 @@ recipeList:
   - org.openrewrite.java.jackson.UpgradeJackson_2_3
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.core.recipes.AddCodeOwner
+displayName: Add plugin developer team to CODEOWNERS
+description: Adds the plugin developer team to CODEOWNERS using the update center artifact ID.
+tags: ['condition']
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddCodeOwner
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.AddCodeOwner
 displayName: Add CODEOWNERS file
 description: Adds a CODEOWNERS file to a Jenkins plugin.
 tags: ['chore', 'skip-verification']
 recipeList:
-  - org.openrewrite.jenkins.github.AddTeamToCodeowners
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AddCodeOwner
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeParent4Version
@@ -345,9 +353,6 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
   - io.jenkins.tools.pluginmodernizer.MigrateToJenkinsBaseLineProperty
   - io.jenkins.tools.pluginmodernizer.SetupJenkinsfile
-  - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateJenkinsfileForJavaVersion:
-      javaVersion: 21
-      jdksToRemove: [8, 11, 17]
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UpgradeBomVersion
