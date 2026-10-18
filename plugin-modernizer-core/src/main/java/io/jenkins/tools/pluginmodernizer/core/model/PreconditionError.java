@@ -101,6 +101,13 @@ public enum PreconditionError {
 
                     String newContent = matcher.replaceAll("$1" + Settings.REMEDIATION_PLUGIN_PARENT_VERSION + "$3");
 
+                    // Parent 1.x plugins often omit relativePath, which blocks remote parent resolution.
+                    if (!newContent.matches("(?s).*<parent>.*<relativePath[\\s/>].*</parent>.*")) {
+                        newContent = newContent.replaceFirst(
+                                "(?s)(<parent>\\s*<groupId>[^<]*</groupId>\\s*<artifactId>[^<]*</artifactId>\\s*<version>[^<]*</version>)",
+                                "$1\n    <relativePath />");
+                    }
+
                     if (!content.equals(newContent)) {
                         Files.writeString(plugin.getLocalRepository().resolve("pom.xml"), newContent);
                         return true;
@@ -123,7 +130,9 @@ public enum PreconditionError {
                 }
                 try {
                     NodeList repositoryUrls = (NodeList) xpath.evaluate(
-                            "//*[local-name()='project']/*[local-name()='repositories']/*[local-name()='repository']/*[local-name()='url']",
+                            "//*[local-name()='project']/*[local-name()='repositories' or local-name()='pluginRepositories']"
+                                    + "/*[local-name()='repository' or local-name()='pluginRepository']"
+                                    + "/*[local-name()='url']",
                             document,
                             XPathConstants.NODESET);
 
