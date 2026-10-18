@@ -28,7 +28,7 @@ public enum JDK {
     JAVA_11(11, true, "2.164.1", "2.462.3", "2225.v04fa_3929c9b_5"),
     JAVA_17(17, true, "2.346.1", "2.541.3", null),
     JAVA_21(21, true, "2.426.1", null, null),
-    JAVA_25(25, true, "2.516.1", null, null);
+    JAVA_25(25, true, "2.541.1", null, null);
     /**
      * The major version
      */

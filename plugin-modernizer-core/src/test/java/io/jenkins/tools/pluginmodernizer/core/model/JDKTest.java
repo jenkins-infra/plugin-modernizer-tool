@@ -182,6 +182,10 @@ public class JDKTest {
         assertEquals(JDK.JAVA_17, JDK.get("2.492.1").get(0));
         assertEquals(JDK.JAVA_21, JDK.get("2.492.1").get(1));
 
+        assertEquals(2, JDK.get("2.516.1").size());
+        assertEquals(JDK.JAVA_17, JDK.get("2.516.1").get(0));
+        assertEquals(JDK.JAVA_21, JDK.get("2.516.1").get(1));
+
         // Last LTS to support JDK 17
         assertEquals(3, JDK.get("2.541.1").size());
         assertEquals(JDK.JAVA_17, JDK.get("2.541.1").get(0));
