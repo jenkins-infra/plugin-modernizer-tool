@@ -427,4 +427,57 @@ public class MigrateAcegiSecurityToSpringSecurityTest implements RewriteTest {
                         }
                         """));
     }
+
+    @Test
+    void keepAcegiAclSidTypesUnchanged() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipe(new MigrateAcegiSecurityToSpringSecurity()).parser(parser);
+                },
+                java(
+                        // language=java
+                        """
+                        import hudson.security.Permission;
+                        import hudson.security.SidACL;
+                        import org.acegisecurity.Authentication;
+                        import org.acegisecurity.acls.sid.Sid;
+                        import jenkins.model.Jenkins;
+
+                        public class Foo {
+                            public Authentication current() {
+                                return Jenkins.getAuthentication();
+                            }
+
+                            private static final class AlwaysAllowACL extends SidACL {
+                                @Override
+                                protected Boolean hasPermission(Sid p, Permission permission) {
+                                    return true;
+                                }
+                            }
+                        }
+                        """,
+                        // language=java
+                        """
+                        import hudson.security.Permission;
+                        import hudson.security.SidACL;
+                        import org.springframework.security.core.Authentication;
+                        import org.acegisecurity.acls.sid.Sid;
+                        import jenkins.model.Jenkins;
+
+                        public class Foo {
+                            public Authentication current() {
+                                return Jenkins.getAuthentication2();
+                            }
+
+                            private static final class AlwaysAllowACL extends SidACL {
+                                @Override
+                                protected Boolean hasPermission(Sid p, Permission permission) {
+                                    return true;
+                                }
+                            }
+                        }
+                        """));
+    }
 }

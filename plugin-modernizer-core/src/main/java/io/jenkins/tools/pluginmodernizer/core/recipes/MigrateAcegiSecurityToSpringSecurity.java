@@ -48,12 +48,25 @@ public class MigrateAcegiSecurityToSpringSecurity extends Recipe {
         return new JavaIsoVisitor<>() {
             @Override
             public J.CompilationUnit visitCompilationUnit(J.CompilationUnit cu, ExecutionContext ctx) {
-                // ChangePackage will take care for the most of the migration so don't need to add separate migrations
-                // For those import statements that ChangePackage will not account correctly, add separate logic
+                // Migrate Acegi packages that have Spring Security equivalents.
+                // Do not rewrite org.acegisecurity.acls.*: Jenkins still ships ACL Sid types as Acegi
+                // compatibility facades (JEP-227), and spring-security-acl packages do not exist on the CP.
                 cu = (J.CompilationUnit)
-                        new ChangePackage("org.acegisecurity", "org.springframework.security.core", true)
+                        new ChangePackage("org.acegisecurity", "org.springframework.security.core", false)
                                 .getVisitor()
                                 .visitNonNull(cu, ctx);
+                cu = (J.CompilationUnit) new ChangePackage(
+                                "org.acegisecurity.userdetails", "org.springframework.security.core.userdetails", true)
+                        .getVisitor()
+                        .visitNonNull(cu, ctx);
+                cu = (J.CompilationUnit) new ChangePackage(
+                                "org.acegisecurity.context", "org.springframework.security.core.context", true)
+                        .getVisitor()
+                        .visitNonNull(cu, ctx);
+                cu = (J.CompilationUnit) new ChangePackage(
+                                "org.acegisecurity.providers", "org.springframework.security.core.providers", true)
+                        .getVisitor()
+                        .visitNonNull(cu, ctx);
 
                 List<J.Import> originalImports = cu.getImports();
 
