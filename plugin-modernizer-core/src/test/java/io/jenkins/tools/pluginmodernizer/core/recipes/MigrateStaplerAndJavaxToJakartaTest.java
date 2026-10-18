@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Test for {@link MigrateStaplerAndJavaxToJakarta}.
  */
-@Execution(ExecutionMode.CONCURRENT)
+@Execution(ExecutionMode.SAME_THREAD)
 public class MigrateStaplerAndJavaxToJakartaTest implements RewriteTest {
 
     /**
