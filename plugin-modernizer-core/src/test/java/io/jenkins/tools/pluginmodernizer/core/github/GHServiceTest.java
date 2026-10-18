@@ -44,6 +44,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.kohsuke.github.GHCommitPointer;
+import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHMyself;
 import org.kohsuke.github.GHOrganization;
@@ -52,6 +53,7 @@ import org.kohsuke.github.GHPullRequestQueryBuilder;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHRepositoryForkBuilder;
 import org.kohsuke.github.GitHub;
+import org.kohsuke.github.HttpException;
 import org.kohsuke.github.PagedIterable;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -1313,5 +1315,31 @@ public class GHServiceTest {
         // Verify createPullRequest IS called
         verify(repository, times(1))
                 .createPullRequest(anyString(), anyString(), anyString(), anyString(), anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void shouldIgnoreForkSyncMergeConflicts() throws Exception {
+        GHRepository fork = Mockito.mock(GHRepository.class);
+        GHMyself myself = Mockito.mock(GHMyself.class);
+
+        doReturn(false).when(plugin).isLocal();
+        doReturn(false).when(config).isDryRun();
+        doReturn(false).when(config).isFetchMetadataOnly();
+        doReturn(null).when(config).getGithubAppId();
+        doReturn("fake-owner").when(config).getGithubOwner();
+        doReturn("fake-repo").when(plugin).getRepositoryName();
+        doThrow(new GHFileNotFoundException()).when(github).getOrganization("fake-owner");
+        doReturn(myself).when(github).getMyself();
+        doReturn(fork).when(myself).getRepository("fake-repo");
+        doReturn(fork).when(github).getRepository("fake-owner/fake-repo");
+        doReturn("main").when(fork).getDefaultBranch();
+        doThrow(new HttpException(
+                        "There are merge conflicts", 409, "Conflict", "https://api.github.com/repos/test/sync"))
+                .when(fork)
+                .sync("main");
+
+        service.sync(plugin, RepoType.PLUGIN);
+
+        verify(plugin, never()).addError(anyString(), any(Exception.class));
     }
 }

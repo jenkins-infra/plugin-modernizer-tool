@@ -67,6 +67,7 @@ import org.kohsuke.github.GHRepositoryForkBuilder;
 import org.kohsuke.github.GHUser;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -540,9 +541,24 @@ public class GHService {
             syncRepository(getRepositoryFork(plugin, repoType));
             LOG.info("Synced the forked repository for {} {}", repoType.getType(), repoType.getName(plugin));
         } catch (IOException e) {
+            if (isForkSyncMergeConflict(e)) {
+                LOG.warn(
+                        "Skipping fork sync for {} {} due to merge conflicts",
+                        repoType.getType(),
+                        repoType.getName(plugin));
+                return;
+            }
             plugin.addError("Failed to sync the" + repoType.getType() + "repository", e);
             plugin.raiseLastError();
         }
+    }
+
+    private static boolean isForkSyncMergeConflict(IOException e) {
+        if (e instanceof HttpException httpException) {
+            return httpException.getResponseCode() == 409;
+        }
+        String message = e.getMessage();
+        return message != null && message.toLowerCase().contains("merge conflict");
     }
 
     /**
