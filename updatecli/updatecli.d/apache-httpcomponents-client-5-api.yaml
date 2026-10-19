@@ -1,0 +1,55 @@
+name: Update apache-httpcomponents-client-5-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestApacheHttpcomponentsClient5ApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "apache-httpcomponents-client-5-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update apache-httpcomponents-client-5-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: apache-httpcomponents-client-5-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestApacheHttpcomponentsClient5ApiVersion" }}'
+    sourceid: latestApacheHttpcomponentsClient5ApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update apache-httpcomponents-client-5-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(apache-httpcomponents-client-5-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestApacheHttpcomponentsClient5ApiVersion" }}'
+    sourceid: latestApacheHttpcomponentsClient5ApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update apache-httpcomponents-client-5-api plugin version to {{ source "latestApacheHttpcomponentsClient5ApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
