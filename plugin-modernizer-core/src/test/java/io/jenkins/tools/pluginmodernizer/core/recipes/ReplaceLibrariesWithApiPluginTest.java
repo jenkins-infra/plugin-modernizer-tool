@@ -296,4 +296,226 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
                 </project>
                 """));
     }
+
+    @Test
+    void replaceJacksonByApiPluginWithBom() {
+        rewriteRun(
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new ReplaceLibrariesWithApiPlugin(
+                                "org.jenkins-ci.plugins",
+                                "jackson2-api",
+                                "2.22.3-447.v6a_93ce7d2c82",
+                                Set.of(new ReplaceLibrariesWithApiPlugin.Library(
+                                        "com.fasterxml.jackson.core", "jackson-databind")))),
+
+                // language=xml
+                pomXml("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.fasterxml.jackson.core</groupId>
+                      <artifactId>jackson-databind</artifactId>
+                      <version>2.18.2</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.jenkins-ci.plugins</groupId>
+                      <artifactId>jackson2-api</artifactId>
+                      <version>2.22.3-447.v6a_93ce7d2c82</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """));
+    }
+
+    @Test
+    void replaceHttpClient4ByApiPluginWithBom() {
+        rewriteRun(
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new ReplaceLibrariesWithApiPlugin(
+                                "org.jenkins-ci.plugins",
+                                "apache-httpcomponents-client-4-api",
+                                "4.5.14-269.vfa_2321039a_83",
+                                Set.of(new ReplaceLibrariesWithApiPlugin.Library(
+                                        "org.apache.httpcomponents", "httpclient")))),
+
+                // language=xml
+                pomXml("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.apache.httpcomponents</groupId>
+                      <artifactId>httpclient</artifactId>
+                      <version>4.5.14</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.jenkins-ci.plugins</groupId>
+                      <artifactId>apache-httpcomponents-client-4-api</artifactId>
+                      <version>4.5.14-269.vfa_2321039a_83</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """));
+    }
 }
