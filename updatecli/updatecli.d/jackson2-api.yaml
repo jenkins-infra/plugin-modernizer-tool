@@ -1,0 +1,55 @@
+name: Update jackson2-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestJackson2ApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "jackson2-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update jackson2-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: jackson2-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestJackson2ApiVersion" }}'
+    sourceid: latestJackson2ApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update jackson2-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(jackson2-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJackson2ApiVersion" }}'
+    sourceid: latestJackson2ApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update jackson2-api plugin version to {{ source "latestJackson2ApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
