@@ -1,0 +1,55 @@
+name: Update bouncycastle-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestBouncycastleApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "bouncycastle-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update bouncycastle-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: bouncycastle-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestBouncycastleApiVersion" }}'
+    sourceid: latestBouncycastleApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update bouncycastle-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(bouncycastle-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestBouncycastleApiVersion" }}'
+    sourceid: latestBouncycastleApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update bouncycastle-api plugin version to {{ source "latestBouncycastleApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
