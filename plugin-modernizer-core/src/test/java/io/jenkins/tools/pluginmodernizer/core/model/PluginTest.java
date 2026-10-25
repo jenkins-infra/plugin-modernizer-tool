@@ -157,7 +157,7 @@ public class PluginTest {
         doReturn(false).when(config).isFetchMetadataOnly();
         plugin.withJDK(JDK.JAVA_21);
         plugin.verify(mavenInvoker);
-        verify(mavenInvoker).invokeGoal(plugin, "verify");
+        verify(mavenInvoker).invokeGoal(plugin, "verify", "-Dspotbugs.skip=true");
         verifyNoMoreInteractions(mavenInvoker);
     }
 
