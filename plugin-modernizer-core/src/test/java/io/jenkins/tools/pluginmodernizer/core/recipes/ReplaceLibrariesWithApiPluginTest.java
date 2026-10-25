@@ -518,4 +518,224 @@ public class ReplaceLibrariesWithApiPluginTest implements RewriteTest {
                 </project>
                 """));
     }
+
+    @Test
+    void replaceSnakeyamlByApiPluginWithBom() {
+        rewriteRun(
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new ReplaceLibrariesWithApiPlugin(
+                                "io.jenkins.plugins",
+                                "snakeyaml-api",
+                                "2.7-152.vc672728cf536",
+                                Set.of(new ReplaceLibrariesWithApiPlugin.Library("org.yaml", "snakeyaml")))),
+
+                // language=xml
+                pomXml("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.yaml</groupId>
+                      <artifactId>snakeyaml</artifactId>
+                      <version>2.3</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>snakeyaml-api</artifactId>
+                      <version>2.7-152.vc672728cf536</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """));
+    }
+
+    @Test
+    void replaceOkhttpByApiPluginWithBom() {
+        rewriteRun(
+                spec -> spec.executionContext(Utils.getMavenExecutionContext())
+                        .recipe(new ReplaceLibrariesWithApiPlugin(
+                                "io.jenkins.plugins",
+                                "okhttp-api",
+                                "5.5.0-242.v1482d48d3ea_3",
+                                Set.of(new ReplaceLibrariesWithApiPlugin.Library("com.squareup.okhttp3", "okhttp")))),
+
+                // language=xml
+                pomXml("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.squareup.okhttp3</groupId>
+                      <artifactId>okhttp</artifactId>
+                      <version>4.12.0</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+                  <modelVersion>4.0.0</modelVersion>
+                  <parent>
+                    <groupId>org.jenkins-ci.plugins</groupId>
+                    <artifactId>plugin</artifactId>
+                    <version>4.88</version>
+                    <relativePath />
+                  </parent>
+                  <artifactId>example</artifactId>
+                  <version>${changelist}</version>
+                  <packaging>hpi</packaging>
+                  <properties>
+                    <jenkins.baseline>2.479</jenkins.baseline>
+                    <jenkins.version>${jenkins.baseline}.1</jenkins.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>io.jenkins.tools.bom</groupId>
+                        <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                        <version>4051.v78dce3ce8b_d6</version>
+                        <scope>import</scope>
+                        <type>pom</type>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>io.jenkins.plugins</groupId>
+                      <artifactId>okhttp-api</artifactId>
+                      <version>5.5.0-242.v1482d48d3ea_3</version>
+                    </dependency>
+                  </dependencies>
+                  <repositories>
+                    <repository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </repository>
+                  </repositories>
+                  <pluginRepositories>
+                    <pluginRepository>
+                      <id>repo.jenkins-ci.org</id>
+                      <url>https://repo.jenkins-ci.org/public/</url>
+                    </pluginRepository>
+                  </pluginRepositories>
+                </project>
+                """));
+    }
 }

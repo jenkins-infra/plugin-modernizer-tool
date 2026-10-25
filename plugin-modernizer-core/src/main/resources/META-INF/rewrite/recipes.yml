@@ -433,6 +433,11 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.UseJackson2ApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseApacheHttpComponents4ApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseApacheHttpComponents5ApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseSnakeyamlApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseOkhttpApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseCaffeineApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseCommonsMath3ApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseBouncycastleApiPlugin
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UseJsonApiPlugin
@@ -654,6 +659,90 @@ recipeList:
       replaces:
         - groupId: org.apache.httpcomponents.client5
           artifactId: httpclient5
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseSnakeyamlApiPlugin
+displayName: Use SnakeYAML API plugin instead of direct dependency
+description: Use SnakeYAML API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: snakeyaml-api
+      pluginVersion: 2.7-152.vc672728cf536
+      replaces:
+        - groupId: org.yaml
+          artifactId: snakeyaml
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseOkhttpApiPlugin
+displayName: Use OkHttp API plugin instead of direct dependency
+description: Use OkHttp API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: okhttp-api
+      pluginVersion: 5.5.0-242.v1482d48d3ea_3
+      replaces:
+        - groupId: com.squareup.okhttp3
+          artifactId: okhttp
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseCaffeineApiPlugin
+displayName: Use Caffeine API plugin instead of direct dependency
+description: Use Caffeine API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: caffeine-api
+      pluginVersion: 3.3.1-214.v18eb_56b_34920
+      replaces:
+        - groupId: com.github.ben-manes.caffeine
+          artifactId: caffeine
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseCommonsMath3ApiPlugin
+displayName: Use Commons Math 3 API plugin instead of direct dependency
+description: Use Commons Math 3 API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: commons-math3-api
+      pluginVersion: 3.6.1-104.vc3227d955289
+      replaces:
+        - groupId: org.apache.commons
+          artifactId: commons-math3
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseBouncycastleApiPlugin
+displayName: Use Bouncy Castle API plugin instead of direct dependency
+description: Use Bouncy Castle API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: org.jenkins-ci.plugins
+      pluginArtifactId: bouncycastle-api
+      pluginVersion: 2.30.1.86.2-310.v4655f6742752
+      replaces:
+        - groupId: org.bouncycastle
+          artifactId: bcpkix-jdk18on
+        - groupId: org.bouncycastle
+          artifactId: bcprov-jdk18on
+        - groupId: org.bouncycastle
+          artifactId: bcutil-jdk18on
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.EnsureRelativePath
