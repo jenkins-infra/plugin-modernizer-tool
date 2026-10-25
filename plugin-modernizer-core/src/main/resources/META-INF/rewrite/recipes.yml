@@ -438,6 +438,8 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.UseCaffeineApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseCommonsMath3ApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseBouncycastleApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseJaxbApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseJschApiPlugin
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UseJsonApiPlugin
@@ -743,6 +745,38 @@ recipeList:
           artifactId: bcprov-jdk18on
         - groupId: org.bouncycastle
           artifactId: bcutil-jdk18on
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJaxbApiPlugin
+displayName: Use JAXB plugin instead of direct dependency
+description: Use JAXB plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: jaxb
+      pluginVersion: 2.3.9-143.v5979df3304e6
+      replaces:
+        - groupId: com.sun.xml.bind
+          artifactId: jaxb-impl
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJschApiPlugin
+displayName: Use JSch plugin instead of direct dependency
+description: Use JSch plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: org.jenkins-ci.plugins
+      pluginArtifactId: jsch
+      pluginVersion: 0.2.16-95.v3eecb_55fa_b_78
+      replaces:
+        - groupId: com.github.mwiede
+          artifactId: jsch
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.EnsureRelativePath
