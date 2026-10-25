@@ -1,0 +1,55 @@
+name: Update commons-math3-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestCommonsMath3ApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "commons-math3-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update commons-math3-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: commons-math3-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestCommonsMath3ApiVersion" }}'
+    sourceid: latestCommonsMath3ApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update commons-math3-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(commons-math3-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestCommonsMath3ApiVersion" }}'
+    sourceid: latestCommonsMath3ApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update commons-math3-api plugin version to {{ source "latestCommonsMath3ApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli

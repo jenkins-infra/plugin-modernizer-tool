@@ -1,0 +1,55 @@
+name: Update caffeine-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestCaffeineApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "caffeine-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update caffeine-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: caffeine-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestCaffeineApiVersion" }}'
+    sourceid: latestCaffeineApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update caffeine-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(caffeine-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestCaffeineApiVersion" }}'
+    sourceid: latestCaffeineApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update caffeine-api plugin version to {{ source "latestCaffeineApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
