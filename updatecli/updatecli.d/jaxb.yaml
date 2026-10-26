@@ -1,0 +1,55 @@
+name: Update jaxb plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestJaxbVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "jaxb-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update jaxb plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: jaxb\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestJaxbVersion" }}'
+    sourceid: latestJaxbVersion
+    scmid: default
+  updateVersions:
+    name: "Update jaxb plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(jaxb.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJaxbVersion" }}'
+    sourceid: latestJaxbVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update jaxb plugin version to {{ source "latestJaxbVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
