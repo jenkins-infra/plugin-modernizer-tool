@@ -1,0 +1,55 @@
+name: Update javax-activation-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestJavaxActivationApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "javax-activation-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update javax-activation-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: javax-activation-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestJavaxActivationApiVersion" }}'
+    sourceid: latestJavaxActivationApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update javax-activation-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(javax-activation-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJavaxActivationApiVersion" }}'
+    sourceid: latestJavaxActivationApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update javax-activation-api plugin version to {{ source "latestJavaxActivationApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
