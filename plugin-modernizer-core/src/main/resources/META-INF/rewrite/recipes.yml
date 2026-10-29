@@ -627,7 +627,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: org.jenkins-ci.plugins
       pluginArtifactId: jackson2-api
-      pluginVersion: 2.22.3-447.v6a_93ce7d2c82
+      pluginVersion: 2.22.4-449.v4ee9f4ec4123
       replaces:
         - groupId: com.fasterxml.jackson.core
           artifactId: jackson-core
