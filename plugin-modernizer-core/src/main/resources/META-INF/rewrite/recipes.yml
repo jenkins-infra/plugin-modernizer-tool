@@ -440,6 +440,10 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.UseBouncycastleApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseJaxbApiPlugin
   - io.jenkins.tools.pluginmodernizer.UseJschApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseJakartaActivationApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseJakartaMailApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseJavaxActivationApiPlugin
+  - io.jenkins.tools.pluginmodernizer.UseJavaxMailApiPlugin
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.UseJsonApiPlugin
@@ -777,6 +781,70 @@ recipeList:
       replaces:
         - groupId: com.github.mwiede
           artifactId: jsch
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJakartaActivationApiPlugin
+displayName: Use Jakarta Activation API plugin instead of direct dependency
+description: Use Jakarta Activation API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: jakarta-activation-api
+      pluginVersion: 2.1.4-1
+      replaces:
+        - groupId: jakarta.activation
+          artifactId: jakarta.activation-api
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJakartaMailApiPlugin
+displayName: Use Jakarta Mail API plugin instead of direct dependency
+description: Use Jakarta Mail API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: jakarta-mail-api
+      pluginVersion: 2.1.5-1
+      replaces:
+        - groupId: jakarta.mail
+          artifactId: jakarta.mail-api
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJavaxActivationApiPlugin
+displayName: Use Javax Activation API plugin instead of direct dependency
+description: Use Javax Activation API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: javax-activation-api
+      pluginVersion: 1.2.0-8
+      replaces:
+        - groupId: com.sun.activation
+          artifactId: javax.activation
+---
+type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UseJavaxMailApiPlugin
+displayName: Use Javax Mail API plugin instead of direct dependency
+description: Use Javax Mail API plugin instead of direct dependency
+tags: ['developer']
+preconditions:
+  - io.jenkins.tools.pluginmodernizer.conditions.IsUsingRecommendCoreVersion
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
+      pluginGroupId: io.jenkins.plugins
+      pluginArtifactId: javax-mail-api
+      pluginVersion: 1.6.2-11
+      replaces:
+        - groupId: com.sun.mail
+          artifactId: javax.mail
 ---
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.EnsureRelativePath
