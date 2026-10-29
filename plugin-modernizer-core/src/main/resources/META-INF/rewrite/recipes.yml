@@ -809,7 +809,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: jakarta-mail-api
-      pluginVersion: 2.1.5-1
+      pluginVersion: jakarta-mail-api-2.1.5-1
       replaces:
         - groupId: jakarta.mail
           artifactId: jakarta.mail-api
