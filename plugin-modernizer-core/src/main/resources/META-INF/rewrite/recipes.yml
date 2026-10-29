@@ -793,7 +793,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: jakarta-activation-api
-      pluginVersion: 2.1.4-1
+      pluginVersion: jakarta-activation-api-2.1.4-1
       replaces:
         - groupId: jakarta.activation
           artifactId: jakarta.activation-api
