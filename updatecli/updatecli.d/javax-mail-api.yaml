@@ -1,0 +1,55 @@
+name: Update javax-mail-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestJavaxMailApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "javax-mail-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update javax-mail-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: javax-mail-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestJavaxMailApiVersion" }}'
+    sourceid: latestJavaxMailApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update javax-mail-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(javax-mail-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJavaxMailApiVersion" }}'
+    sourceid: latestJavaxMailApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update javax-mail-api plugin version to {{ source "latestJavaxMailApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli

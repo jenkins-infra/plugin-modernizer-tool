@@ -1,0 +1,55 @@
+name: Update jakarta-mail-api plugin version
+
+scms:
+  default:
+    kind: github
+    spec:
+      user: "{{ .github.user }}"
+      email: "{{ .github.email }}"
+      owner: "{{ .github.owner }}"
+      repository: "{{ .github.repository }}"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      branch: "{{ .github.branch }}"
+
+sources:
+  latestJakartaMailApiVersion:
+    kind: githubrelease
+    spec:
+      owner: "jenkinsci"
+      repository: "jakarta-mail-api-plugin"
+      token: "{{ requiredEnv .github.token }}"
+      username: "{{ .github.username }}"
+      versioning:
+        kind: semver
+        pattern: "latest"
+
+targets:
+  updateRecipesYaml:
+    name: "Update jakarta-mail-api plugin version in recipes.yml"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
+      matchPattern: "(pluginArtifactId: jakarta-mail-api\\n)(.*pluginVersion:) .*"
+      replacePattern: '$1$2$3 {{ source "latestJakartaMailApiVersion" }}'
+    sourceid: latestJakartaMailApiVersion
+    scmid: default
+  updateVersions:
+    name: "Update jakarta-mail-api plugin version in versions.properties"
+    kind: file
+    spec:
+      file: ./plugin-modernizer-core/src/main/resources/versions.properties
+      matchPattern: "(?m)^(jakarta-mail-api.version =) (.*)"
+      replacePattern: '$1 {{ source "latestJakartaMailApiVersion" }}'
+    sourceid: latestJakartaMailApiVersion
+    scmid: default
+
+actions:
+  createPullRequest:
+    kind: github/pullrequest
+    scmid: default
+    title: 'Update jakarta-mail-api plugin version to {{ source "latestJakartaMailApiVersion" }}'
+    spec:
+      labels:
+        - dependencies
+        - updatecli
