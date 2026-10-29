@@ -841,7 +841,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: javax-mail-api
-      pluginVersion: 1.6.2-11
+      pluginVersion: javax-mail-api-1.6.2-11
       replaces:
         - groupId: com.sun.mail
           artifactId: javax.mail
