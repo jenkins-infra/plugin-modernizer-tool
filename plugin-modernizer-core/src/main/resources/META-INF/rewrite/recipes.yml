@@ -825,7 +825,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: javax-activation-api
-      pluginVersion: 1.2.0-8
+      pluginVersion: javax-activation-api-1.2.0-8
       replaces:
         - groupId: com.sun.activation
           artifactId: javax.activation
