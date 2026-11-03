@@ -33,7 +33,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: javax-activation-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestJavaxActivationApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestJavaxActivationApiVersion" }}'
     sourceid: latestJavaxActivationApiVersion
     scmid: default
   updateVersions:

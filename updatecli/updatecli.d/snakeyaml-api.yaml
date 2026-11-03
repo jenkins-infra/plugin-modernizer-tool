@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: snakeyaml-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestSnakeyamlApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestSnakeyamlApiVersion" }}'
     sourceid: latestSnakeyamlApiVersion
     scmid: default
   updateVersions:

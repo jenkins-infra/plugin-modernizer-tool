@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: okhttp-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestOkhttpApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestOkhttpApiVersion" }}'
     sourceid: latestOkhttpApiVersion
     scmid: default
   updateVersions:

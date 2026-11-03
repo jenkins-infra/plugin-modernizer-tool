@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: apache-httpcomponents-client-5-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestApacheHttpcomponentsClient5ApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestApacheHttpcomponentsClient5ApiVersion" }}'
     sourceid: latestApacheHttpcomponentsClient5ApiVersion
     scmid: default
   updateVersions:
