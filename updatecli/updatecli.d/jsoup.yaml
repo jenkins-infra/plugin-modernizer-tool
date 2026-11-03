@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: jsoup\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestJsoupVersion" }}'
+      replacePattern: '$1$2 {{ source "latestJsoupVersion" }}'
     sourceid: latestJsoupVersion
     scmid: default
   updateVersions:

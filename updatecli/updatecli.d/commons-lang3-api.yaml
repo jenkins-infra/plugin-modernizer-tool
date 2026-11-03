@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: commons-lang3-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestCommonsLang3ApiPlugin" }}'
+      replacePattern: '$1$2 {{ source "latestCommonsLang3ApiPlugin" }}'
     sourceid: latestCommonsLang3ApiPlugin
     scmid: default
   updateVersions:

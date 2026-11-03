@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: asm-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestAsmApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestAsmApiVersion" }}'
     sourceid: latestAsmApiVersion
     scmid: default
   updateVersions:

@@ -33,7 +33,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: jakarta-mail-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestJakartaMailApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestJakartaMailApiVersion" }}'
     sourceid: latestJakartaMailApiVersion
     scmid: default
   updateVersions:
