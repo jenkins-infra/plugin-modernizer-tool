@@ -103,6 +103,34 @@ class AddCodeOwnerTest implements RewriteTest {
 
     @Test
     @EnabledOnOs(OS.LINUX)
+    void addsTeamWhenAnotherTeamIsAlreadyListed() {
+        rewriteRun(
+                spec -> spec.recipe(new AddCodeOwner("openstack-cloud")),
+                pomXml("""
+                        <?xml version="1.0" encoding="UTF-8"?>
+                        <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                          <modelVersion>4.0.0</modelVersion>
+                          <groupId>io.jenkins.plugins</groupId>
+                          <artifactId>openstack-cloud</artifactId>
+                          <version>1.0.0-SNAPSHOT</version>
+                          <packaging>hpi</packaging>
+                        </project>
+                        """),
+                text(
+                        """
+                        * @jenkinsci/parent-plugin-developers
+                        """,
+                        """
+                        * @jenkinsci/openstack-cloud-plugin-developers
+                        * @jenkinsci/parent-plugin-developers
+                        """,
+                        sourceSpecs -> {
+                            sourceSpecs.path(ArchetypeCommonFile.CODEOWNERS.getPath());
+                        }));
+    }
+
+    @Test
+    @EnabledOnOs(OS.LINUX)
     void shouldAddCodeOwnerIfNeeded() {
         rewriteRun(spec -> spec.recipe(new AddCodeOwner("empty")), pomXml("""
                         <?xml version="1.0" encoding="UTF-8"?>
