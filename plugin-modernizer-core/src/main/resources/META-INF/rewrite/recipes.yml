@@ -661,7 +661,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: apache-httpcomponents-client-5-api
-      pluginVersion: 5.6.4-207.vd5b_a_c15e4de5
+      pluginVersion: 5.6.5-209.vd1010d57ee17
       replaces:
         - groupId: org.apache.httpcomponents.client5
           artifactId: httpclient5
