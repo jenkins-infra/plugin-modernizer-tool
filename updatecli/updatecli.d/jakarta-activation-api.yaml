@@ -23,6 +23,8 @@ sources:
       versioning:
         kind: semver
         pattern: "latest"
+    transformers:
+      - trimprefix: "jakarta-activation-api-"
 
 targets:
   updateRecipesYaml:

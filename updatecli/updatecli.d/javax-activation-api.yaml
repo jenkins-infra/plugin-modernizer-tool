@@ -23,6 +23,8 @@ sources:
       versioning:
         kind: semver
         pattern: "latest"
+    transformers:
+      - trimprefix: "javax-activation-api-"
 
 targets:
   updateRecipesYaml:
