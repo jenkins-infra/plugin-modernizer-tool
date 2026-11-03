@@ -56,6 +56,15 @@ public class JDKTest {
     }
 
     @Test
+    public void compatibleSinceBaselines() {
+        assertNull(JDK.JAVA_8.getCompatibleSince());
+        assertEquals("2.164.1", JDK.JAVA_11.getCompatibleSince());
+        assertEquals("2.346.1", JDK.JAVA_17.getCompatibleSince());
+        assertEquals("2.426.1", JDK.JAVA_21.getCompatibleSince());
+        assertEquals("2.516.1", JDK.JAVA_25.getCompatibleSince());
+    }
+
+    @Test
     public void all() {
         assertEquals(5, JDK.all().size());
         assertEquals(JDK.JAVA_8, JDK.all().get(0));
