@@ -20,16 +20,14 @@ class RemoveOldJavaVersionForModernJenkinsTest implements RewriteTest {
                 spec -> spec.recipeFromResource(
                         "/META-INF/rewrite/recipes.yml",
                         "io.jenkins.tools.pluginmodernizer.RemoveOldJavaVersionForModernJenkins"),
-                groovy(
-                        """
+                groovy("""
                         buildPlugin(
                           dontRemoveMe: 'true',
                           forkCount: '1C',
                           jdkVersions: ['8', '11'],
                           platforms: ['linux', 'windows']
                         )
-                        """,
-                        """
+                        """, """
                         /*
                          See the documentation for more options:
                          https://github.com/jenkins-infra/pipeline-library/
@@ -41,7 +39,6 @@ class RemoveOldJavaVersionForModernJenkinsTest implements RewriteTest {
                           configurations: [
                             [platform: 'linux', jdk: 25],
                         ])
-                        """,
-                        sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
+                        """, sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
     }
 }
