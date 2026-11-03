@@ -46,3 +46,6 @@ build/
 *.log
 out
 results
+
+### Python ###
+scripts/__pycache__/
