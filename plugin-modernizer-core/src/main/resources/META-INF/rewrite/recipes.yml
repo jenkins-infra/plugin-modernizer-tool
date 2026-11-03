@@ -544,7 +544,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: org.jenkins-ci.plugins
       pluginArtifactId: jsoup
-      pluginVersion: 1.23.2-106.v1161f282b_eb_f
+      pluginVersion: 1.24.1-112.va_e71e68b_60f9
       replaces:
         - groupId: org.jsoup
           artifactId: jsoup
