@@ -23,6 +23,8 @@ sources:
       versioning:
         kind: semver
         pattern: "latest"
+    transformers:
+      - trimprefix: "javax-mail-api-"
 
 targets:
   updateRecipesYaml:
