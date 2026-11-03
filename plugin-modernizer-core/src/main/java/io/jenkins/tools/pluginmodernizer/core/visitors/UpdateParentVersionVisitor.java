@@ -57,7 +57,7 @@ public class UpdateParentVersionVisitor extends MavenIsoVisitor<ExecutionContext
             new LatestRelease(RecipesConsts.OLD_PARENT_VERSION_PATTERN);
 
     /**
-     * Contructor
+     * Constructor
      */
     public UpdateParentVersionVisitor(MavenMetadataFailures metadataFailures) {
         this.metadataFailures = metadataFailures;
@@ -66,7 +66,7 @@ public class UpdateParentVersionVisitor extends MavenIsoVisitor<ExecutionContext
     }
 
     /**
-     * Contructor
+     * Constructor
      */
     public UpdateParentVersionVisitor(Integer majorVersion, Boolean keepMajor, MavenMetadataFailures metadataFailures) {
         this.metadataFailures = metadataFailures;

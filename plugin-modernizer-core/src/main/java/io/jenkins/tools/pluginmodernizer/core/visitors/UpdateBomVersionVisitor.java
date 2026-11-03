@@ -47,7 +47,7 @@ public class UpdateBomVersionVisitor extends MavenIsoVisitor<ExecutionContext> {
             new LatestRelease(RecipesConsts.OLD_BOM_VERSION_PATTERN);
 
     /**
-     * Contructor
+     * Constructor
      */
     public UpdateBomVersionVisitor(MavenMetadataFailures metadataFailures) {
         this.metadataFailures = metadataFailures;
