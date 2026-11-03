@@ -97,7 +97,7 @@ recipeList:
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.AddPluginsBom
 displayName: Add plugins BOM
-description: Add the Jenkins BOM to the dependenciesManagement section of the pom.xml.
+description: Add the Jenkins BOM to the dependencyManagement section of the pom.xml.
 tags: ['chore', 'dependencies']
 recipeList:
   - org.openrewrite.jenkins.AddPluginsBom
@@ -368,7 +368,7 @@ recipeList:
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.RemoveDependencyVersionOverride
 displayName: Remove dependency version override
-description: Remove dependencies version override if managed from parent or bom.
+description: Remove dependency version override if managed from parent or bom.
 tags: ['dependencies']
 recipeList:
   - org.openrewrite.maven.RemoveRedundantDependencyVersions:
