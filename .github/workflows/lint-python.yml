@@ -27,3 +27,6 @@ jobs:
 
       - name: Run Ruff linter
         run: ruff check scripts/ --output-format=github
+
+      - name: Run script unit tests
+        run: python3 scripts/test_migration_ids.py
