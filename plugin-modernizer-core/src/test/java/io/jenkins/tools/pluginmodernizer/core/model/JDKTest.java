@@ -47,6 +47,15 @@ public class JDKTest {
     }
 
     @Test
+    public void maxCoreVersionBaselines() {
+        assertEquals("2.346.1", JDK.JAVA_8.getMaxCoreVersion());
+        assertEquals("2.462.3", JDK.JAVA_11.getMaxCoreVersion());
+        assertEquals("2.541.3", JDK.JAVA_17.getMaxCoreVersion());
+        assertNull(JDK.JAVA_21.getMaxCoreVersion());
+        assertNull(JDK.JAVA_25.getMaxCoreVersion());
+    }
+
+    @Test
     public void all() {
         assertEquals(5, JDK.all().size());
         assertEquals(JDK.JAVA_8, JDK.all().get(0));
