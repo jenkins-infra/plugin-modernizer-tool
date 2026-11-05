@@ -56,6 +56,13 @@ public class JDKTest {
     }
 
     @Test
+    public void supportedJdkVersionsAreMarkedLts() {
+        for (JDK jdk : JDK.values()) {
+            assertEquals(true, jdk.isLts(), () -> jdk.name());
+        }
+    }
+
+    @Test
     public void all() {
         assertEquals(5, JDK.all().size());
         assertEquals(JDK.JAVA_8, JDK.all().get(0));
