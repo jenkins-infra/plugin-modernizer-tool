@@ -157,7 +157,24 @@ public class PluginTest {
         doReturn(false).when(config).isFetchMetadataOnly();
         plugin.withJDK(JDK.JAVA_21);
         plugin.verify(mavenInvoker);
-        verify(mavenInvoker).invokeGoal(plugin, "verify");
+        verify(mavenInvoker).invokeGoal(plugin, "verify", "-Dspotbugs.skip=true");
+        verifyNoMoreInteractions(mavenInvoker);
+    }
+
+    @Test
+    public void testVerifyQuickBuildDoesNotSkipSpotbugs() {
+        Plugin plugin = Plugin.build("example");
+        plugin.withConfig(config);
+        plugin.verifyQuickBuild(mavenInvoker, JDK.JAVA_21);
+        verify(mavenInvoker)
+                .invokeGoal(
+                        plugin,
+                        "verify",
+                        "-DskipTests",
+                        "-Pquick-build",
+                        "-Denforcer.skip=true",
+                        "-Dhpi.validate.skip=true",
+                        "-Dmaven.antrun.skip=true");
         verifyNoMoreInteractions(mavenInvoker);
     }
 
