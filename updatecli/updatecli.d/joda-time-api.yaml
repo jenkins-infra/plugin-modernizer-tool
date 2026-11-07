@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: joda-time-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestJodaTimeApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestJodaTimeApiVersion" }}'
     sourceid: latestJodaTimeApiVersion
     scmid: default
   updateVersions:

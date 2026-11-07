@@ -33,7 +33,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: jakarta-activation-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestJakartaActivationApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestJakartaActivationApiVersion" }}'
     sourceid: latestJakartaActivationApiVersion
     scmid: default
   updateVersions:

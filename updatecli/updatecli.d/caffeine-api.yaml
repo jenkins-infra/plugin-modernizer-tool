@@ -31,7 +31,7 @@ targets:
     spec:
       file: ./plugin-modernizer-core/src/main/resources/META-INF/rewrite/recipes.yml
       matchPattern: "(pluginArtifactId: caffeine-api\\n)(.*pluginVersion:) .*"
-      replacePattern: '$1$2$3 {{ source "latestCaffeineApiVersion" }}'
+      replacePattern: '$1$2 {{ source "latestCaffeineApiVersion" }}'
     sourceid: latestCaffeineApiVersion
     scmid: default
   updateVersions:
