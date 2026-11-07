@@ -260,6 +260,29 @@ recipeList:
   - org.openrewrite.apache.commons.lang.DefaultIfBlankToJdk
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.ModernizeCollections
+displayName: Modernize Java Collections
+description: Replace legacy collection initializations and Guava immutable collections with modern Java factory methods (Map.of, List.of, Set.of, and Stream.toList).
+tags: ['migration', 'performance']
+recipeList:
+  - org.openrewrite.java.migrate.util.UseMapOf
+  - org.openrewrite.java.migrate.util.UseListOf
+  - org.openrewrite.java.migrate.util.UseSetOf
+  - org.openrewrite.java.migrate.util.UseEnumSetOf
+  - org.openrewrite.java.migrate.util.MigrateCollectionsSingletonMap
+  - org.openrewrite.java.migrate.util.MigrateCollectionsSingletonList
+  - org.openrewrite.java.migrate.util.MigrateCollectionsSingletonSet
+  - org.openrewrite.java.migrate.util.MigrateCollectionsUnmodifiableList
+  - org.openrewrite.java.migrate.util.MigrateCollectionsUnmodifiableSet
+  - org.openrewrite.java.migrate.util.ReplaceStreamCollectWithToList
+  - org.openrewrite.java.migrate.guava.NoGuavaImmutableMapOf
+  - org.openrewrite.java.migrate.guava.NoGuavaImmutableListOf
+  - org.openrewrite.java.migrate.guava.NoGuavaImmutableSetOf
+  - org.openrewrite.java.migrate.guava.NoGuavaImmutableMapCopyOf
+  - org.openrewrite.java.migrate.guava.NoGuavaImmutableListCopyOf
+  - org.openrewrite.java.migrate.guava.NoGuavaImmutableSetCopyOf
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateJackson2To3
 displayName: Migrate Jackson 2 API to Jackson 3 API plugin
 description: Migrate Jackson 2 code usages and replace jackson2-api dependency with jackson3-api.
