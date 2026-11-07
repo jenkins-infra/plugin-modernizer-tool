@@ -12,8 +12,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Set environment variables for JDK versions managed by SDKMAN
-ENV JDK8_PACKAGE=8.0.504.0+1-tem
-ENV JDK11_PACKAGE=11.0.32.1+1-tem
+ENV JDK8_PACKAGE=8.0.512.0+9-tem
+ENV JDK11_PACKAGE=11.0.33.0+10-tem
 ENV JDK17_PACKAGE=17.0.21.0+9-tem
 ENV JDK21_PACKAGE=21.0.13.0+9-tem
 ENV JDK25_PACKAGE=25.0.5.0+8-tem
