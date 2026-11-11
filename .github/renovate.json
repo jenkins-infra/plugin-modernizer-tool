@@ -3,6 +3,18 @@
   "extends": [
     "github>jenkinsci/renovate-config"
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^flake\\.nix$/"],
+      "matchStrings": [
+        "version = \"(?<currentValue>[^\"]+)\";[\\s\\S]*?hash = \"(?<currentDigest>[a-f0-9]{64})\";"
+      ],
+      "depNameTemplate": "jenkins-infra/plugin-modernizer-tool",
+      "datasourceTemplate": "github-release-attachments",
+      "versioningTemplate": "loose"
+    }
+  ],
   "packageRules": [
     {
       "matchPackageNames": "io.jenkins.plugin-modernizer:plugin-modernizer-pom",
