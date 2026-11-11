@@ -84,8 +84,7 @@ mvn clean install
 
 ### Using the tool
 
-
-The CLI is distributed by Homebrew and Scoop and it can be installed using the following command
+The CLI is distributed by Homebrew, Scoop, and Nix.
 
 1) Using Homebrew
 
@@ -124,6 +123,20 @@ Then install the plugin-modernizer-tool
 
 ```
 scoop install plugin-modernizer
+```
+
+3) Using Nix
+
+Install the flake with Nix:
+
+```
+nix profile install github:jenkins-infra/plugin-modernizer-tool
+```
+
+Or run it without installing:
+
+```
+nix run github:jenkins-infra/plugin-modernizer-tool -- --help
 ```
 
 ### Setup
