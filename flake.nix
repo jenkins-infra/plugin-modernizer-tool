@@ -12,14 +12,14 @@
         "x86_64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      version = "3255.v1b_e36cc2c10d";
+      version = "3305.v25f9a_966fc07";
       package = system:
         let
           pkgs = import nixpkgs { inherit system; };
           src = pkgs.fetchurl {
             url = "https://github.com/jenkins-infra/plugin-modernizer-tool/releases/download/${version}/jenkins-plugin-modernizer-${version}.jar";
             hash = builtins.convertHash {
-              hash = "e69ac90ffc49499cc3e084ee5d66a353db0802671357e4e6718c0c9e6fa4a79c";
+              hash = "d0c8d6099b824e650d209dc8b6ed5fbb7f474518545f9456e9513a95a998af60";
               hashAlgo = "sha256";
               toHashFormat = "sri";
             };
