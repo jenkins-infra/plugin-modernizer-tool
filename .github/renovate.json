@@ -3,6 +3,12 @@
   "extends": [
     "github>jenkinsci/renovate-config"
   ],
+  "nix": {
+    "enabled": true,
+    "lockFileMaintenance": {
+      "enabled": true
+    }
+  },
   "customManagers": [
     {
       "customType": "regex",
