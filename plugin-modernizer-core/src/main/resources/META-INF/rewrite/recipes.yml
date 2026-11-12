@@ -145,6 +145,22 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AddThrowsExceptionWhereAssertThrows
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.UpgradeToJava17
+displayName: Migrate plugins to Java 17
+description: Migrate plugins to Java 17.
+tags: ['migration', 'dependencies']
+recipeList:
+  # Language changes (text blocks, pattern matching) are compiled on the next
+  # metadata collection. maven-hpi-plugin:validate overwrites maven.compiler.release
+  # from the Jenkins core class-file version, so a core still built with Java 11
+  # (for example 2.440.x) rejects those changes and the metadata read fails.
+  # 2.479.3 is the first LTS line whose jenkins-core bytecode is Java 17
+  # and that the current 2.479.x BOM's plugins accept.
+  - org.openrewrite.java.migrate.UpgradeToJava17
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
+      minimumVersion: 2.479.3
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJava25
 displayName: Migrate plugins to Java 25
 description: Migrate plugins to Java 25 LTS.
@@ -152,6 +168,11 @@ tags: ['migration', 'dependencies']
 recipeList:
   # Modified Upgrade to Java 21 (org.openrewrite.java.migrate.UpgradeToJava21)
   - org.openrewrite.java.migrate.UpgradeToJava17
+  # Same floor as UpgradeToJava17: hpi:validate compiles at the core's class-file
+  # level, so language changes from UpgradeToJava17 fail the follow-up build
+  # unless the core itself is at least Java 17 bytecode.
+  - io.jenkins.tools.pluginmodernizer.core.recipes.UpgradeJenkinsVersion:
+      minimumVersion: 2.479.3
   - org.openrewrite.staticanalysis.RemoveExtraSemicolons
   - org.openrewrite.java.migrate.lang.ThreadStopUnsupported
   - org.openrewrite.java.migrate.net.URLConstructorToURICreate
