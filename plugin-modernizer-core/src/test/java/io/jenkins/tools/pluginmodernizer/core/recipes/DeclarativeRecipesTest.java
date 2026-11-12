@@ -3575,6 +3575,167 @@ public class DeclarativeRecipesTest implements RewriteTest {
     }
 
     @Test
+    void modernizeCollections() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.ModernizeCollections")
+                            .allSources(source -> source.markers(new org.openrewrite.java.marker.JavaVersion(
+                                    java.util.UUID.randomUUID(), "17", "Temurin", "17", "17")))
+                            .parser(parser);
+                },
+                // language=java
+                java("""
+                        import java.util.Collections;
+                        import java.util.List;
+                        import java.util.Map;
+                        import java.util.Set;
+
+                        class Test {
+                            Map<String, String> map = Collections.singletonMap("key", "value");
+                            List<String> list = Collections.singletonList("item");
+                            Set<String> set = Collections.singleton("entry");
+                        }
+                        """, """
+                        import java.util.List;
+                        import java.util.Map;
+                        import java.util.Set;
+
+                        class Test {
+                            Map<String, String> map = Map.of("key", "value");
+                            List<String> list = List.of("item");
+                            Set<String> set = Set.of("entry");
+                        }
+                        """));
+    }
+
+    @Test
+    void modernizeAnonymousHashMap() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.ModernizeCollections")
+                            .allSources(source -> source.markers(new org.openrewrite.java.marker.JavaVersion(
+                                    java.util.UUID.randomUUID(), "17", "Temurin", "17", "17")))
+                            .parser(parser);
+                },
+                // language=java
+                java("""
+                        import java.util.HashMap;
+                        import java.util.Map;
+
+                        class Test {
+                            Map<String, String> colors = new HashMap<>() {
+                                {
+                                    put("red", "failing");
+                                    put("green", "passing");
+                                }
+                            };
+                        }
+                        """, """
+                        import java.util.Map;
+
+                        class Test {
+                            Map<String, String> colors = Map.of(
+                                    "red", "failing",
+                                    "green", "passing");
+                        }
+                        """));
+    }
+
+    @Test
+    void modernizeStreamToList() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.ModernizeCollections")
+                            .allSources(source -> source.markers(new org.openrewrite.java.marker.JavaVersion(
+                                    java.util.UUID.randomUUID(), "17", "Temurin", "17", "17")))
+                            .parser(parser);
+                },
+                // language=java
+                java("""
+                        import java.util.List;
+                        import java.util.stream.Collectors;
+
+                        class Test {
+                            List<String> convert(List<String> input) {
+                                return input.stream().filter(s -> !s.isEmpty()).collect(Collectors.toUnmodifiableList());
+                            }
+                        }
+                        """, """
+                        import java.util.List;
+
+                        class Test {
+                            List<String> convert(List<String> input) {
+                                return input.stream().filter(s -> !s.isEmpty()).toList();
+                            }
+                        }
+                        """));
+    }
+
+    @Test
+    void modernizeGuavaImmutableCollections() {
+        rewriteRun(
+                spec -> {
+                    var parser = JavaParser.fromJavaVersion().logCompilationWarningsAndErrors(true);
+                    collectRewriteTestDependencies().forEach(parser::addClasspathEntry);
+                    spec.recipeFromResource(
+                                    "/META-INF/rewrite/recipes.yml",
+                                    "io.jenkins.tools.pluginmodernizer.ModernizeCollections")
+                            .allSources(source -> source.markers(new org.openrewrite.java.marker.JavaVersion(
+                                    java.util.UUID.randomUUID(), "17", "Temurin", "17", "17")))
+                            .parser(parser);
+                },
+                // Stubs for Guava
+                java("""
+                        package com.google.common.collect;
+                        import java.util.Map;
+
+                        public abstract class ImmutableMap<K, V> implements Map<K, V> {
+                            public static <K, V> ImmutableMap<K, V> of(K k1, V v1) { return null; }
+                        }
+                        """),
+                java("""
+                        package com.google.common.collect;
+                        import java.util.List;
+
+                        public abstract class ImmutableList<E> implements List<E> {
+                            public static <E> ImmutableList<E> of(E e1) { return null; }
+                        }
+                        """),
+                // language=java
+                java("""
+                        import com.google.common.collect.ImmutableList;
+                        import com.google.common.collect.ImmutableMap;
+                        import java.util.List;
+                        import java.util.Map;
+
+                        class Test {
+                            Map<String, String> map = ImmutableMap.of("k", "v");
+                            List<String> list = ImmutableList.of("item");
+                        }
+                        """, """
+                        import java.util.List;
+                        import java.util.Map;
+
+                        class Test {
+                            Map<String, String> map = Map.of("k", "v");
+                            List<String> list = List.of("item");
+                        }
+                        """));
+    }
+
+    @Test
     void migrateJackson2To3() {
         rewriteRun(
                 spec -> {

@@ -1115,6 +1115,53 @@ public class TemplateUtilsTest {
     }
 
     @Test
+    public void testFriendlyPrTitleModernizeCollections() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("io.jenkins.tools.pluginmodernizer.ModernizeCollections")
+                .when(recipe)
+                .getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestTitle(plugin, recipe);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("Modernize Java collections to use factory methods", result);
+    }
+
+    @Test
+    public void testFriendlyPrBodyModernizeCollections() {
+
+        // Mocks
+        Plugin plugin = mock(Plugin.class);
+        Recipe recipe = mock(Recipe.class);
+
+        doReturn("Modernize Java Collections").when(recipe).getDisplayName();
+        doReturn("io.jenkins.tools.pluginmodernizer.ModernizeCollections")
+                .when(recipe)
+                .getName();
+        doReturn("Replace legacy collection initializations with factory methods")
+                .when(recipe)
+                .getDescription();
+        doReturn("test-plugin").when(plugin).getName();
+
+        // Test
+        String result = TemplateUtils.renderPullRequestBody(plugin, recipe);
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.contains("Modernize Java Collections"));
+        assertTrue(result.contains("Map.of()"));
+        assertTrue(result.contains("List.of()"));
+        assertTrue(result.contains("Set.of()"));
+        assertTrue(result.contains("Stream.toList()"));
+    }
+
+    @Test
     void parentUpgradeDescriptionIncludesOnlyAppliedSections() {
         Plugin plugin = Plugin.build("example");
         Recipe recipe = new Recipe();
