@@ -8,6 +8,7 @@ import static org.openrewrite.maven.Assertions.pomXml;
 import io.jenkins.tools.pluginmodernizer.core.extractor.ArchetypeCommonFile;
 import io.jenkins.tools.pluginmodernizer.core.utils.Utils;
 import java.util.Collection;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.openrewrite.SourceFile;
 import org.openrewrite.test.RewriteTest;
@@ -92,6 +93,58 @@ class CreateJenkinsFileTest implements RewriteTest {
                 </project>
                 """),
                 groovy("buildPlugin()", sourceSpecs -> sourceSpecs.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
+    }
+
+    @Test
+    void shouldCapJdksToPluginJavaVersion() {
+        rewriteRun(
+                spec -> spec.executionContext(Utils.getMavenExecutionContext()).recipe(new CreateJenkinsFile()),
+                pomXml("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+                    <modelVersion>4.0.0</modelVersion>
+                    <parent>
+                      <groupId>org.jenkins-ci.plugins</groupId>
+                      <artifactId>plugin</artifactId>
+                      <version>4.87</version>
+                      <relativePath />
+                    </parent>
+                    <artifactId>legacy-plugin</artifactId>
+                    <version>1.0.0</version>
+                    <packaging>hpi</packaging>
+                    <properties>
+                        <jenkins.version>2.452.4</jenkins.version>
+                        <java.version>8</java.version>
+                    </properties>
+                    <repositories>
+                        <repository>
+                            <id>repo.jenkins-ci.org</id>
+                            <url>https://repo.jenkins-ci.org/public/</url>
+                        </repository>
+                    </repositories>
+                </project>
+                """),
+                groovy(null, """
+            /*
+            See the documentation for more options:
+            https://github.com/jenkins-infra/pipeline-library/
+            */
+            buildPlugin(
+                forkCount: '1C', // Run a JVM per core in tests
+                useContainerAgent: true, // Set to `false` if you need to use Docker for containerized tests
+                configurations: [
+                    [platform: 'linux', jdk: 11],
+                    [platform: 'windows', jdk: 8]
+                ]
+            )""", spec -> spec.path(ArchetypeCommonFile.JENKINSFILE.getPath())));
+    }
+
+    @Test
+    void resolveBuildJavaVersionFromProperties() {
+        assertEquals(8, CreateJenkinsFile.resolveBuildJavaVersion(Map.of("java.version", "8")));
+        assertEquals(17, CreateJenkinsFile.resolveBuildJavaVersion(Map.of("maven.compiler.release", "17")));
+        assertEquals(0, CreateJenkinsFile.resolveBuildJavaVersion(Map.of()));
     }
 
     @Test

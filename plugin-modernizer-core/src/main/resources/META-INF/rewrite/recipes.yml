@@ -108,7 +108,7 @@ recipeList:
 type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJUnit5
 displayName: Migrate to JUnit 5
-description: Migrate tests to JUnit5.
+description: "Migrate tests to JUnit5. Skipped when JenkinsSessionRule is used (see issue #914)."
 tags: ['migration', 'testing']
 preconditions:
   - org.openrewrite.java.search.DoesNotUseType:
