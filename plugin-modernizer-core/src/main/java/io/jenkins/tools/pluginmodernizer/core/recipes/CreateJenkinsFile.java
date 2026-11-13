@@ -101,7 +101,7 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
 
         LOG.debug("Generating Jenkinsfile for Jenkins version: {}", jenkinsVersion);
         List<JDK> supportedJdks = JDK.get(jenkinsVersion);
-        int buildJava = resolveBuildJavaVersion(state.getProperties());
+        int buildJava = resolvePluginJavaVersionForJdkCap(state.getProperties());
         int maxJenkinsJdkForBuildJava = 0;
         if (buildJava > 0) {
             JDK buildJdk = JDK.get(buildJava);
@@ -149,11 +149,26 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
         };
     }
 
+    /**
+     * Resolves explicit plugin build Java from POM properties for Jenkinsfile JDK capping.
+     * Only {@code java.version} and {@code java.level} are considered so compiler settings left
+     * over from an older parent do not skew JDK suggestions during major parent upgrades.
+     */
+    static int resolvePluginJavaVersionForJdkCap(Map<String, String> properties) {
+        return resolvePropertyAsJavaMajor(properties, List.of("java.version", "java.level"));
+    }
+
     static int resolveBuildJavaVersion(Map<String, String> properties) {
+        return resolvePropertyAsJavaMajor(
+                properties,
+                List.of("java.version", "maven.compiler.release", "maven.compiler.target", "java.level"));
+    }
+
+    private static int resolvePropertyAsJavaMajor(Map<String, String> properties, List<String> keys) {
         if (properties == null || properties.isEmpty()) {
             return 0;
         }
-        for (String key : List.of("java.version", "maven.compiler.release", "maven.compiler.target", "java.level")) {
+        for (String key : keys) {
             String value = properties.get(key);
             if (value == null || value.isBlank()) {
                 continue;

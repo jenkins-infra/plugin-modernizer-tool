@@ -145,6 +145,9 @@ class CreateJenkinsFileTest implements RewriteTest {
         assertEquals(8, CreateJenkinsFile.resolveBuildJavaVersion(Map.of("java.version", "8")));
         assertEquals(17, CreateJenkinsFile.resolveBuildJavaVersion(Map.of("maven.compiler.release", "17")));
         assertEquals(0, CreateJenkinsFile.resolveBuildJavaVersion(Map.of()));
+        assertEquals(8, CreateJenkinsFile.resolvePluginJavaVersionForJdkCap(Map.of("java.version", "8")));
+        assertEquals(
+                0, CreateJenkinsFile.resolvePluginJavaVersionForJdkCap(Map.of("maven.compiler.release", "11")));
     }
 
     @Test
