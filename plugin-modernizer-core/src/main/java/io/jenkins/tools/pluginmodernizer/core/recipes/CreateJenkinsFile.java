@@ -75,6 +75,9 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
                         String jenkinsVersion = pomMetadata.getJenkinsVersion();
                         LOG.debug("Found Jenkins version: {}", jenkinsVersion);
                         state.setJenkinsVersion(jenkinsVersion);
+                        if (pomMetadata.getProperties() != null) {
+                            state.setProperties(pomMetadata.getProperties());
+                        }
                         return tree;
                     }
                 }
@@ -98,6 +101,22 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
 
         LOG.debug("Generating Jenkinsfile for Jenkins version: {}", jenkinsVersion);
         List<JDK> supportedJdks = JDK.get(jenkinsVersion);
+        int buildJava = resolvePluginJavaVersionForJdkCap(state.getProperties());
+        int maxJenkinsJdkForBuildJava = 0;
+        if (buildJava > 0) {
+            JDK buildJdk = JDK.get(buildJava);
+            JDK nextJdk = buildJdk.next();
+            maxJenkinsJdkForBuildJava = nextJdk != null ? nextJdk.getMajor() : buildJdk.getMajor();
+            final int jdkCap = maxJenkinsJdkForBuildJava;
+            supportedJdks = supportedJdks.stream()
+                    .filter(jdk -> jdk.getMajor() <= jdkCap)
+                    .toList();
+            LOG.debug(
+                    "Filtered supported JDKs for plugin build Java {} (max major {}): {}",
+                    buildJava,
+                    maxJenkinsJdkForBuildJava,
+                    supportedJdks);
+        }
         LOG.debug("Supported JDKs: {}", supportedJdks);
 
         if (supportedJdks.isEmpty()) {
@@ -109,6 +128,9 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
         LOG.debug("Top two JDK versions: {}", topJdkVersions);
         int linuxJdk = topJdkVersions.get(0);
         int windowsJdk = topJdkVersions.size() > 1 ? topJdkVersions.get(1) : linuxJdk;
+        if (buildJava > 0 && buildJava < linuxJdk && buildJava <= maxJenkinsJdkForBuildJava) {
+            windowsJdk = buildJava;
+        }
         String jenkinsfileContent = String.format(JENKINSFILE_TEMPLATE, linuxJdk, windowsJdk);
         LOG.debug("Generated Jenkinsfile content with JDK versions: {} and {}", linuxJdk, windowsJdk);
 
@@ -127,9 +149,42 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
         };
     }
 
+    /**
+     * Resolves explicit plugin build Java from POM properties for Jenkinsfile JDK capping.
+     * Only {@code java.version} and {@code java.level} are considered so compiler settings left
+     * over from an older parent do not skew JDK suggestions during major parent upgrades.
+     */
+    static int resolvePluginJavaVersionForJdkCap(Map<String, String> properties) {
+        return resolvePropertyAsJavaMajor(properties, List.of("java.version", "java.level"));
+    }
+
+    static int resolveBuildJavaVersion(Map<String, String> properties) {
+        return resolvePropertyAsJavaMajor(
+                properties, List.of("java.version", "maven.compiler.release", "maven.compiler.target", "java.level"));
+    }
+
+    private static int resolvePropertyAsJavaMajor(Map<String, String> properties, List<String> keys) {
+        if (properties == null || properties.isEmpty()) {
+            return 0;
+        }
+        for (String key : keys) {
+            String value = properties.get(key);
+            if (value == null || value.isBlank()) {
+                continue;
+            }
+            try {
+                return Integer.parseInt(value.trim());
+            } catch (NumberFormatException e) {
+                LOG.debug("Ignoring non-numeric {} value: {}", key, value);
+            }
+        }
+        return 0;
+    }
+
     protected static class ConfigState {
         private boolean jenkinsfileExists = false;
         private String jenkinsVersion = null;
+        private Map<String, String> properties = Map.of();
 
         public void setJenkinsfileExists(boolean exists) {
             this.jenkinsfileExists = exists;
@@ -145,6 +200,14 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
 
         public String getJenkinsVersion() {
             return jenkinsVersion;
+        }
+
+        public void setProperties(Map<String, String> properties) {
+            this.properties = properties != null ? properties : Map.of();
+        }
+
+        public Map<String, String> getProperties() {
+            return properties;
         }
     }
 }
