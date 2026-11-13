@@ -160,8 +160,7 @@ public class CreateJenkinsFile extends ScanningRecipe<CreateJenkinsFile.ConfigSt
 
     static int resolveBuildJavaVersion(Map<String, String> properties) {
         return resolvePropertyAsJavaMajor(
-                properties,
-                List.of("java.version", "maven.compiler.release", "maven.compiler.target", "java.level"));
+                properties, List.of("java.version", "maven.compiler.release", "maven.compiler.target", "java.level"));
     }
 
     private static int resolvePropertyAsJavaMajor(Map<String, String> properties, List<String> keys) {
