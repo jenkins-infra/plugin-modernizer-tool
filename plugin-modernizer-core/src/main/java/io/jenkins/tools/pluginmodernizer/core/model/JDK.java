@@ -13,16 +13,17 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
  * JDK enum to compile and build a Jenkins plugin
- * Most of the time only LTS are available, but adding new version would
- * be useful to test compilation for new major LTS version and be ready every
- * 2 years when a new LTS is released.
+ * Most of the time only LTS releases are listed here, but adding a new major version early
+ * is useful to test compilation and be ready when Jenkins adopts a new LTS.
  * See <a href="https://www.jenkins.io/blog/2023/11/06/introducing-2-2-2-java-support-plan/">2+2+2 Jenkins Java support plan</a> for details
  */
 public enum JDK {
 
     /**
-     * Available JDKs
-     * See <a href="https://www.jenkins.io/doc/book/platform-information/support-policy-java/">Java Support Policy</a> for details
+     * Supported JDKs for plugin modernization.
+     * See <a href="https://www.jenkins.io/doc/book/platform-information/support-policy-java/">Java Support Policy</a>.
+     * When adding a JDK for an in-progress Java upgrade, not every constant needs {@code lts = true}
+     * (for example an early-access or weekly build used only during migration).
      */
     JAVA_8(8, true, null, "2.346.1", "1900.v9e128c991ef4"),
     JAVA_11(11, true, "2.164.1", "2.462.3", "2225.v04fa_3929c9b_5"),
@@ -30,12 +31,12 @@ public enum JDK {
     JAVA_21(21, true, "2.426.1", null, null),
     JAVA_25(25, true, "2.516.1", null, null);
     /**
-     * The major version
+     * Java major version number.
      */
     private final int major;
 
     /**
-     * If the major
+     * Whether modernization treats this JDK as an LTS release for Jenkins plugins.
      */
     private final boolean lts;
 
@@ -115,8 +116,10 @@ public enum JDK {
     }
 
     /**
-     * Check if the JDK is LTS
-     * @return True if LTS
+     * Whether this JDK is marked as LTS in the modernization model.
+     * Non-LTS entries may exist temporarily while a new Java version is being rolled out.
+     *
+     * @return {@code true} if this constant is LTS
      */
     public boolean isLts() {
         return lts;
