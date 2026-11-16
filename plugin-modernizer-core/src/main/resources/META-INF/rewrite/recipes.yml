@@ -472,7 +472,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: json-path-api
-      pluginVersion: 3.0.0-218.vcd4dd1355de2
+      pluginVersion: 3.0.0-236.v4298487c9d01
       replaces:
         - groupId: com.jayway.jsonpath
           artifactId: json-path
@@ -560,7 +560,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-compress-api
-      pluginVersion: 1.28.0-97.v0d8a_548e7f24
+      pluginVersion: 1.28.0-99.v1d5fc7f025cd
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-compress

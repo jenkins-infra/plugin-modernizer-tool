@@ -51,7 +51,7 @@
     <openrewrite.maven.plugin.version>6.46.1</openrewrite.maven.plugin.version>
     <micrometer.version>1.17.2</micrometer.version>
     <slf4j.version>2.0.20</slf4j.version>
-    <logback.version>1.6.6</logback.version>
+    <logback.version>1.6.7</logback.version>
     <picocli.version>4.7.6</picocli.version>
     <common.io.version>2.22.0</common.io.version>
     <common.lang3.version>3.22.0</common.lang3.version>
@@ -59,7 +59,7 @@
     <asm.version>9.10.1</asm.version>
     <gson.version>2.15.0</gson.version>
     <jackson.version>2.21.5</jackson.version>
-    <maven.modernizer.version>3.10.0</maven.modernizer.version>
+    <maven.modernizer.version>3.10.1</maven.modernizer.version>
     <commons-codec.version>1.23.0</commons-codec.version>
     <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
     <jgit.version>7.8.1.202611041320-r</jgit.version>
