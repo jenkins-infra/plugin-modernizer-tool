@@ -560,7 +560,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.ReplaceLibrariesWithApiPlugin:
       pluginGroupId: io.jenkins.plugins
       pluginArtifactId: commons-compress-api
-      pluginVersion: 1.28.0-97.v0d8a_548e7f24
+      pluginVersion: 1.28.0-99.v1d5fc7f025cd
       replaces:
         - groupId: org.apache.commons
           artifactId: commons-compress
