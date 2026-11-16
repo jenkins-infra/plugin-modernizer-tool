@@ -828,6 +828,7 @@ public class CommandLineITCase {
         properties.put("exec.executable", javaHome.resolve("bin/java").toString());
         LOG.debug("Using java executable: {}", properties.get("exec.executable"));
         properties.put("test.cliArgs", args);
+        properties.put("test.argLine", System.getProperty("test.argLine", ""));
         request.setProperties(properties);
 
         // Other options

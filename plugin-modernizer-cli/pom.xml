@@ -258,6 +258,38 @@
 
   <profiles>
     <profile>
+      <id>enable-jacoco</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <test.argLine>${argLine}</test.argLine>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>report</id>
+                <goals>
+                  <goal>report-aggregate</goal>
+                </goals>
+                <phase>verify</phase>
+                <configuration>
+                  <includeCurrentProject>true</includeCurrentProject>
+                  <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <!-- Activate slow test that modernize samples plugins -->
       <!-- Only run such test on CI and linux -->
       <id>slow-tests</id>
