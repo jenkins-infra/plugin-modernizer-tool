@@ -9,7 +9,8 @@
   <properties>
     <changelist>999999-SNAPSHOT</changelist>
     <exec.executable>java</exec.executable>
-    <exec.args>-jar target/jenkins-plugin-modernizer-${project.version}.jar ${test.cliArgs}</exec.args>
+    <exec.args>${test.argLine} -jar target/jenkins-plugin-modernizer-${project.version}.jar ${test.cliArgs}</exec.args>
+    <test.argLine />
     <test.cliArgs>--version</test.cliArgs>
   </properties>
   <!-- Avoid warning and failure with Maven 4.0.0 due to unknown profiles -->

@@ -48,6 +48,13 @@ To test the changes, execute the following command:
 mvn test
 ```
 
+## Code coverage
+
+Run `mvn clean verify -Penable-jacoco` from the repository root to collect unit and
+integration test coverage. Docker must be running for the CLI integration tests.
+The combined report for core and CLI application code is generated at
+`plugin-modernizer-cli/target/site/jacoco/index.html`.
+
 ## Proposing Changes
 
 All proposed changes are submitted and reviewed through a GitHub pull request. To submit a pull request:
