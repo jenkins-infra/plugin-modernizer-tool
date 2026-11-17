@@ -45,6 +45,10 @@
     {
       "matchPackageNames": ["/org.jenkins.*/"],
       "enabled": false
+    },
+    {
+      "matchPackageNames": ["/^org\\.openrewrite(?:\\.[^:]+)?:/"],
+      "groupName": "OpenRewrite"
     }
   ]
 }
