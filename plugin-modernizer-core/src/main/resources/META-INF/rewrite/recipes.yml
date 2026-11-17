@@ -106,6 +106,21 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.RemoveExtraMavenProperties
 ---
 type: specs.openrewrite.org/v1beta/recipe
+name: io.jenkins.tools.pluginmodernizer.MigrateHudsonTestCaseToJenkinsRule
+displayName: Migrate HudsonTestCase to JenkinsRule
+description: >
+  Migrates JUnit 3-style Jenkins test classes that extend HudsonTestCase to the
+  modern JUnit 4 @Rule JenkinsRule pattern. Removes the extends clause, inserts
+  the @Rule field, converts setUp/tearDown lifecycle methods, annotates test
+  methods with @Test, and prefixes delegated HudsonTestCase method calls with j.
+tags: ['migration', 'testing']
+preconditions:
+  - org.openrewrite.java.search.UsesType:
+      fullyQualifiedTypeName: org.jvnet.hudson.test.HudsonTestCase
+recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateHudsonTestCaseToJenkinsRule
+---
+type: specs.openrewrite.org/v1beta/recipe
 name: io.jenkins.tools.pluginmodernizer.MigrateToJUnit5
 displayName: Migrate to JUnit 5
 description: Migrate tests to JUnit5.
@@ -114,6 +129,7 @@ preconditions:
   - org.openrewrite.java.search.DoesNotUseType:
       fullyQualifiedTypeName: org.jvnet.hudson.test.JenkinsSessionRule
 recipeList:
+  - io.jenkins.tools.pluginmodernizer.core.recipes.MigrateHudsonTestCaseToJenkinsRule
   - io.jenkins.tools.pluginmodernizer.core.recipes.UpdateParent:
       majorVersionFilter: 6
       keepMajor: false
