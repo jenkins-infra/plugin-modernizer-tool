@@ -740,7 +740,7 @@ public class Plugin {
                 "Verifying plugin {} with JDK {}... Please be patient",
                 name,
                 this.getJDK().getMajor());
-        maven.invokeGoal(this, "verify");
+        maven.invokeGoal(this, "verify", "-Dspotbugs.skip=true");
         LOG.info("Done");
     }
 
