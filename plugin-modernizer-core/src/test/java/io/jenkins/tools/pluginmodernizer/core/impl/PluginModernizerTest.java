@@ -6,9 +6,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.config.Settings;
+import io.jenkins.tools.pluginmodernizer.core.extractor.PluginMetadata;
 import io.jenkins.tools.pluginmodernizer.core.github.GHService;
+import io.jenkins.tools.pluginmodernizer.core.model.JDK;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
@@ -18,13 +22,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class PluginModernizerTest {
     @Mock
@@ -51,6 +60,47 @@ class PluginModernizerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void testVerificationSuccessMessage(boolean verificationFails) throws Exception {
+        Plugin plugin = mock(Plugin.class);
+        PluginMetadata metadata = mock(PluginMetadata.class);
+        when(plugin.getName()).thenReturn("test-plugin");
+        when(plugin.isLocal()).thenReturn(true);
+        when(plugin.hasMetadata()).thenReturn(true);
+        when(plugin.getMetadata()).thenReturn(metadata);
+        when(metadata.getJdks()).thenReturn(Set.of(JDK.JAVA_21));
+        when(metadata.getJenkinsVersion()).thenReturn("2.479.3");
+        when(metadata.getProperties()).thenReturn(Map.of());
+        when(config.isSkipMetadata()).thenReturn(true);
+        doAnswer(invocation -> {
+                    when(plugin.hasErrors()).thenReturn(verificationFails);
+                    when(config.isFetchMetadataOnly()).thenReturn(true);
+                    return null;
+                })
+                .when(plugin)
+                .verify(mavenInvoker);
+
+        java.lang.reflect.Method process = PluginModernizer.class.getDeclaredMethod("process", Plugin.class);
+        process.setAccessible(true);
+        ch.qos.logback.classic.Logger logger =
+                (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(PluginModernizer.class);
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        try {
+            process.invoke(pluginModernizer, plugin);
+            verify(plugin).verify(mavenInvoker);
+            assertEquals(!verificationFails, appender.list.stream().anyMatch(event -> event.getFormattedMessage()
+                    .equals("Plugin test-plugin verified successfully with JDK 21")));
+            assertEquals(verificationFails, appender.list.stream().anyMatch(event -> event.getFormattedMessage()
+                    .equals("Plugin test-plugin failed to verify with JDK 21")));
+        } finally {
+            logger.detachAppender(appender);
+            appender.stop();
+        }
     }
 
     @Test
