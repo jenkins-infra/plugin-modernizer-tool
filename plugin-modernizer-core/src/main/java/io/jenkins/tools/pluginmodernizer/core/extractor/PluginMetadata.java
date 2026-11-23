@@ -285,6 +285,9 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
      * @return The file or null
      */
     public ArchetypeCommonFile getFile(Path path) {
+        if (commonFiles == null) {
+            return null;
+        }
         return commonFiles.stream()
                 .filter(f -> f.getPath().equals(path))
                 .findFirst()
@@ -297,6 +300,9 @@ public class PluginMetadata extends CacheEntry<PluginMetadata> {
      * @return True if the file is present
      */
     public boolean hasFile(Path path) {
+        if (commonFiles == null) {
+            return false;
+        }
         return commonFiles.stream().anyMatch(f -> f.getPath().equals(path));
     }
 
