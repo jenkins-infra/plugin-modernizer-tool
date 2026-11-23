@@ -6,7 +6,7 @@
 FROM gitpod/workspace-java-21
 
 # Define the versions of the JDKs to install. This is used by the `sdk install java` command to install the specified JDK.
-ENV JDK8_PACKAGE=8.0.512.0+9-tem
+ENV JDK8_PACKAGE=8.0.514.0+1-tem
 ENV JDK11_PACKAGE=11.0.33.1+1-tem
 ENV JDK17_PACKAGE=17.0.21.1+2-tem
 ENV JDK21_PACKAGE=21.0.13.0+9-tem
