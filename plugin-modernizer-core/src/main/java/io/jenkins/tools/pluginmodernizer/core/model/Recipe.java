@@ -129,4 +129,9 @@ public class Recipe implements Comparable<Recipe> {
     public int compareTo(Recipe o) {
         return this.getName().compareTo(o.getName());
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
