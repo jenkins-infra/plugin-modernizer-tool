@@ -364,7 +364,9 @@ public class PluginModernizer {
             // Verify plugin
             if (!config.isFetchMetadataOnly() && !config.isSkipVerification()) {
                 JDK jdk = verifyPlugin(plugin);
-                LOG.info("Plugin {} verified successfully with JDK {}", plugin.getName(), jdk.getMajor());
+                if (!plugin.hasErrors()) {
+                    LOG.info("Plugin {} verified successfully with JDK {}", plugin.getName(), jdk.getMajor());
+                }
             }
 
             if (plugin.hasErrors()) {
