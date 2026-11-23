@@ -2,6 +2,7 @@ package io.jenkins.tools.pluginmodernizer.core.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -68,6 +69,31 @@ public class JdkFetcherTest {
         assertFalse(
                 modulesPerms.contains(PosixFilePermission.OWNER_EXECUTE),
                 "non-executable archive entries must stay non-executable after extract");
+    }
+
+    @Test
+    void resolveJdkHomeReturnsNullForEmptyDirectory() throws IOException {
+        JdkFetcher fetcher = new JdkFetcher(tempDir);
+        Path jdkDir = tempDir.resolve("plugin-modernizer-jdk-8");
+        Files.createDirectories(jdkDir);
+        assertNull(fetcher.resolveJdkHome(jdkDir));
+    }
+
+    @Test
+    void resolveJdkHomeReturnsLayoutWithBinDirectory() throws IOException {
+        JdkFetcher fetcher = new JdkFetcher(tempDir);
+        Path jdkDir = tempDir.resolve("jdk");
+        Files.createDirectories(jdkDir.resolve("bin"));
+        assertEquals(jdkDir, fetcher.resolveJdkHome(jdkDir));
+    }
+
+    @Test
+    void resolveJdkHomeReturnsMacOsHomeLayout() throws IOException {
+        JdkFetcher fetcher = new JdkFetcher(tempDir);
+        Path jdkDir = tempDir.resolve("jdk.app");
+        Path home = jdkDir.resolve("Contents").resolve("Home");
+        Files.createDirectories(home.resolve("bin"));
+        assertEquals(home, fetcher.resolveJdkHome(jdkDir));
     }
 
     @Test

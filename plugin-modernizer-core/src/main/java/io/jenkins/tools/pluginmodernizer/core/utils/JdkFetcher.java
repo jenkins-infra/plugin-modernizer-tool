@@ -27,6 +27,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,21 +54,43 @@ public class JdkFetcher {
      * @throws InterruptedException If the operation is interrupted.
      */
     public Path getJdkPath(int jdkVersion) throws IOException, InterruptedException {
-        Path jdkPath = getJdkDirectoryPath(jdkVersion);
-        if (Files.notExists(jdkPath)) {
-            downloadAndSetupJdk(jdkVersion, jdkPath);
-        }
-
-        if (!Files.isDirectory(jdkPath.resolve("bin"))) {
-            Path macOsHome = jdkPath.resolve("Contents").resolve("Home");
-            if (Files.isDirectory(macOsHome)) {
-                jdkPath = macOsHome;
+        Path cachePath = getJdkDirectoryPath(jdkVersion);
+        Path jdkHome = resolveJdkHome(cachePath);
+        if (jdkHome == null) {
+            if (Files.exists(cachePath)) {
+                LOG.warn("Removing unusable JDK cache at {}", cachePath);
+                FileUtils.deleteDirectory(cachePath.toFile());
             }
+            downloadAndSetupJdk(jdkVersion, cachePath);
+            jdkHome = resolveJdkHome(cachePath);
+        }
+        if (jdkHome == null) {
+            throw new IOException("JDK " + jdkVersion + " is not usable after download and extraction at " + cachePath);
         }
 
-        LOG.info("Resolved JDK Path for version {}: {}", jdkVersion, jdkPath);
+        LOG.info("Resolved JDK Path for version {}: {}", jdkVersion, jdkHome);
 
-        return jdkPath;
+        return jdkHome;
+    }
+
+    /**
+     * Resolves the JDK home directory within an extraction or cache directory.
+     *
+     * @param jdkDirectory The JDK cache or extraction directory
+     * @return The JDK home, or null if no {@code bin} directory was found
+     */
+    Path resolveJdkHome(Path jdkDirectory) throws IOException {
+        if (!Files.isDirectory(jdkDirectory)) {
+            return null;
+        }
+        if (Files.isDirectory(jdkDirectory.resolve("bin"))) {
+            return jdkDirectory;
+        }
+        Path macOsHome = jdkDirectory.resolve("Contents").resolve("Home");
+        if (Files.isDirectory(macOsHome.resolve("bin"))) {
+            return macOsHome;
+        }
+        return null;
     }
 
     /**
@@ -93,6 +116,10 @@ public class JdkFetcher {
             extractTarGz(downloadedFile, extractionDir);
             LOG.info("Setting executable permissions for files in bin directory");
             setJavaBinariesPermissions(extractionDir);
+        }
+        if (resolveJdkHome(extractionDir) == null) {
+            FileUtils.deleteDirectory(extractionDir.toFile());
+            throw new IOException("JDK archive extraction did not produce a bin directory under " + extractionDir);
         }
         LOG.info("Extraction successful");
     }
