@@ -114,7 +114,7 @@ public class MavenInvokerTest {
 
         assertThat(Settings.FETCH_METADATA_RECIPE.isSkipVerification()).isFalse();
         assertThat(capturedRewriteGoal()).endsWith(":run");
-        assertThat(capturedRewriteArgs()).contains(Settings.MAVEN_JAVADOC_SKIP);
+        assertThat(capturedRewriteArgs()).contains("-Dmaven.javadoc.skip=true");
     }
 
     @Test
