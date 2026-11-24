@@ -742,7 +742,8 @@ public class Plugin {
                 "Verifying plugin {} with JDK {}... Please be patient",
                 name,
                 this.getJDK().getMajor());
-        maven.invokeGoal(this, "verify", "-Dmaven.javadoc.skip=true");
+        maven.invokeGoal(
+                this, "verify", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true", "-Dmaven.javadoc.skip=true");
         LOG.info("Done");
     }
 
