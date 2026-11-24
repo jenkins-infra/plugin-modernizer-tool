@@ -48,6 +48,8 @@ public class Settings {
 
     public static final String MAVEN_REWRITE_PLUGIN_VERSION;
 
+    public static final String MAVEN_JAVADOC_SKIP = "-Dmaven.javadoc.skip=true";
+
     public static final String GITHUB_TOKEN;
 
     public static final Path SSH_PRIVATE_KEY;

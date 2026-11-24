@@ -152,6 +152,7 @@ public class MavenInvoker {
         goals.add("-Denforcer.skip=true");
         goals.add("-Dhpi.validate.skip=true");
         goals.add("-Dmaven.antrun.skip=true");
+        goals.add(Settings.MAVEN_JAVADOC_SKIP);
         goals.add("-Dmaven.repo.local=%s".formatted(config.getMavenLocalRepo()));
         String activeRecipe = recipe.getName();
         if (ADD_CODE_OWNER_RECIPE.equals(recipe.getName())) {
