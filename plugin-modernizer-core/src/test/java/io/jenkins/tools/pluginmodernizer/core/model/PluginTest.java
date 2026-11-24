@@ -141,7 +141,7 @@ public class PluginTest {
                         "compile",
                         "-Dhpi.validate.skip=true",
                         "-Dmaven.antrun.skip=true",
-                        Settings.MAVEN_JAVADOC_SKIP);
+                        "-Dmaven.javadoc.skip=true");
         verifyNoMoreInteractions(mavenInvoker);
     }
 
@@ -163,7 +163,7 @@ public class PluginTest {
         doReturn(false).when(config).isFetchMetadataOnly();
         plugin.withJDK(JDK.JAVA_21);
         plugin.verify(mavenInvoker);
-        verify(mavenInvoker).invokeGoal(plugin, "verify", Settings.MAVEN_JAVADOC_SKIP);
+        verify(mavenInvoker).invokeGoal(plugin, "verify", "-Dmaven.javadoc.skip=true");
         verifyNoMoreInteractions(mavenInvoker);
     }
 
