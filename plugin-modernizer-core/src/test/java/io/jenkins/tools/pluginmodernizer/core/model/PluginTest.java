@@ -135,7 +135,13 @@ public class PluginTest {
         doReturn(false).when(config).isFetchMetadataOnly();
         plugin.withJDK(JDK.JAVA_21);
         plugin.compile(mavenInvoker);
-        verify(mavenInvoker).invokeGoal(plugin, "compile", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true");
+        verify(mavenInvoker)
+                .invokeGoal(
+                        plugin,
+                        "compile",
+                        "-Dhpi.validate.skip=true",
+                        "-Dmaven.antrun.skip=true",
+                        Settings.MAVEN_JAVADOC_SKIP);
         verifyNoMoreInteractions(mavenInvoker);
     }
 
@@ -157,7 +163,7 @@ public class PluginTest {
         doReturn(false).when(config).isFetchMetadataOnly();
         plugin.withJDK(JDK.JAVA_21);
         plugin.verify(mavenInvoker);
-        verify(mavenInvoker).invokeGoal(plugin, "verify");
+        verify(mavenInvoker).invokeGoal(plugin, "verify", Settings.MAVEN_JAVADOC_SKIP);
         verifyNoMoreInteractions(mavenInvoker);
     }
 

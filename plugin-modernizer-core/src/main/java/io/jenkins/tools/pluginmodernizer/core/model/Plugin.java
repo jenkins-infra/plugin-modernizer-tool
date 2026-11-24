@@ -699,7 +699,8 @@ public class Plugin {
                 "Compiling plugin {} with JDK {} ... Please be patient",
                 name,
                 this.getJDK().getMajor());
-        maven.invokeGoal(this, "compile", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true");
+        maven.invokeGoal(
+                this, "compile", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true", Settings.MAVEN_JAVADOC_SKIP);
         if (!hasErrors()) {
             LOG.info("Done");
         }
@@ -721,7 +722,8 @@ public class Plugin {
                 "-Pquick-build",
                 "-Denforcer.skip=true",
                 "-Dhpi.validate.skip=true",
-                "-Dmaven.antrun.skip=true");
+                "-Dmaven.antrun.skip=true",
+                Settings.MAVEN_JAVADOC_SKIP);
         if (!hasErrors()) {
             LOG.info("Done");
         }
@@ -740,7 +742,7 @@ public class Plugin {
                 "Verifying plugin {} with JDK {}... Please be patient",
                 name,
                 this.getJDK().getMajor());
-        maven.invokeGoal(this, "verify");
+        maven.invokeGoal(this, "verify", Settings.MAVEN_JAVADOC_SKIP);
         LOG.info("Done");
     }
 
