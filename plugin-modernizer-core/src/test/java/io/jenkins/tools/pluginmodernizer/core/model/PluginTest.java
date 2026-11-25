@@ -169,6 +169,25 @@ public class PluginTest {
                         "verify",
                         "-Dhpi.validate.skip=true",
                         "-Dmaven.antrun.skip=true",
+                        "-Dmaven.javadoc.skip=true",
+                        "-Dspotbugs.skip=true");
+        verifyNoMoreInteractions(mavenInvoker);
+    }
+
+    @Test
+    public void testVerifyQuickBuildDoesNotSkipSpotbugs() {
+        Plugin plugin = Plugin.build("example");
+        plugin.withConfig(config);
+        plugin.verifyQuickBuild(mavenInvoker, JDK.JAVA_21);
+        verify(mavenInvoker)
+                .invokeGoal(
+                        plugin,
+                        "verify",
+                        "-DskipTests",
+                        "-Pquick-build",
+                        "-Denforcer.skip=true",
+                        "-Dhpi.validate.skip=true",
+                        "-Dmaven.antrun.skip=true",
                         "-Dmaven.javadoc.skip=true");
         verifyNoMoreInteractions(mavenInvoker);
     }
