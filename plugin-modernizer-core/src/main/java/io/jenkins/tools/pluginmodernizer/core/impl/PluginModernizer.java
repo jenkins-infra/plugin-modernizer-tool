@@ -15,6 +15,8 @@ import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -590,23 +592,7 @@ public class PluginModernizer {
      */
     private JDK verifyPlugin(Plugin plugin) {
         PluginMetadata metadata = plugin.getMetadata();
-
-        // Determine the JDK
-        JDK jdk;
-        if (metadata.getJdks() == null || metadata.getJdks().isEmpty()) {
-            jdk = JDK.JAVA_25;
-            LOG.info(
-                    "No JDKs found in metadata for plugin {}. Using same JDK as rewrite for verification",
-                    plugin.getName());
-        } else {
-            jdk = JDK.min(metadata.getJdks(), metadata.getJenkinsVersion());
-            LOG.info("Using minimum JDK {} from metadata for plugin {}", jdk.getMajor(), plugin.getName());
-        }
-        // If the plugin was modernized we should find next JDK compatible
-        // For example a Java 8 plugin was modernized to Java 11
-        while (JDK.hasNext(jdk) && !jdk.supported(metadata.getJenkinsVersion())) {
-            jdk = jdk.next();
-        }
+        JDK jdk = resolveVerificationJdk(plugin, metadata);
 
         // Build it
         plugin.withJDK(jdk);
@@ -618,6 +604,54 @@ public class PluginModernizer {
         }
 
         return jdk;
+    }
+
+    JDK resolveVerificationJdk(Plugin plugin, PluginMetadata metadata) {
+        JDK jdk;
+        if (metadata.getJdks() == null || metadata.getJdks().isEmpty()) {
+            jdk = JDK.JAVA_25;
+            LOG.info(
+                    "No JDKs found in metadata for plugin {}. Using same JDK as rewrite for verification",
+                    plugin.getName());
+        } else {
+            jdk = JDK.min(metadata.getJdks(), metadata.getJenkinsVersion());
+            LOG.info("Using minimum JDK {} from metadata for plugin {}", jdk.getMajor(), plugin.getName());
+        }
+        while (JDK.hasNext(jdk) && !jdk.supported(metadata.getJenkinsVersion())) {
+            jdk = jdk.next();
+        }
+
+        JDK pomJdk = jdkFromPom(plugin);
+        if (pomJdk != null && pomJdk.compareMajor(jdk) > 0) {
+            LOG.info(
+                    "Using Java {} from pom for plugin {} verification (metadata minimum was {})",
+                    pomJdk.getMajor(),
+                    plugin.getName(),
+                    jdk.getMajor());
+            jdk = pomJdk;
+            while (JDK.hasNext(jdk) && !jdk.supported(metadata.getJenkinsVersion())) {
+                jdk = jdk.next();
+            }
+        }
+        return jdk;
+    }
+
+    private JDK jdkFromPom(Plugin plugin) {
+        Path repository = plugin.getLocalRepository();
+        if (repository == null) {
+            return null;
+        }
+        Path pom = repository.resolve("pom.xml");
+        if (!Files.isRegularFile(pom)) {
+            return null;
+        }
+        try {
+            Integer major = new StaticPomParser(pom.toString()).getPluginJavaMajor();
+            return major == null ? null : JDK.get(major);
+        } catch (ModernizerException e) {
+            LOG.debug("Could not read Java version from pom for plugin {}: {}", plugin.getName(), e.getMessage());
+            return null;
+        }
     }
 
     /**

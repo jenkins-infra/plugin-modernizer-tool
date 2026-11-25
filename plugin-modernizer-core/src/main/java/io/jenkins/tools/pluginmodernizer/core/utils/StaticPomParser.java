@@ -137,4 +137,53 @@ public class StaticPomParser {
             return null;
         }
     }
+
+    /**
+     * Return the plugin Java major version from pom properties when present.
+     * @return the Java major version or null if not found or not parseable
+     */
+    public Integer getPluginJavaMajor() {
+        String[] properties = {
+            "/project/properties/java.version",
+            "/project/properties/java.level",
+            "/project/properties/maven.compiler.release",
+            "/project/properties/maven.compiler.source",
+            "/project/properties/maven.compiler.target"
+        };
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        for (String property : properties) {
+            try {
+                String value = xPath.compile(property).evaluate(document);
+                if (value == null || value.isBlank()) {
+                    continue;
+                }
+                Integer major = parseJavaMajor(value.trim());
+                if (major != null) {
+                    return major;
+                }
+            } catch (Exception e) {
+                LOG.debug("Error reading {}: {}", property, e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private static Integer parseJavaMajor(String value) {
+        if (value.startsWith("1.")) {
+            try {
+                return Integer.parseInt(value.substring(2));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        try {
+            String digits = value.split("[^0-9]", 2)[0];
+            if (digits.isEmpty()) {
+                return null;
+            }
+            return Integer.parseInt(digits);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

@@ -62,6 +62,30 @@ class PluginModernizerTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    @Test
+    void resolveVerificationJdkPrefersPomJavaOverStaleMetadataMinimum(@org.junit.jupiter.api.io.TempDir Path tempDir)
+            throws Exception {
+        Path pom = tempDir.resolve("pom.xml");
+        java.nio.file.Files.writeString(pom, """
+                <project>
+                  <properties>
+                    <java.version>21</java.version>
+                    <jenkins.version>2.479.3</jenkins.version>
+                  </properties>
+                </project>
+                """);
+
+        Plugin plugin = mock(Plugin.class);
+        when(plugin.getLocalRepository()).thenReturn(tempDir);
+        when(plugin.getName()).thenReturn("example");
+
+        PluginMetadata metadata = new PluginMetadata();
+        metadata.setJdks(Set.of(JDK.JAVA_8));
+        metadata.setJenkinsVersion("2.479.3");
+
+        assertEquals(JDK.JAVA_21, pluginModernizer.resolveVerificationJdk(plugin, metadata));
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void testVerificationSuccessMessage(boolean verificationFails) throws Exception {
