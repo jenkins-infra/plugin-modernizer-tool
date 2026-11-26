@@ -15,12 +15,14 @@ import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.utils.PluginService;
 import io.jenkins.tools.pluginmodernizer.core.utils.StaticPomParser;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressFBWarnings(value = "CRLF_INJECTION_LOGS", justification = "safe because versions from pom.xml")
+@Singleton
 public class PluginModernizer {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginModernizer.class);

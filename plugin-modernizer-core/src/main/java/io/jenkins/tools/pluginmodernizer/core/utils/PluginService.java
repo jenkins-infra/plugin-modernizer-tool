@@ -12,6 +12,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginInstallationStatsData;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
 import io.jenkins.tools.pluginmodernizer.core.model.UpdateCenterData;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Utility class for Jenkins plugin center
  */
+@Singleton
 public class PluginService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PluginService.class);

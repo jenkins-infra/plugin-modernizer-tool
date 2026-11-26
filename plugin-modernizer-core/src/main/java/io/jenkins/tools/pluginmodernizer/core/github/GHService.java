@@ -9,6 +9,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.utils.JWTUtils;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +72,7 @@ import org.kohsuke.github.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class GHService {
 
     private static final Logger LOG = LoggerFactory.getLogger(GHService.class);
