@@ -13,6 +13,8 @@
   <properties>
     <!-- Jar name consumed by JReleaser, Homebrew, Nix, Docker and integration tests -->
     <quarkus.package.output-name>jenkins-plugin-modernizer-${project.version}</quarkus.package.output-name>
+    <native.executable.suffix />
+    <quarkiverse-github-api.version>2.0.0.CR7</quarkiverse-github-api.version>
   </properties>
 
   <dependencyManagement>
@@ -64,8 +66,21 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>io.quarkiverse.githubapi</groupId>
+      <artifactId>quarkus-github-api</artifactId>
+      <version>${quarkiverse-github-api.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-jaxp</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-picocli</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-security</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
@@ -78,6 +93,11 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.graalvm.sdk</groupId>
+      <artifactId>nativeimage</artifactId>
+      <scope>provided</scope>
     </dependency>
     <!-- Test dependencies -->
     <dependency>
@@ -277,6 +297,54 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>native-windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <native.executable.suffix>.exe</native.executable.suffix>
+      </properties>
+    </profile>
+    <profile>
+      <id>native</id>
+      <activation>
+        <property>
+          <name>native</name>
+        </property>
+      </activation>
+      <properties>
+        <quarkus.native.enabled>true</quarkus.native.enabled>
+        <quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
+      </properties>
+      <build>
+        <plugins>
+          <!-- CommandLineITCase runs the uber-jar -->
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>integration-tests</id>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+                <configuration>
+                  <includes combine.self="override">
+                    <include>**/MainITCase.java</include>
+                  </includes>
+                  <systemPropertyVariables>
+                    <native.image.path>${project.build.directory}/${quarkus.package.output-name}${native.executable.suffix}</native.image.path>
+                  </systemPropertyVariables>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>enable-jacoco</id>
       <build>

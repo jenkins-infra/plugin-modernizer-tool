@@ -14,14 +14,13 @@ public class MainTest {
     @Test
     @Launch("--version")
     public void testVersion(LaunchResult result) {
-        assertTrue(
-                result.getOutput().matches("(?s)plugin modernizer [a-zA-Z0-9.\\-_]+ \\(.*\\).*"), result.getOutput());
+        assertTrue(hasLine(result, "plugin modernizer [a-zA-Z0-9.\\-_]+ \\(.*\\)"), result.getOutput());
     }
 
     @Test
     @Launch({"version", "--short"})
     public void testShortVersion(LaunchResult result) {
-        assertTrue(result.getOutput().strip().matches("[a-zA-Z0-9.\\-_]+"), result.getOutput());
+        assertTrue(hasLine(result, "[0-9][a-zA-Z0-9.\\-_]*"), result.getOutput());
     }
 
     @Test
@@ -36,5 +35,10 @@ public class MainTest {
     public void testUnknownCommand(LaunchResult result) {
         assertEquals(2, result.exitCode());
         assertTrue(result.getErrorOutput().contains("Unmatched argument"), result.getErrorOutput());
+    }
+
+    // The integration test launcher enables Quarkus startup logs, so other lines can surround the CLI output
+    private static boolean hasLine(LaunchResult result, String regex) {
+        return result.getOutputStream().stream().anyMatch(line -> line.strip().matches(regex));
     }
 }

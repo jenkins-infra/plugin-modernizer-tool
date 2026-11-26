@@ -36,6 +36,28 @@ distributions:
     artifacts:
       - path: "{{distributionName}}-cli/target/jenkins-plugin-modernizer-{{projectVersion}}.jar"
 
+  # Built by .github/workflows/native.yml. Homebrew and Scoop keep installing the jar for now
+  plugin-modernizer-native:
+    active: RELEASE
+    type: FLAT_BINARY
+    stereotype: CLI
+    executable:
+      name: jenkins-plugin-modernizer
+      windowsExtension: exe
+    artifacts:
+      - path: "native/jenkins-plugin-modernizer-{{projectVersion}}-linux-x86_64"
+        platform: linux-x86_64
+      - path: "native/jenkins-plugin-modernizer-{{projectVersion}}-linux-aarch_64"
+        platform: linux-aarch_64
+      - path: "native/jenkins-plugin-modernizer-{{projectVersion}}-osx-aarch_64"
+        platform: osx-aarch_64
+      - path: "native/jenkins-plugin-modernizer-{{projectVersion}}-windows-x86_64.exe"
+        platform: windows-x86_64
+    brew:
+      active: NEVER
+    scoop:
+      active: NEVER
+
 packagers:
   brew:
     active: RELEASE

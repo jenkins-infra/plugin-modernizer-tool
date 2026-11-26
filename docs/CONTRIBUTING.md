@@ -40,6 +40,19 @@ mvn install -DskipTests -pl plugin-modernizer-core -am
 mvn quarkus:dev -pl plugin-modernizer-cli -Dquarkus.args="dry-run --plugins badge --recipe AddCodeOwner"
 ```
 
+To build the native executable (`plugin-modernizer-cli/target/jenkins-plugin-modernizer-999999-SNAPSHOT`),
+use the `native` profile. It needs [Mandrel](https://github.com/graalvm/mandrel) for Java 25 with `GRAALVM_HOME` set,
+or Docker to build inside the Quarkus builder image:
+
+```shell
+mvn install -DskipTests -pl plugin-modernizer-core -am
+mvn verify -Dnative -pl plugin-modernizer-cli -Dquarkus.native.container-build=true
+```
+
+The native build needs to know what is used through reflection, resources and class initialization at run time.
+This configuration lives in the `nativeimage` package of the CLI, in `application.properties` (`quarkus.native.*`)
+and in `META-INF/native-image`. `MainITCase` runs against the native executable when built with `-Dnative`.
+
 Logging uses Quarkus logging (JBoss Log Manager). The console output is configured in
 `plugin-modernizer-cli/src/main/resources/application.properties`, per plugin log files are written by `PluginLogHandler`.
 
