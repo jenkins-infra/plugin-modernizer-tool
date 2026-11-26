@@ -44,6 +44,7 @@ jobs:
 
       # Same Mandrel as the Quarkus native builder image
       - name: Set up Mandrel
+        if: runner.os != 'macOS'
         uses: graalvm/setup-graalvm@60e76998d25690099182b796e99b8804da582d90 # v1.6.10
         with:
           distribution: mandrel
@@ -51,6 +52,25 @@ jobs:
           java-version: "25"
           cache: maven
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # setup-graalvm looks for a "darwin" Mandrel archive, Mandrel publishes it as "macos"
+      - name: Set up Mandrel (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        env:
+          MANDREL_VERSION: 25.0.5.1-Final
+          # https://github.com/graalvm/mandrel/releases/download/mandrel-25.0.5.1-Final/mandrel-java25-macos-aarch64-25.0.5.1-Final.tar.gz.sha256
+          CHECKSUM: c6f227e5c08f9726abb6b2e6856e2105139bb3fb002582e70f49e18a67255213
+        run: |
+          archive="mandrel-java25-macos-aarch64-${MANDREL_VERSION}.tar.gz"
+          curl -fsSL -o "$RUNNER_TEMP/$archive" "https://github.com/graalvm/mandrel/releases/download/mandrel-${MANDREL_VERSION}/${archive}"
+          echo "$CHECKSUM  $RUNNER_TEMP/$archive" | shasum -a 256 --check
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP"
+          home="$RUNNER_TEMP/mandrel-java25-${MANDREL_VERSION}/Contents/Home"
+          echo "JAVA_HOME=$home" >> "$GITHUB_ENV"
+          echo "GRAALVM_HOME=$home" >> "$GITHUB_ENV"
+          echo "$home/bin" >> "$GITHUB_PATH"
+          "$home/bin/native-image" --version
 
       - name: Build and test the native executable
         shell: bash

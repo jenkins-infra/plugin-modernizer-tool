@@ -16,6 +16,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.PlatformConfig;
 import io.jenkins.tools.pluginmodernizer.core.model.Plugin;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginInstallationStatsData;
 import io.jenkins.tools.pluginmodernizer.core.model.PluginVersionData;
+import io.jenkins.tools.pluginmodernizer.core.model.PreconditionError;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.model.RepoType;
 import io.jenkins.tools.pluginmodernizer.core.model.UpdateCenterData;
@@ -43,6 +44,7 @@ import org.openrewrite.table.SourcesFileResults;
             PluginInstallationStatsData.class,
             PluginMetadata.class,
             PluginVersionData.class,
+            PreconditionError.class,
             Recipe.class,
             RepoType.class,
             SourcesFileResults.Row.class,

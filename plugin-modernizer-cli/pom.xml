@@ -332,6 +332,8 @@
                   <goal>verify</goal>
                 </goals>
                 <configuration>
+                  <!-- The slow-tests profile selects the CI group on Unix CI runners -->
+                  <groups>Always</groups>
                   <includes combine.self="override">
                     <include>**/MainITCase.java</include>
                   </includes>
