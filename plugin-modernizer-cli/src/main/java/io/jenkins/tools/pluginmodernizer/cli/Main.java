@@ -7,12 +7,15 @@ import io.jenkins.tools.pluginmodernizer.cli.command.ListRecipesCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.RunCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.ValidateCommand;
 import io.jenkins.tools.pluginmodernizer.cli.command.VersionCommand;
-import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
-import org.slf4j.bridge.SLF4JBridgeHandler;
+import io.quarkus.picocli.runtime.annotations.TopCommand;
 import picocli.AutoComplete;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
+/**
+ * Top level command of the CLI. Quarkus generates the main method and runs it through Picocli.
+ * @see CommandLineFactory for the command line customization
+ */
+@TopCommand
 @Command(
         name = "plugin-modernizer",
         description = "Plugin Modernizer. A tool to modernize Jenkins plugins",
@@ -29,24 +32,4 @@ import picocli.CommandLine.Command;
         },
         mixinStandardHelpOptions = true,
         versionProvider = VersionProvider.class)
-public class Main {
-
-    static {
-        System.setProperty("slf4j.internal.verbosity", "WARN");
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-    }
-
-    /**
-     * Main method
-     * @param args Command line arguments
-     */
-    public static void main(final String[] args) {
-        GlobalOptions globalOptions = GlobalOptions.getInstance();
-        CommandLine cmd = new CommandLine(new Main());
-        cmd.addMixin("globalOptions", globalOptions);
-        CommandLine gen = cmd.getSubcommands().get("generate-completion");
-        gen.getCommandSpec().usageMessage().hidden(true);
-        System.exit(cmd.execute(args));
-    }
-}
+public class Main {}

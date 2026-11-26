@@ -52,7 +52,7 @@
     <micrometer.version>1.18.0</micrometer.version>
     <slf4j.version>2.0.20</slf4j.version>
     <logback.version>1.6.8</logback.version>
-    <picocli.version>4.7.6</picocli.version>
+    <quarkus.platform.version>4.0.1</quarkus.platform.version>
     <common.io.version>2.22.0</common.io.version>
     <common.lang3.version>3.22.0</common.lang3.version>
     <common.text.version>1.15.0</common.text.version>
@@ -148,16 +148,6 @@
         <version>${jte.version}</version>
       </dependency>
       <dependency>
-        <groupId>info.picocli</groupId>
-        <artifactId>picocli</artifactId>
-        <version>${picocli.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>info.picocli</groupId>
-        <artifactId>picocli-codegen</artifactId>
-        <version>${picocli.version}</version>
-      </dependency>
-      <dependency>
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt-api</artifactId>
         <version>${jwt.version}</version>
@@ -211,6 +201,11 @@
         <groupId>org.apache.maven.shared</groupId>
         <artifactId>maven-invoker</artifactId>
         <version>${maven.invoker.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.sshd</groupId>
+        <artifactId>sshd-common</artifactId>
+        <version>${apache.mina.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.sshd</groupId>
@@ -287,16 +282,6 @@
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm-util</artifactId>
         <version>${asm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jcl-over-slf4j</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>jul-to-slf4j</artifactId>
-        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -408,6 +393,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>${maven.failsafe.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>io.quarkus.platform</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.platform.version}</version>
         </plugin>
         <plugin>
           <groupId>org.openrewrite.maven</groupId>

@@ -1,18 +1,22 @@
 package io.jenkins.tools.pluginmodernizer.cli;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
 import io.jenkins.tools.pluginmodernizer.cli.options.GlobalOptions;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.logging.LogRecord;
+import org.jboss.logmanager.ExtLogRecord;
+import org.jboss.logmanager.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 public class PluginLoggerDiscriminatorTest {
+
+    private static final Path CACHE_PATH =
+            Path.of(System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli");
+
+    private final PluginLoggerDiscriminator discriminator = new PluginLoggerDiscriminator();
 
     @BeforeEach
     void resetSingleton() {
@@ -20,55 +24,27 @@ public class PluginLoggerDiscriminatorTest {
     }
 
     @Test
-    void testGetDiscriminatingValueNoMarkers() {
-        PluginLoggerDiscriminator discriminator = new PluginLoggerDiscriminator();
-        ILoggingEvent event = mock(ILoggingEvent.class);
-        when(event.getMarkerList()).thenReturn(null);
-
-        String expectedValue = Path.of(
-                        System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli", "modernizer.logs")
-                .toString();
-        String discriminatingValue = discriminator.getDiscriminatingValue(event);
-        assertEquals(expectedValue, discriminatingValue);
+    void testGetDiscriminatingValueJulRecord() {
+        LogRecord record = new LogRecord(Level.INFO, "message");
+        assertEquals(CACHE_PATH.resolve("modernizer.logs").toString(), discriminator.getDiscriminatingValue(record));
     }
 
     @Test
-    void testGetDiscriminatingValueEmptyMarkers() {
-        PluginLoggerDiscriminator discriminator = new PluginLoggerDiscriminator();
-        ILoggingEvent event = mock(ILoggingEvent.class);
-        when(event.getMarkerList()).thenReturn(Collections.emptyList());
-
-        String expectedValue = Path.of(
-                        System.getProperty("user.home"), ".cache", "jenkins-plugin-modernizer-cli", "modernizer.logs")
-                .toString();
-        String discriminatingValue = discriminator.getDiscriminatingValue(event);
-        assertEquals(expectedValue, discriminatingValue);
+    void testGetDiscriminatingValueNoMarker() {
+        ExtLogRecord record = new ExtLogRecord(Level.INFO, "message", getClass().getName());
+        assertEquals(CACHE_PATH.resolve("modernizer.logs").toString(), discriminator.getDiscriminatingValue(record));
     }
 
     @Test
-    void testGetDiscriminatingValueWithMarkers() {
-        PluginLoggerDiscriminator discriminator = new PluginLoggerDiscriminator();
-        ILoggingEvent event = mock(ILoggingEvent.class);
-        Marker marker = mock(Marker.class);
-        when(marker.getName()).thenReturn("testMarker");
-        when(event.getMarkerList()).thenReturn(Collections.singletonList(marker));
-
-        String discriminatingValue = discriminator.getDiscriminatingValue(event);
-        String expectedValue = Path.of(
-                        System.getProperty("user.home"),
-                        ".cache",
-                        "jenkins-plugin-modernizer-cli",
-                        "testMarker",
-                        "logs",
-                        "invoker.logs")
-                .toString();
-        assertEquals(expectedValue, discriminatingValue);
-    }
-
-    @Test
-    void testGetKey() {
-        PluginLoggerDiscriminator discriminator = new PluginLoggerDiscriminator();
-        String key = discriminator.getKey();
-        assertEquals("filename", key);
+    void testGetDiscriminatingValueWithMarker() {
+        ExtLogRecord record = new ExtLogRecord(Level.INFO, "message", getClass().getName());
+        record.setMarker(MarkerFactory.getMarker("testMarker"));
+        assertEquals(
+                CACHE_PATH
+                        .resolve("testMarker")
+                        .resolve("logs")
+                        .resolve("invoker.logs")
+                        .toString(),
+                discriminator.getDiscriminatingValue(record));
     }
 }

@@ -1,63 +1,51 @@
 package io.jenkins.tools.pluginmodernizer.cli;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.spi.FilterReply;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
-import java.util.Collections;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import org.jboss.logmanager.ExtLogRecord;
+import org.jboss.logmanager.Level;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 public class ConsoleLogFilterTest {
 
-    @Mock
-    private ILoggingEvent mockEvent;
+    private final ConsoleLogFilter consoleLogFilter = new ConsoleLogFilter();
 
-    @Mock
-    private Marker mockMarker;
-
-    private ConsoleLogFilter consoleLogFilter;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        consoleLogFilter = new ConsoleLogFilter();
-    }
-
-    @Test
-    public void testDecideEventBelowThreshold() {
-        when(mockEvent.getLevel()).thenReturn(ch.qos.logback.classic.Level.INFO);
-        FilterReply reply = consoleLogFilter.decide(mockEvent);
-        assertEquals(FilterReply.NEUTRAL, reply);
-    }
-
-    @Test
-    public void testDecideMarkerListEmptyDebugEnabled() {
-        when(mockEvent.getMarkerList()).thenReturn(null);
-        Config.setDebug(true);
-        FilterReply reply = consoleLogFilter.decide(mockEvent);
-        assertEquals(FilterReply.NEUTRAL, reply);
-    }
-
-    @Test
-    public void testDecideMarkerListEmptyDebugDisabled() {
-        when(mockEvent.getMarkerList()).thenReturn(null);
+    @AfterEach
+    public void tearDown() {
         Config.setDebug(false);
-        FilterReply reply = consoleLogFilter.decide(mockEvent);
-        assertEquals(FilterReply.NEUTRAL, reply);
     }
 
     @Test
-    public void testDecideMarkerListNotEmpty() {
-        List<Marker> markers = Collections.singletonList(mockMarker);
-        when(mockEvent.getMarkerList()).thenReturn(markers);
-        FilterReply reply = consoleLogFilter.decide(mockEvent);
-        assertEquals(FilterReply.DENY, reply);
+    public void testInfoIsLoggable() {
+        Config.setDebug(false);
+        assertTrue(consoleLogFilter.isLoggable(record(Level.INFO)));
+    }
+
+    @Test
+    public void testDebugIsNotLoggableByDefault() {
+        Config.setDebug(false);
+        assertFalse(consoleLogFilter.isLoggable(record(Level.DEBUG)));
+    }
+
+    @Test
+    public void testDebugIsLoggableWhenDebugEnabled() {
+        Config.setDebug(true);
+        assertTrue(consoleLogFilter.isLoggable(record(Level.DEBUG)));
+        assertFalse(consoleLogFilter.isLoggable(record(Level.TRACE)));
+    }
+
+    @Test
+    public void testRecordWithMarkerIsNotLoggable() {
+        ExtLogRecord record = record(Level.ERROR);
+        record.setMarker(MarkerFactory.getMarker("my-plugin"));
+        assertFalse(consoleLogFilter.isLoggable(record));
+    }
+
+    private static ExtLogRecord record(java.util.logging.Level level) {
+        return new ExtLogRecord(level, "message", ConsoleLogFilterTest.class.getName());
     }
 }
