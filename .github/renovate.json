@@ -19,9 +19,32 @@
       "depNameTemplate": "jenkins-infra/plugin-modernizer-tool",
       "datasourceTemplate": "github-release-attachments",
       "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Temurin JDK in .sdkmanrc",
+      "managerFilePatterns": ["/(^|/)\\.sdkmanrc$/"],
+      "matchStrings": ["java=(?<currentValue>\\d+(?:\\.\\d+)*)-tem"],
+      "depNameTemplate": "java-jdk",
+      "datasourceTemplate": "java-version",
+      "extractVersionTemplate": "^(?<version>\\d+(?:\\.\\d+)*)"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Maven in .sdkmanrc",
+      "managerFilePatterns": ["/(^|/)\\.sdkmanrc$/"],
+      "matchStrings": ["maven=(?<currentValue>\\S+)"],
+      "depNameTemplate": "org.apache.maven:apache-maven",
+      "datasourceTemplate": "maven"
     }
   ],
   "packageRules": [
+    {
+      "description": "Only Java LTS releases (every 4th major after 21)",
+      "matchDatasources": ["java-version"],
+      "matchPackageNames": ["java-jdk"],
+      "allowedVersions": "/^(25|29|33|37)\\./"
+    },
     {
       "matchPackageNames": "io.jenkins.plugin-modernizer:plugin-modernizer-pom",
       "enabled": false
