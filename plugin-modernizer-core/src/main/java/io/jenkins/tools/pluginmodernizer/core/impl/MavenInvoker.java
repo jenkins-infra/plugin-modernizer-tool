@@ -10,6 +10,7 @@ import io.jenkins.tools.pluginmodernizer.core.model.PluginProcessingException;
 import io.jenkins.tools.pluginmodernizer.core.model.Recipe;
 import io.jenkins.tools.pluginmodernizer.core.utils.JdkFetcher;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import org.openrewrite.table.SourcesFileResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class MavenInvoker {
 
     /**

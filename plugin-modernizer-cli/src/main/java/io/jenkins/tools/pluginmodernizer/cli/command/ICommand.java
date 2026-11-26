@@ -1,9 +1,8 @@
 package io.jenkins.tools.pluginmodernizer.cli.command;
 
-import com.google.inject.Guice;
-import io.jenkins.tools.pluginmodernizer.core.GuiceModule;
 import io.jenkins.tools.pluginmodernizer.core.config.Config;
 import io.jenkins.tools.pluginmodernizer.core.impl.PluginModernizer;
+import jakarta.enterprise.inject.spi.CDI;
 import java.util.concurrent.Callable;
 
 /**
@@ -21,10 +20,10 @@ public interface ICommand extends Callable<Integer> {
     }
 
     /**
-     * Get the modernizer instance
-     * @return the modernizer instance
+     * Looked up lazily because the configuration depends on the parsed options of the executed command
+     * @see io.jenkins.tools.pluginmodernizer.cli.ModernizerProducers
      */
     default PluginModernizer getModernizer() {
-        return Guice.createInjector(new GuiceModule(setup(Config.builder()))).getInstance(PluginModernizer.class);
+        return CDI.current().select(PluginModernizer.class).get();
     }
 }
