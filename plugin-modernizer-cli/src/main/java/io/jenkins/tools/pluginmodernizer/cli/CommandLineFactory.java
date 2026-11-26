@@ -6,9 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import picocli.CommandLine;
 
-/**
- * Customize the Picocli command line created by Quarkus
- */
 @ApplicationScoped
 public class CommandLineFactory {
 

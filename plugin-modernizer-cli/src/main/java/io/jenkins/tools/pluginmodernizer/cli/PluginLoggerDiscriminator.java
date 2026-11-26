@@ -9,16 +9,10 @@ import org.jboss.logmanager.ExtLogRecord;
 import org.slf4j.Marker;
 
 /**
- * Compute the log file of a log record. Records with a plugin marker go to the plugin log file,
- * other records go to the global modernizer log file.
+ * Records with a plugin marker go to the plugin log file, others to the global modernizer log file.
  */
 public class PluginLoggerDiscriminator {
 
-    /**
-     * Get the log file for the given record
-     * @param record the log record
-     * @return the log file
-     */
     public String getDiscriminatingValue(LogRecord record) {
         Object marker = record instanceof ExtLogRecord extLogRecord ? extLogRecord.getMarker() : null;
 
