@@ -36,7 +36,7 @@ distributions:
     artifacts:
       - path: "{{distributionName}}-cli/target/jenkins-plugin-modernizer-{{projectVersion}}.jar"
 
-  # Built by .github/workflows/native.yml. Homebrew and Scoop keep installing the jar for now
+  # Executables built by .github/workflows/native.yml
   plugin-modernizer-native:
     active: RELEASE
     type: FLAT_BINARY

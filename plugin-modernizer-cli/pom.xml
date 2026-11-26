@@ -42,7 +42,7 @@
       <!-- We never use OpenRewrite or it's dependencies when running recipes
       directly from CLI because of maven invoker which will download the core module and it's dependencies -->
       <exclusions>
-        <!-- Wiring is done by Quarkus ArC -->
+        <!-- Core services are wired by Quarkus ArC -->
         <exclusion>
           <groupId>com.google.inject</groupId>
           <artifactId>guice</artifactId>
