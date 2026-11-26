@@ -1,0 +1,24 @@
+{
+  "reflection": [
+    {
+      "type": {
+        "proxy": ["org.apache.sshd.common.channel.ChannelListener"]
+      }
+    },
+    {
+      "type": {
+        "proxy": ["org.apache.sshd.common.forward.PortForwardingEventListener"]
+      }
+    },
+    {
+      "type": {
+        "proxy": ["org.apache.sshd.common.session.SessionListener"]
+      }
+    }
+  ],
+  "bundles": [
+    {
+      "name": "org.eclipse.jgit.internal.JGitText"
+    }
+  ]
+}

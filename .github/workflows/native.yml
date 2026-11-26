@@ -1,0 +1,79 @@
+name: Native CLI
+
+on:
+  pull_request:
+    paths:
+      - "pom.xml"
+      - "plugin-modernizer-cli/**"
+      - "plugin-modernizer-core/**"
+      - ".github/workflows/native.yml"
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Version of the executables, defaults to the development version
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: native (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: ubuntu-24.04-arm
+            platform: linux-aarch_64
+          - os: macos-latest
+            platform: osx-aarch_64
+          - os: windows-latest
+            platform: windows-x86_64
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ inputs.version || '999999-SNAPSHOT' }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: false
+
+      # Same Mandrel as the Quarkus native builder image
+      - name: Set up Mandrel
+        uses: graalvm/setup-graalvm@60e76998d25690099182b796e99b8804da582d90 # v1.6.10
+        with:
+          distribution: mandrel
+          version: mandrel-25.0.5.1-Final
+          java-version: "25"
+          cache: maven
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and test the native executable
+        shell: bash
+        run: >-
+          mvn -B -ntp verify -Dnative
+          -pl plugin-modernizer-cli -am
+          -Dchangelist="$VERSION"
+          -Dtest=None -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          ext=""
+          if [ "$RUNNER_OS" = "Windows" ]; then ext=".exe"; fi
+          mkdir -p dist
+          cp "plugin-modernizer-cli/target/jenkins-plugin-modernizer-${VERSION}${ext}" "dist/jenkins-plugin-modernizer-${VERSION}-${{ matrix.platform }}${ext}"
+          cli="dist/jenkins-plugin-modernizer-${VERSION}-${{ matrix.platform }}${ext}"
+          "$cli" --version
+          "$cli" recipes
+
+      - name: Upload executable
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: native-${{ matrix.platform }}
+          path: dist/
+          retention-days: 7
