@@ -8,9 +8,6 @@ import io.quarkus.test.junit.main.LaunchResult;
 import io.quarkus.test.junit.main.QuarkusMainTest;
 import org.junit.jupiter.api.Test;
 
-/**
- * Launch the Quarkus application in-process
- */
 @QuarkusMainTest
 public class MainTest {
 

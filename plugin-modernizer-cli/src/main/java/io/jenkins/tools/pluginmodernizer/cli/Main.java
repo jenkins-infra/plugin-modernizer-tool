@@ -12,8 +12,7 @@ import picocli.AutoComplete;
 import picocli.CommandLine.Command;
 
 /**
- * Top level command of the CLI. Quarkus generates the main method and runs it through Picocli.
- * @see CommandLineFactory for the command line customization
+ * Quarkus generates the main method and runs this command.
  */
 @TopCommand
 @Command(

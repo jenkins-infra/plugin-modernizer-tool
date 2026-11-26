@@ -16,10 +16,6 @@ import org.jboss.logmanager.ExtLogRecord;
 import org.jboss.logmanager.formatters.PatternFormatter;
 import org.jboss.logmanager.handlers.PeriodicSizeRotatingFileHandler;
 
-/**
- * Root log handler writing each record to its own rotating file (global or per plugin)
- * @see PluginLoggerDiscriminator
- */
 @Singleton
 public class PluginLogHandler extends ExtHandler {
 
@@ -59,11 +55,7 @@ public class PluginLogHandler extends ExtHandler {
         handlers.clear();
     }
 
-    /**
-     * Create the rotating file handler for the given file
-     * @param file the log file
-     * @return the handler or null if the file cannot be opened (records for that file are dropped)
-     */
+    // Null when the file cannot be opened so its records are dropped instead of failing the caller
     private PeriodicSizeRotatingFileHandler createHandler(String file) {
         try {
             Path path = Path.of(file);

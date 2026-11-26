@@ -11,7 +11,7 @@
   <name>Plugin Modernizer CLI Interface</name>
 
   <properties>
-    <!-- Keep the historical name of the CLI jar (used by JReleaser, Docker and integration tests) -->
+    <!-- Jar name consumed by JReleaser, Homebrew, Nix, Docker and integration tests -->
     <quarkus.package.output-name>jenkins-plugin-modernizer-${project.version}</quarkus.package.output-name>
   </properties>
 
@@ -149,7 +149,7 @@
           </execution>
         </executions>
       </plugin>
-      <!-- The Quarkus BOM is the source of truth for the CLI runtime and its own artifacts are not upper-bound aligned -->
+      <!-- Artifacts within the Quarkus BOM are not upper-bound aligned with each other -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -258,7 +258,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- Build the CLI as a Quarkus uber-jar (see quarkus.package.* in application.properties) -->
       <plugin>
         <groupId>io.quarkus.platform</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>

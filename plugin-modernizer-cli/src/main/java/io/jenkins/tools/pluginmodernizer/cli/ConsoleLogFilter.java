@@ -8,8 +8,7 @@ import java.util.logging.LogRecord;
 import org.jboss.logmanager.ExtLogRecord;
 
 /**
- * Console filter. Logs for a specific plugin (with a marker) only go to the plugin log file.
- * Only INFO and above are displayed, unless debug is enabled
+ * Records with a plugin marker only go to the plugin log file. Records below INFO are shown only with --debug.
  */
 @LoggingFilter(name = "console-filter")
 public class ConsoleLogFilter implements Filter {
