@@ -35,6 +35,10 @@ distributions:
     stereotype: CLI
     artifacts:
       - path: "{{distributionName}}-cli/target/jenkins-plugin-modernizer-{{projectVersion}}.jar"
+    brew:
+      active: NEVER
+    scoop:
+      active: NEVER
 
   # Executables built by .github/workflows/native.yml
   plugin-modernizer-native:
@@ -54,14 +58,13 @@ distributions:
       - path: "native/jenkins-plugin-modernizer-{{projectVersion}}-windows-x86_64.exe"
         platform: windows-x86_64
     brew:
-      active: NEVER
+      active: RELEASE
     scoop:
-      active: NEVER
+      active: RELEASE
 
 packagers:
   brew:
     active: RELEASE
-    templateDirectory: homebrew
     formulaName: PluginModernizer
     repository:
       active: RELEASE
