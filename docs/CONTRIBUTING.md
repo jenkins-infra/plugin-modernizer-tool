@@ -30,6 +30,19 @@ This will run all the tests of the application. You can speed up the process by 
  mvn package -DskipTests
 ```
 
+The CLI is a [Quarkus](https://quarkus.io/) command mode application built with the
+[Picocli extension](https://quarkus.io/guides/picocli). The JAR is a Quarkus uber-jar, run it with `java -jar`.
+
+To iterate on the CLI, use Quarkus dev mode (live reload) and pass the CLI arguments with `quarkus.args`:
+
+```shell
+mvn install -DskipTests -pl plugin-modernizer-core -am
+mvn quarkus:dev -pl plugin-modernizer-cli -Dquarkus.args="dry-run --plugins badge --recipe AddCodeOwner"
+```
+
+Logging uses Quarkus logging (JBoss Log Manager). The console output is configured in
+`plugin-modernizer-cli/src/main/resources/application.properties`, per plugin log files are written by `PluginLogHandler`.
+
 ## Run on Gitpod
 
 This project includes a .gitpod.yml configuration file, which allows to easily work on it using Gitpod.

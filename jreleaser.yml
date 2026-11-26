@@ -34,6 +34,7 @@ distributions:
     type: SINGLE_JAR
     stereotype: CLI
     artifacts:
+      # Quarkus uber-jar (quarkus.package.jar.type=uber-jar), runnable with java -jar
       - path: "{{distributionName}}-cli/target/jenkins-plugin-modernizer-{{projectVersion}}.jar"
 
 packagers:
