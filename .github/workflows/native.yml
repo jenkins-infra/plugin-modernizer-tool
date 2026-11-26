@@ -1,12 +1,6 @@
 name: Native CLI
 
 on:
-  pull_request:
-    paths:
-      - "pom.xml"
-      - "plugin-modernizer-cli/**"
-      - "plugin-modernizer-core/**"
-      - ".github/workflows/native.yml"
   workflow_dispatch:
   workflow_call:
     inputs:
