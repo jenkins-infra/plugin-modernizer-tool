@@ -11,7 +11,7 @@
         "x86_64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      version = "3377.v9ff1a_7e58158";
+      version = "3383.v81b_0d8a_b_9450";
       package = system:
         let
           pkgs = import nixpkgs { inherit system; };
@@ -22,7 +22,7 @@
               then "sha256:79cf1bb8816b34cf36b65cf221098bc75f55861909ea8e9881b2aa956eebb2e7"
               else if pkgs.stdenv.hostPlatform.isAarch64
               then "sha256:f585e30c63a815b965c8a03a41eac18c888481b26e05a04541bc7808cde8dab6"
-              else "sha256:ced3cfe7d0c13fc3f694c26d711ae16426c2755daa94a454221ce46c1b584507";
+              else "sha256:09bd0decaea952c2611f87ea2d91e8b566e20a8001aa780e0619df4d12030092";
           };
         in
         pkgs.stdenvNoCC.mkDerivation {
