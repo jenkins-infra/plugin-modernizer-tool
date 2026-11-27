@@ -55,6 +55,8 @@ targets:
       instruction:
         keyword: "FROM" # The Dockerfile instruction to target.
         matcher: "maven" # The specific Docker image to update with the new Maven version.
+    transformers:
+      - addsuffix: "-eclipse-temurin-25" # Keep the JDK kind suffix when Maven versions are updated.
     scmid: default # Use the default SCM configuration.
 
 # Define the actions to take after the targets are updated.
