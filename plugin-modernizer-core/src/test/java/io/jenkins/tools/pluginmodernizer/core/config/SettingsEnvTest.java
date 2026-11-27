@@ -22,6 +22,7 @@ public class SettingsEnvTest {
     @SystemStub
     private EnvironmentVariables envVars = new EnvironmentVariables()
             .set("CACHE_DIR", ".my-cache")
+            .set("PLUGIN_MODERNIZER_GH_TOKEN", "plugin-modernizer-token")
             .remove("GH_TOKEN")
             .set("GITHUB_TOKEN", "fake-token")
             .set("GH_OWNER", "fake-org")
@@ -48,7 +49,7 @@ public class SettingsEnvTest {
 
     @Test
     public void testGithubToken() throws Exception {
-        assertEquals("fake-token", Settings.GITHUB_TOKEN);
+        assertEquals("plugin-modernizer-token", Settings.GITHUB_TOKEN);
     }
 
     @Test
