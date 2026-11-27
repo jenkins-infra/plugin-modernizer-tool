@@ -112,7 +112,8 @@ public class GHService {
                 && (config.getGithubAppId() == null
                         || config.getGithubAppSourceInstallationId() == null
                         || config.getGithubAppTargetInstallationId() == null)) {
-            throw new ModernizerException("Please set PLUGIN_MODERNIZER_GH_TOKEN, GH_TOKEN, GITHUB_TOKEN or configure GitHub app authentication.");
+            throw new ModernizerException(
+                    "Please set PLUGIN_MODERNIZER_GH_TOKEN, GH_TOKEN, GITHUB_TOKEN or configure GitHub app authentication.");
         }
         if (getGithubOwner() == null) {
             throw new ModernizerException(
@@ -140,7 +141,8 @@ public class GHService {
                 && (config.getGithubAppId() == null
                         || config.getGithubAppSourceInstallationId() == null
                         || config.getGithubAppTargetInstallationId() == null)) {
-            throw new ModernizerException("Please set PLUGIN_MODERNIZER_GH_TOKEN, GH_TOKEN, GITHUB_TOKEN or configure GitHub app authentication.");
+            throw new ModernizerException(
+                    "Please set PLUGIN_MODERNIZER_GH_TOKEN, GH_TOKEN, GITHUB_TOKEN or configure GitHub app authentication.");
         }
         try {
 
