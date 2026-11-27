@@ -42,7 +42,7 @@ jobs:
         uses: graalvm/setup-graalvm@60e76998d25690099182b796e99b8804da582d90 # v1.6.10
         with:
           distribution: mandrel
-          version: mandrel-25.0.5.1-Final
+          version: 25.2.4
           java-version: "25"
           cache: maven
           github-token: ${{ secrets.GITHUB_TOKEN }}
