@@ -4,18 +4,44 @@
     "github>jenkinsci/renovate-config"
   ],
   "nix": {
-    "enabled": true,
-    "lockFileMaintenance": {
-      "enabled": true
-    }
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true
   },
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Update Plugin Modernizer release version",
       "managerFilePatterns": ["/^flake\\.nix$/"],
-      "matchStrings": [
-        "version = \"(?<currentValue>[^\"]+)\";[\\s\\S]*?hash = \"(?<currentDigest>[a-f0-9]{64})\";"
-      ],
+      "matchStrings": ["version = \"(?<currentValue>[^\"]+)\";"],
+      "depNameTemplate": "jenkins-infra/plugin-modernizer-tool",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "description": "Update macOS ARM64 release hash",
+      "managerFilePatterns": ["/^flake\\.nix$/"],
+      "matchStrings": ["version = \"(?<currentValue>[^\"]+)\";[\\s\\S]*?isDarwin\\n              then \"sha256:(?<currentDigest>[a-f0-9]{64})\"\\n              else if pkgs\\.stdenv\\.hostPlatform\\.isAarch64"],
+      "depNameTemplate": "jenkins-infra/plugin-modernizer-tool",
+      "datasourceTemplate": "github-release-attachments",
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Linux ARM64 release hash",
+      "managerFilePatterns": ["/^flake\\.nix$/"],
+      "matchStrings": ["version = \"(?<currentValue>[^\"]+)\";[\\s\\S]*?isAarch64\\n              then \"sha256:(?<currentDigest>[a-f0-9]{64})\"\\n              else \""],
+      "depNameTemplate": "jenkins-infra/plugin-modernizer-tool",
+      "datasourceTemplate": "github-release-attachments",
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "description": "Update Linux x86_64 release hash",
+      "managerFilePatterns": ["/^flake\\.nix$/"],
+      "matchStrings": ["version = \"(?<currentValue>[^\"]+)\";[\\s\\S]*?else \"sha256:(?<currentDigest>[a-f0-9]{64})\""],
       "depNameTemplate": "jenkins-infra/plugin-modernizer-tool",
       "datasourceTemplate": "github-release-attachments",
       "versioningTemplate": "loose"
@@ -39,6 +65,10 @@
     }
   ],
   "packageRules": [
+    {
+      "matchPackageNames": ["jenkins-infra/plugin-modernizer-tool"],
+      "groupName": "Plugin Modernizer"
+    },
     {
       "description": "Only Java LTS releases (every 4th major after 21)",
       "matchDatasources": ["java-version"],

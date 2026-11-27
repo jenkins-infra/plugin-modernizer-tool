@@ -19,10 +19,10 @@
           src = pkgs.fetchurl {
             url = "https://github.com/jenkins-infra/plugin-modernizer-tool/releases/download/${version}/jenkins-plugin-modernizer-${version}-${platform}";
             hash = if pkgs.stdenv.hostPlatform.isDarwin
-              then "sha256-ec8buIFrNM82tlzyIQmLx19VhhkJ6o6YgbKqlW7rsuc="
+              then "sha256:79cf1bb8816b34cf36b65cf221098bc75f55861909ea8e9881b2aa956eebb2e7"
               else if pkgs.stdenv.hostPlatform.isAarch64
-              then "sha256-9YXjDGOoFbllyKA6QerBjIiEgbJuBaBFQbx4CM3o2rY="
-              else "sha256-ztPP59DBP8P2lMJtcRrhZCbCdV2qlKRUIhzkbBtYRQc=";
+              then "sha256:f585e30c63a815b965c8a03a41eac18c888481b26e05a04541bc7808cde8dab6"
+              else "sha256:ced3cfe7d0c13fc3f694c26d711ae16426c2755daa94a454221ce46c1b584507";
           };
         in
         pkgs.stdenvNoCC.mkDerivation {
