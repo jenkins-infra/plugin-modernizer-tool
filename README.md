@@ -141,7 +141,7 @@ nix run github:jenkins-infra/plugin-modernizer-tool -- --help
 
 ### Setup
 This tool requires forking repositories from GitHub, so you need to set the GitHub token and GitHub owner as environment variables.
-Use either `GH_TOKEN` or `GITHUB_TOKEN` for the GitHub token, and either `GH_OWNER` or `GITHUB_OWNER` for the GitHub owner.
+Use `PLUGIN_MODERNIZER_GH_TOKEN`, `GH_TOKEN`, or `GITHUB_TOKEN` for the GitHub token, and either `GH_OWNER` or `GITHUB_OWNER` for the GitHub owner.
 Alternatively, you can pass the GitHub owner through the CLI option `-g` or `--github-owner`.
 
 Generate a GitHub Token:
@@ -313,7 +313,7 @@ plugin-modernizer run --plugin-file path/to/plugin-file --recipe AddPluginsBom
 ```
 
 ## Configuring Environmental Variables
-- `GITHUB_TOKEN` or `GH_TOKEN`: (required) GitHub Token.
+- `PLUGIN_MODERNIZER_GH_TOKEN`, `GITHUB_TOKEN`, or `GH_TOKEN`: (required) GitHub Token.
 
 - `GITHUB_OWNER` or `GH_OWNER`: (required) GitHub username or organization name. Can also be passed through the CLI option `-g` or `--github-owner`.
 

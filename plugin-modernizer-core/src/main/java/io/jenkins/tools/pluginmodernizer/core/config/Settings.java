@@ -336,7 +336,10 @@ public class Settings {
     }
 
     private static String getGithubToken() {
-        String token = System.getenv("GH_TOKEN");
+        String token = System.getenv("PLUGIN_MODERNIZER_GH_TOKEN");
+        if (token == null) {
+            token = System.getenv("GH_TOKEN");
+        }
         if (token == null) {
             token = System.getenv("GITHUB_TOKEN");
         }
