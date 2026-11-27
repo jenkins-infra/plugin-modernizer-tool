@@ -46,7 +46,7 @@ distributions:
     type: FLAT_BINARY
     stereotype: CLI
     executable:
-      # Command name shared with the previous jar-based formula, Scoop manifest and Nix flake
+      # Same command as the Nix flake and README
       name: plugin-modernizer
       windowsExtension: exe
     artifacts:
@@ -61,12 +61,11 @@ distributions:
     brew:
       active: RELEASE
       formulaName: plugin-modernizer
-      # Single-platform formulas only fit archives: flat binaries get an empty bin.install source
       multiPlatform: true
     scoop:
       active: RELEASE
       packageName: plugin-modernizer
-      # Renames the download so "bin" matches the versioned release asset
+      # Renames the versioned download to match "bin"
       templateDirectory: scoop
 
 packagers:
