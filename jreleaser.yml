@@ -46,7 +46,8 @@ distributions:
     type: FLAT_BINARY
     stereotype: CLI
     executable:
-      name: jenkins-plugin-modernizer
+      # Command name shared with the previous jar-based formula, Scoop manifest and Nix flake
+      name: plugin-modernizer
       windowsExtension: exe
     artifacts:
       - path: "native/jenkins-plugin-modernizer-{{projectVersion}}-linux-x86_64"
@@ -60,9 +61,13 @@ distributions:
     brew:
       active: RELEASE
       formulaName: plugin-modernizer
+      # Single-platform formulas only fit archives: flat binaries get an empty bin.install source
+      multiPlatform: true
     scoop:
       active: RELEASE
       packageName: plugin-modernizer
+      # Renames the download so "bin" matches the versioned release asset
+      templateDirectory: scoop
 
 packagers:
   brew:
@@ -87,7 +92,7 @@ packagers:
     repository:
       active: RELEASE
       owner: jenkins-infra
-      name: scoop-bucket  
+      name: scoop-bucket
       tagName: '{{distributionName}}-{{projectVersion}}'
     commitAuthor:
       name: jenkins-infra
