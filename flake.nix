@@ -8,32 +8,29 @@
       systems = [
         "aarch64-darwin"
         "aarch64-linux"
-        "x86_64-darwin"
         "x86_64-linux"
       ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
-      version = "3305.v25f9a_966fc07";
+      version = "3377.v9ff1a_7e58158";
       package = system:
         let
           pkgs = import nixpkgs { inherit system; };
+          platform = if pkgs.stdenv.hostPlatform.isDarwin then "osx-aarch_64" else if pkgs.stdenv.hostPlatform.isAarch64 then "linux-aarch_64" else "linux-x86_64";
           src = pkgs.fetchurl {
-            url = "https://github.com/jenkins-infra/plugin-modernizer-tool/releases/download/${version}/jenkins-plugin-modernizer-${version}.jar";
-            hash = builtins.convertHash {
-              hash = "d0c8d6099b824e650d209dc8b6ed5fbb7f474518545f9456e9513a95a998af60";
-              hashAlgo = "sha256";
-              toHashFormat = "sri";
-            };
+            url = "https://github.com/jenkins-infra/plugin-modernizer-tool/releases/download/${version}/jenkins-plugin-modernizer-${version}-${platform}";
+            hash = if pkgs.stdenv.hostPlatform.isDarwin
+              then "sha256-ec8buIFrNM82tlzyIQmLx19VhhkJ6o6YgbKqlW7rsuc="
+              else if pkgs.stdenv.hostPlatform.isAarch64
+              then "sha256-9YXjDGOoFbllyKA6QerBjIiEgbJuBaBFQbx4CM3o2rY="
+              else "sha256-ztPP59DBP8P2lMJtcRrhZCbCdV2qlKRUIhzkbBtYRQc=";
           };
         in
         pkgs.stdenvNoCC.mkDerivation {
           pname = "plugin-modernizer";
           inherit version src;
           dontUnpack = true;
-          nativeBuildInputs = [ pkgs.makeWrapper ];
           installPhase = ''
-            install -Dm444 "$src" "$out/share/java/plugin-modernizer.jar"
-            makeWrapper "${pkgs.openjdk25_headless}/bin/java" "$out/bin/plugin-modernizer" \
-              --add-flags "-jar $out/share/java/plugin-modernizer.jar"
+            install -Dm755 "$src" "$out/bin/plugin-modernizer"
           '';
           meta = {
             description = "CLI tool for modernizing Jenkins plugins";

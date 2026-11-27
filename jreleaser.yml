@@ -59,8 +59,10 @@ distributions:
         platform: windows-x86_64
     brew:
       active: RELEASE
+      formulaName: plugin-modernizer
     scoop:
       active: RELEASE
+      packageName: plugin-modernizer
 
 packagers:
   brew:
