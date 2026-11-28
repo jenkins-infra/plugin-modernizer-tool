@@ -25,4 +25,3 @@ Instead, Jenkins now uses the Repository Permission Updater (RPU) to manage perm
 - **Security:** Utilizes the RPU's controlled permission management, enhancing the security of artifact deployments.
 
 Removing the `developers` tag aligns with modern Jenkins infrastructure standards and prevents outdated or redundant developer information from being included in plugin metadata.
-
