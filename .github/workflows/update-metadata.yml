@@ -40,7 +40,7 @@ jobs:
           # Create new branch
           git checkout -b "$BRANCH_NAME"
 
-          git add --all ":!scripts" 
+          git add --all ":!scripts"
           git commit -m "Update PR statuses and branch info in metadata files" || exit 0
 
           # Push to branch (force needed if branch already exists)
@@ -52,5 +52,4 @@ jobs:
                        --head "$BRANCH_NAME" \
                        --base main || \
           gh pr edit "$BRANCH_NAME" --title "chore: update PR statuses and branch info" \
-                                    --body "Automated update of metadata files" 
-                     
+                                    --body "Automated update of metadata files"

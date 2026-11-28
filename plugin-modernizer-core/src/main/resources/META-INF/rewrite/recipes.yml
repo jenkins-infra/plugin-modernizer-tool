@@ -44,7 +44,7 @@ recipeList:
       overwriteExisting: false
       fileContents: |
         target
-        
+
         # mvn hpi:run
         work
 
@@ -53,7 +53,7 @@ recipeList:
         *.iws
         *.ipr
         .idea
-        
+
         # Eclipse project files
         .settings
         .classpath
@@ -81,12 +81,12 @@ recipeList:
           pull_request:
             types: [opened, synchronize, reopened]
           workflow_dispatch:
-        
+
         permissions:
           security-events: write
           contents: read
           actions: read
-        
+
         jobs:
           security-scan:
             uses: jenkins-infra/jenkins-security-scan/.github/workflows/jenkins-security-scan.yaml@v2
@@ -121,7 +121,7 @@ recipeList:
   - io.jenkins.tools.pluginmodernizer.core.recipes.AddProperty:
       key: ban-junit4-imports.skip
       value: false
-  - io.jenkins.tools.pluginmodernizer.core.recipes.AnnotateWithJenkins  
+  - io.jenkins.tools.pluginmodernizer.core.recipes.AnnotateWithJenkins
   - org.openrewrite.java.testing.junit5.UpdateTestAnnotation
   - org.openrewrite.java.testing.junit5.UpdateBeforeAfterAnnotations
   - org.openrewrite.java.ChangeType:  #org.openrewrite.java.testing.junit5.IgnoreToDisabled

@@ -16,7 +16,7 @@ Using OpenRewrite Recipes for Plugin Modernization or Automation Plugin Build Me
 
 Plugin Modernizer is a generic CLI tool designed to automate the modernization of Jenkins plugins. It utilizes OpenRewrite recipes to apply transformations to the plugin, validating the applied transformations and creating pull requests with the results.
 
-The CLI tool is also used to collect metadata from Jenkins plugins modernization, such as the plugin's dependencies (including transitive) or JDKs used for building the plugin. Such metadata is pushed to a public [metadata repository](https://github.com/jenkins-infra/metadata-plugin-modernizer/) and planned to be integrated with existing Jenkins tooling such as 
+The CLI tool is also used to collect metadata from Jenkins plugins modernization, such as the plugin's dependencies (including transitive) or JDKs used for building the plugin. Such metadata is pushed to a public [metadata repository](https://github.com/jenkins-infra/metadata-plugin-modernizer/) and planned to be integrated with existing Jenkins tooling such as
 
 - [Jenkins Plugin Site](https://plugins.jenkins.io/)
 - [Jenkins statistics](https://stats.jenkins.io/)
@@ -158,7 +158,7 @@ Your classic token should have the following scopes:
 Set Environment Variables:
 
 Open your terminal and set the `GH_TOKEN` and `GH_OWNER` environment variables:
-    
+
 ```shell
 export GH_TOKEN=your_generated_token
 export GH_OWNER=your_github_username
@@ -224,7 +224,7 @@ source <(plugin-modernizer generate-completion)
 
 - `--debug`: (optional) Enables debug mode. Defaults to false.
 
-- `--allow-deprecated-plugins`: (optional) **Allow modernization of deprecated plugins.**  
+- `--allow-deprecated-plugins`: (optional) **Allow modernization of deprecated plugins.**
   _Use with caution: This flag enables modernization and metadata collection for plugins that are marked as deprecated. Intended for new maintainers or development environments only. By default, deprecated plugins are blocked from modernization for safety._
 
 - `--cache-path`: (optional) Custom path to the cache directory. Defaults to `${user.home}/.cache/jenkins-plugin-modernizer-cli`.
@@ -343,7 +343,7 @@ The above command creates pull requests in the respective remote repositories af
 ```shell
 plugin-modernizer run --plugins bmc-change-manager-imstm --recipe AddPluginsBom --allow-deprecated-plugins
 ```
-This command will allow modernization and metadata collection for the deprecated plugin `bmc-change-manager-imstm`.  
+This command will allow modernization and metadata collection for the deprecated plugin `bmc-change-manager-imstm`.
 **Warning:** Only use `--allow-deprecated-plugins` if you are a maintainer or have a valid reason to modernize a deprecated plugin.
 
 ### with dry-run
@@ -394,11 +394,11 @@ This command will run the Plugin Modernizer Tool inside the Docker container usi
 
 ## Running with GitPod
 
-You can try this tool directly in your browser if you have a GitPod account connected to GitHub.  
-If you already have the [GitPod extension](https://www.gitpod.io/docs/configure/user-settings/browser-extension) installed in your browser, you can open a workspace for this project by clicking the big green "Open" button next to "Code."  
-If you haven’t installed the GitPod extension yet, you can access a workspace by clicking [this link](https://gitpod.io/?autostart=true#https://github.com/jenkins-infra/plugin-modernizer-tool).  
+You can try this tool directly in your browser if you have a GitPod account connected to GitHub.
+If you already have the [GitPod extension](https://www.gitpod.io/docs/configure/user-settings/browser-extension) installed in your browser, you can open a workspace for this project by clicking the big green "Open" button next to "Code."
+If you haven’t installed the GitPod extension yet, you can access a workspace by clicking [this link](https://gitpod.io/?autostart=true#https://github.com/jenkins-infra/plugin-modernizer-tool).
 
-Please note that the Plugin Modernizer Tool has not yet been installed in the workspace as a standalone binary. However, you can still use it by running the following command:  
+Please note that the Plugin Modernizer Tool has not yet been installed in the workspace as a standalone binary. However, you can still use it by running the following command:
 `java -jar plugin-modernizer-cli/target/jenkins-plugin-modernizer-999999-SNAPSHOT.jar [...]`
 
 ## Reproducibility
@@ -444,7 +444,7 @@ conditions: []
 recipeList: []
 ```
 
-Then run openrewrite with the following command 
+Then run openrewrite with the following command
 
 ```shell
 mvn org.openrewrite.maven:rewrite-maven-plugin:dryRun -Drewrite.recipeArtifactCoordinates=org.openrewrite.recipe:rewrite-jenkins:0.19.0 -Drewrite.activeRecipes=io.jenkins.tools.pluginmodernizer.Debug

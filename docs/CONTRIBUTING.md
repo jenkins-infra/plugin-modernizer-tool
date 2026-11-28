@@ -59,7 +59,7 @@ Logging uses Quarkus logging (JBoss Log Manager). The console output is configur
 ## Run on Gitpod
 
 This project includes a .gitpod.yml configuration file, which allows to easily work on it using Gitpod.
-When the Gitpod workspace starts, the required versions of Java and Maven are automatically installed. 
+When the Gitpod workspace starts, the required versions of Java and Maven are automatically installed.
 Also, the following command is executed at startup:
 
 ```shell

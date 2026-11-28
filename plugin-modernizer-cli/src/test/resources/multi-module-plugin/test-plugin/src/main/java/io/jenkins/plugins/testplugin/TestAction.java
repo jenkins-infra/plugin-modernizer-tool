@@ -5,7 +5,7 @@ import hudson.model.RootAction;
 
 @Extension
 public class TestAction implements RootAction {
-    
+
     @Override
     public String getIconFileName() {
         return "document.png";
