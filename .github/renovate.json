@@ -76,6 +76,10 @@
       "allowedVersions": "/^(25|29|33|37)\\./"
     },
     {
+      "matchPackageNames": ["net.bytebuddy:byte-buddy", "net.bytebuddy:byte-buddy-agent"],
+      "allowedVersions": "/^(?!.*-jdk5(?:$|[-.])).*$"
+    },
+    {
       "matchPackageNames": "io.jenkins.plugin-modernizer:plugin-modernizer-pom",
       "enabled": false
     },
