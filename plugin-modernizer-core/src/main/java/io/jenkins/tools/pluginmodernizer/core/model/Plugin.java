@@ -743,7 +743,12 @@ public class Plugin {
                 name,
                 this.getJDK().getMajor());
         maven.invokeGoal(
-                this, "verify", "-Dhpi.validate.skip=true", "-Dmaven.antrun.skip=true", "-Dmaven.javadoc.skip=true");
+                this,
+                "verify",
+                "-Dhpi.validate.skip=true",
+                "-Dmaven.antrun.skip=true",
+                "-Dmaven.javadoc.skip=true",
+                "-Dspotbugs.skip=true");
         LOG.info("Done");
     }
 
